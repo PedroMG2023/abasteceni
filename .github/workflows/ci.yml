@@ -160,3 +160,25 @@ jobs:
       - uses: github/codeql-action/analyze@v4
         with:
           category: /language:javascript-typescript
+
+  sistema:
+    name: 10 · Pruebas de sistema con Playwright sobre Docker Compose
+    needs: instalacion
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx -w @abasteceni/e2e playwright install --with-deps chromium
+      - name: Entorno de sistema y escenarios de Playwright (CT-REG-01, CT-SEG-04, SYS-NFN-09, IT-01)
+        run: bash herramientas/sistema/ejecutar.sh
+      - name: Reporte de pruebas de sistema
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reportes-sistema
+          path: docs/evidencia/pruebas/sistema/
+          if-no-files-found: warn

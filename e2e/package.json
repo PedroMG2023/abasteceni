@@ -1,0 +1,16 @@
+{
+  "name": "@abasteceni/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Pruebas de sistema con Playwright sobre el entorno de docker-compose.sistema.yml (CLAUDE.md §6)",
+  "scripts": {
+    "test": "playwright test",
+    "tipos": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
+    "pg": "8.23.1"
+  }
+}

@@ -9,19 +9,23 @@
   "workspaces": [
     "packages/contrato",
     "apps/backend",
-    "apps/web"
+    "apps/web",
+    "e2e"
   ],
   "scripts": {
     "lint": "eslint .",
     "tipos": "npm run tipos --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "test": "npm run test -w @abasteceni/backend && npm run test -w @abasteceni/web",
     "test:bd": "npm run test:bd -w @abasteceni/backend",
     "dependencias": "depcruise apps packages --config .dependency-cruiser.cjs",
     "dependencias:negativa": "node herramientas/dependencias/prueba-negativa.mjs",
     "contrato:lint": "redocly lint packages/contrato/openapi.yaml",
     "contrato:tipos": "npm run generar -w @abasteceni/contrato",
     "modelos": "bash herramientas/modelos/verificar-modelos.sh",
-    "grafo": "depcruise apps/backend/src --config .dependency-cruiser.cjs --output-type dot | dot -Tpng -Gdpi=150 -o docs/evidencia/dependencias.png"
+    "grafo": "depcruise apps/backend/src --config .dependency-cruiser.cjs --output-type dot | dot -Tpng -Gdpi=150 -o docs/evidencia/dependencias.png",
+    "test:sistema": "npm run test -w @abasteceni/e2e",
+    "sistema:levantar": "docker compose -f docker-compose.sistema.yml up -d --build",
+    "sistema:bajar": "docker compose -f docker-compose.sistema.yml down -v"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
