@@ -1,0 +1,55 @@
+// Informe 5, figura 1 — Topología física de la sede de Chinandega.
+// Modelo físico: equipos concretos, puertos, medios y etiquetas (ANSI/TIA-606).
+// Generar: dot -Tpng -Gdpi=200 red-01-sede-fisica.dot -o red-01-sede-fisica.png
+digraph sede {
+  graph [fontname="DejaVu Sans", rankdir=TB, splines=polyline, nodesep=0.5, ranksep=0.55, pad=0.3,
+         label="Sede AbasteceNi, S.A. — Ciudad de Chinandega (planta única, 7 personas)", labelloc=t, fontsize=16];
+  node  [fontname="DejaVu Sans", fontsize=10, shape=box, style="rounded,filled", fillcolor="#F4F4F4", color="#444444"];
+  edge  [fontname="DejaVu Sans", fontsize=8.5, color="#444444", arrowhead=none];
+
+  isp1 [label="Proveedor 1\nfibra óptica FTTH", shape=ellipse, fillcolor="#FFFFFF", style="dashed,filled"];
+  isp2 [label="Proveedor 2\nred celular 4G LTE", shape=ellipse, fillcolor="#FFFFFF", style="dashed,filled"];
+
+  subgraph cluster_rack {
+    label="Gabinete de pared 9U · R01 (cuarto técnico, alimentado por UPS)"; fontsize=11; style="rounded"; color="#777777";
+    ont  [label="ONT del proveedor\n(fibra GPON)"];
+    lte  [label="Router 4G LTE de respaldo\n(SIM de segundo operador)"];
+    rtr  [label=<<b>Router / cortafuegos</b><br/>MikroTik hEX S (RB760iGS)<br/><font point-size="8.5">ether1 WAN1 · ether2 WAN2 · ether3 troncal 802.1Q</font>>];
+    sw   [label=<<b>Switch gestionable capa 2</b><br/>MikroTik CRS326-24G-2S+RM<br/><font point-size="8.5">24 × GbE · 2 × SFP+ · VLAN 802.1Q</font>>];
+    pp   [label="Patch panel Cat6 24 puertos\nSC-R01-PP01 (1U)"];
+    ups  [label="UPS 1500 VA\nAPC Back-UPS Pro BR1500G", fillcolor="#FFF8E6"];
+  }
+
+  subgraph cluster_puestos {
+    label="Área de trabajo · cableado horizontal Cat6 U/UTP LSZH (≤ 90 m por enlace permanente)"; fontsize=11; style="rounded"; color="#777777";
+    dg   [label="Puesto P01\nDirección General\n(VLAN 10)"];
+    t1   [label="Puesto P02\nU-01 Tecnología\n(VLAN 20)"];
+    t2   [label="Puesto P03\nU-01 Tecnología\n(VLAN 20)"];
+    c1   [label="Puesto P04\nU-02 Confianza\n(VLAN 30)"];
+    c2   [label="Puesto P05\nU-02 Soporte\n(VLAN 30)"];
+    imp  [label="Impresora multifunción\nen red (VLAN 60)"];
+    ap   [label=<<b>Punto de acceso Wi-Fi 6</b><br/>MikroTik cAP ax (PoE)<br/><font point-size="8.5">SSID por VLAN 40 y 50</font>>];
+  }
+
+  movil [label="U-03 ejecutivos de campo\n(laptop y teléfono por Wi-Fi\nen la sede; 4G en ruta)", shape=box, style="rounded,dashed,filled", fillcolor="#FFFFFF"];
+  visitas [label="Comerciantes en\nafiliación presencial\n(Wi-Fi de visitas)", shape=box, style="rounded,dashed,filled", fillcolor="#FFFFFF"];
+
+  isp1 -> ont  [label=" acometida de fibra\n monomodo G.657"];
+  isp2 -> lte  [label=" radio 4G", style=dashed];
+  ont  -> rtr  [label=" Cat6 · ether1 (WAN1 principal)"];
+  lte  -> rtr  [label=" Cat6 · ether2 (WAN2, conmutación\n por comprobación de pasarela)"];
+  rtr  -> sw   [label=" Cat6 · ether3 ↔ puerto 1\n troncal 802.1Q (VLAN 10–99)"];
+  sw   -> pp   [label=" latiguillos Cat6 ≤ 1 m\n puertos 2–9"];
+  pp   -> dg   [label=" SC-R01-PP01-02"];
+  pp   -> t1   [label=" -03"];
+  pp   -> t2   [label=" -04"];
+  pp   -> c1   [label=" -05"];
+  pp   -> c2   [label=" -06"];
+  pp   -> imp  [label=" -07"];
+  pp   -> ap   [label=" -08 · inyector PoE"];
+  ap   -> movil [style=dotted, label=" 802.11ax"];
+  ap   -> visitas [style=dotted, label=" 802.11ax"];
+  ups  -> rtr  [style=dashed, color="#B07A00", label=" energía"];
+  ups  -> sw   [style=dashed, color="#B07A00"];
+  ups  -> ont  [style=dashed, color="#B07A00"];
+}

@@ -9,3 +9,4 @@ docs/evidencia/dependencias.png
 *.log
 .DS_Store
 ~$*.docx
+docs/red/*.png

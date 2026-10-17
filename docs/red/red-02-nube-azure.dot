@@ -1,0 +1,70 @@
+// Informe 5, figura 2 — Topología de red en la nube (Microsoft Azure).
+// Realiza el modelo de despliegue MD-05 (D5) y la vista V-04 (D3) sobre ADR-09.
+// Generar: dot -Tpng -Gdpi=200 red-02-nube-azure.dot -o red-02-nube-azure.png
+digraph nube {
+  graph [fontname="DejaVu Sans", rankdir=TB, compound=true, nodesep=0.45, ranksep=0.6, pad=0.3,
+         label="Topología de red en Microsoft Azure — región principal México Central", labelloc=t, fontsize=16];
+  node  [fontname="DejaVu Sans", fontsize=10, shape=box, style="rounded,filled", fillcolor="#F4F4F4", color="#444444"];
+  edge  [fontname="DejaVu Sans", fontsize=8.5, color="#444444"];
+
+  usuarios [label="Comerciantes\n(navegador móvil, 3G/4G)", shape=ellipse, fillcolor="#FFFFFF"];
+  oficina  [label="Sede Chinandega\n(red de la figura 1)", shape=ellipse, fillcolor="#FFFFFF"];
+  github   [label="GitHub Actions\n(despliegue por OIDC,\nsin secretos almacenados)", shape=ellipse, fillcolor="#FFFFFF"];
+
+  fd [label=<<b>Azure Front Door Standard</b><br/>balanceador global L7 · TLS 1.3<br/>WAF: límite 120 pet./min por IP (ADR-08)<br/>CDN de activos estáticos (≤ 2,5 MB)>, fillcolor="#EAF2FB"];
+
+  subgraph cluster_sub {
+    label="Suscripción AbasteceNi · grupo de recursos rg-abasteceni-prod"; fontsize=11; style="rounded"; color="#777777";
+
+    web [label="Azure Storage · sitio estático\ncliente web (React + Vite)"];
+    entra [label="Microsoft Entra ID\nMFA y RBAC (RO-04)"];
+    kv  [label="Azure Key Vault\nsecretos y claves"];
+    mon [label="Azure Monitor\nLog Analytics + Application Insights\npruebas de disponibilidad (SYS-NFN-13)"];
+    acs [label="Azure Communication Services\ncorreo saliente (canal de reserva)"];
+
+    subgraph cluster_vnet {
+      label="Red virtual vnet-abasteceni · 10.20.0.0/16"; fontsize=11; style="rounded,dashed"; color="#3A6EA5";
+
+      subgraph cluster_aca {
+        label="snet-aca · 10.20.0.0/23 · entorno de Azure Container Apps"; fontsize=10; style="rounded"; color="#999999";
+        api1 [label="abasteceni-api\nréplica 1 (sin estado)"];
+        apiN [label="abasteceni-api\nréplica N (escala por HTTP)", style="rounded,dashed,filled"];
+        wrk  [label="abasteceni-trabajador\n1 réplica · sin ingreso público\ninterruptor de circuito (ADR-02)"];
+      }
+      subgraph cluster_db {
+        label="snet-postgres · 10.20.2.0/28 (delegada)"; fontsize=10; style="rounded"; color="#999999";
+        pg  [label="PostgreSQL Flexible Server\nprimaria · AES-256 en reposo\nPITR 30 días (SYS-NFN-14)", shape=cylinder];
+        pgr [label="Réplica de lectura\n(ADR-03, desde IT-05)", shape=cylinder, style="dashed,filled"];
+      }
+      subgraph cluster_pe {
+        label="snet-privados · 10.20.3.0/27 · puntos de conexión privados"; fontsize=10; style="rounded"; color="#999999";
+        blob  [label="Azure Blob Storage\nregistros legales (privado)\nbitácora: 90 días caliente → 7 años archivo", shape=cylinder];
+        redis [label="Azure Cache for Redis\ncaché distribuida (desde IT-05)", style="rounded,dashed,filled"];
+      }
+    }
+  }
+
+  whatsapp [label="WhatsApp Business\nCloud API (Meta)", shape=ellipse, fillcolor="#FFFFFF"];
+  ghcr     [label="GitHub Container Registry\n(imágenes del contenedor)", shape=ellipse, fillcolor="#FFFFFF"];
+
+  usuarios -> fd [label=" HTTPS 443"];
+  oficina  -> fd [label=" HTTPS 443"];
+  oficina  -> entra [label=" portal con MFA", style=dashed];
+  fd -> web  [label=" /*"];
+  fd -> api1 [label=" /api/*"];
+  fd -> apiN [label=" /api/*"];
+  api1 -> pg  [label=" 5432 TLS"];
+  apiN -> pg;
+  api1 -> pgr [style=dashed, label=" solo lectura"];
+  pg  -> pgr  [label=" replicación"];
+  wrk -> pg   [label=" sondeo de\n la bandeja de salida"];
+  api1 -> blob;
+  api1 -> redis [style=dashed];
+  api1 -> kv  [style=dotted, label=" identidad\n administrada"];
+  wrk  -> whatsapp [label=" HTTPS 443\n notificación"];
+  wrk  -> acs [label=" correo de reserva"];
+  api1 -> mon [style=dotted];
+  github -> ghcr [label=" publica imagen"];
+  ghcr -> api1 [style=dashed, label=" extracción\n de imagen"];
+  github -> entra [style=dashed, label=" federación OIDC"];
+}
