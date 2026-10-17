@@ -150,7 +150,9 @@ async function escribir(doc, ruta) {
 function leerJUnit(ruta) {
   const xml = fs.readFileSync(ruta, 'utf8');
   const casos = [];
-  const decodificar = (t) => t.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&apos;/g, "'");
+  // Una sola pasada: «&amp;lt;» se decodifica como «&lt;» y no como «<».
+  const ENTIDADES = { quot: '"', amp: '&', lt: '<', gt: '>', apos: "'" };
+  const decodificar = (t) => t.replace(/&(quot|amp|lt|gt|apos);/g, (_, e) => ENTIDADES[e]);
   for (const suite of xml.matchAll(/<testsuite name="([^"]*)"([^>]*)>([\s\S]*?)<\/testsuite>/g)) {
     for (const caso of suite[3].matchAll(/<testcase ([^>]*?)\/?>(?:([\s\S]*?)<\/testcase>)?/g)) {
       const attr = (n) => decodificar((caso[1].match(new RegExp(`${n}="([^"]*)"`)) ?? [])[1] ?? '');
