@@ -113,7 +113,7 @@ const contenido = [
 
   h2('2.5 Control de cambios'),
   vinetas([
-    '**Protección de main** (ISO/IEC 27002 8.4 y 8.32): solicitud de integración obligatoria, prohibición de push directo y forzado (también para administradores) y los nueve trabajos de la CI como checks obligatorios en modo estricto, es decir, con la rama al día. La activó el titular del repositorio (DIS-11). El trabajo 10, añadido en IT-01, aún no figura entre los obligatorios.',
+    '**Protección de main** (ISO/IEC 27002 8.4 y 8.32): solicitud de integración obligatoria, prohibición de push directo y forzado (también para administradores) y los diez trabajos de la CI como checks obligatorios en modo estricto, es decir, con la rama al día. La activó el titular del repositorio (DIS-11); el trabajo 10, añadido en IT-01, pasó a ser obligatorio el 17 de octubre, tras la integración de la PR #5.',
     '**Revisión cruzada (DM-05):** ' + (REVISION_REGISTRADA
       ? 'consta en las solicitudes de integración con resultado favorable.'
       : 'las solicitudes #1 y #2 se fusionaron sin una revisión humana registrada en GitHub; solo consta el análisis automático de CodeQL. La segunda persona del equipo todavía no es colaboradora del repositorio, por lo que no puede aprobar en la plataforma. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad del proceso de configuración a la fecha.'),
