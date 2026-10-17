@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792228075166,
+      "tag": "0000_esquemas",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792228075793,
+      "tag": "0001_privilegios-esquemas",
+      "breakpoints": true
+    }
+  ]
+}
