@@ -122,3 +122,51 @@ En el sistema completo (Playwright sobre Docker Compose), el evento de un regist
 - Añadir el trabajo 10 a los checks obligatorios de la protección de `main`.
 - Etiqueta `it-01`: tras la revisión.
 
+## IT-02 — Afiliación y validación de cuentas comerciales (tramo A)
+
+**Objetivo (D4 §2.13).** Construir la afiliación y la validación de cuentas comerciales de extremo a extremo, incluida la bitácora inmutable (M1 · M2 · M9 en su núcleo de auditoría; PM-01).
+
+**Alcance construido (tramo A de DM-07).**
+
+| Requisito | Qué se construyó |
+|---|---|
+| SYS-FN-01 | Registro de la cuenta, ya construido en IT-01 |
+| SYS-FN-02 | Carga del registro legal en el mismo formulario (DIS-29): PDF o JPG de hasta 5 MB, tipo comprobado por contenido |
+| SYS-FN-03 | Aprobación y rechazo por el Administrador, con la transición en la máquina de estados de M1 y el asiento en la bitácora |
+| SYS-FN-04 | Inicio de sesión con los cuatro roles y panel por rol (DIS-31) |
+| SYS-FN-35 | Núcleo de auditoría: bitácora de solo adición en el esquema de M9 |
+| SYS-FN-36 | Consentimiento con el texto de DIS-28, registrado como asiento de bitácora con marca temporal |
+
+**Criterio de salida.** Una cuenta se registra, carga su registro legal, es aprobada o rechazada por el rol administrativo y la decisión consta en la bitácora sin posibilidad de modificación. **Cumplido**, con tres verificaciones:
+
+- `apps/backend/test/integracion/afiliacion.spec.ts`, `describe` «IT-02 · criterio de salida»: la decisión queda asentada; UPDATE y DELETE fallan con `42501` para `abasteceni_app`; el trabajador avisa la decisión al solicitante (DIS-30).
+- `apps/backend/test/bd/bitacora.spec.ts`: UPDATE, DELETE y TRUNCATE revocados en el gestor.
+- `e2e/pruebas/afiliacion.spec.ts`: el mismo ciclo desde la interfaz.
+
+| Campo | Valor |
+|---|---|
+| Fecha | 2026-10-17 |
+| Rama | `it-02/afiliacion`, sacada de `it-01/linea-base` |
+| Commits | `3700413` dominio, infraestructura, capa 2 y pruebas del backend · `9475fb0` · `dd5a0f4` base de datos · `46dcacb` web · `d953e37` pruebas web · `d9ccb99` · `a25c7da` adaptadores del almacén · `aa72608` pruebas de sistema · cierre (este registro) |
+| MT-03 | **0** violaciones (179 módulos) |
+| MT-04 | 0,08 s en la CI (entorno de sistema) |
+| Cobertura del backend, global | Sentencias 98,35 % · ramas 93,63 % · funciones 94,73 % · líneas 98,78 % |
+| Cobertura de `dominio/` | Sentencias 99,67 % (305/306) · ramas 99,04 % (103/104) · funciones 96,77 % (90/93) · líneas 100 % (255/255) |
+| Cobertura del frontend | Sentencias 98,20 % · ramas 92,35 % · funciones 95,83 % · líneas 98,78 % |
+| Pruebas | Backend: 156. Base de datos: 27. Frontend: 43. Sistema: 13. Todas pasan |
+| CI | [Ejecución 39033238576](https://github.com/PedroMG2023/abasteceni/actions/runs/39033238576) sobre `aa72608`: **10 de 10 trabajos en verde** |
+
+**Versiones añadidas.** `@types/multer` (MIT), para los tipos de la carga del documento. La carga usa multer, incluido en `@nestjs/platform-express` 11.2.7.
+
+**Incidencias de la iteración.**
+
+- **Archivos sin versionar.** El patrón `almacen-documentos/` de `.gitignore` ocultaba también la carpeta de código `src/infraestructura/almacen-documentos/`. Lo detectó la construcción de la imagen del entorno de sistema y se corrigió en `a25c7da`, anclando el patrón al directorio de datos.
+- **Corte de cuota a media sesión.** El avance quedó confirmado y subido (`3700413`) antes del corte.
+
+### Pendientes
+
+- **Tramo B** (SYS-FN-07 y SYS-FN-05) y **tramo C** (SYS-FN-08 y SYS-FN-06): no construidos a la fecha de corte. Se priorizaron los informes de la fase de desarrollo (CLAUDE.md §2: se reduce alcance, no calidad; D4 RM-01). SYS-FN-07 necesitará aprobar el texto del aviso de bloqueo; SYS-FN-05, un canal de correo real.
+- **Almacén de documentos.** En desarrollo y en el entorno de sistema, sistema de archivos. Producción requiere un adaptador de almacén de objetos con cifrado en reposo (ADR-09, SYS-NFN-01) bajo el mismo puerto.
+- **Propuestas abiertas para la revisión:** DIS-26 (catálogo de mensajes, ampliado con los de IT-02), DIS-27 y DIS-32.
+- Revisión cruzada (DM-05) y etiqueta `it-02`.
+

@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="156" failures="0" errors="0" time="57.571">
+  <testsuite name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:37:53" time="10.35" tests="12">
+    <testcase classname="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) registra la cuenta «Pendiente de validación», su credencial pendiente y el evento CuentaRegistrada juntos" name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) registra la cuenta «Pendiente de validación», su credencial pendiente y el evento CuentaRegistrada juntos" time="0.011" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) con el RUC vacío rechaza el envío sin escribir nada" name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) con el RUC vacío rechaza el envío sin escribir nada" time="0.002" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) reúne en un solo error las infracciones de la cuenta y de la credencial (DIS-16, DIS-22)" name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) reúne en un solo error las infracciones de la cuenta y de la credencial (DIS-16, DIS-22)" time="0.001" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) rechaza un RUC ya registrado y elimina el documento ya guardado" name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) rechaza un RUC ya registrado y elimina el documento ya guardado" time="0.001" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) si la credencial falla dentro de la transacción no queda la cuenta, ni el evento, ni asientos, ni el documento (ADR-01)" name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) si la credencial falla dentro de la transacción no queda la cuenta, ni el evento, ni asientos, ni el documento (ADR-01)" time="0.002" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) lista las cuentas filtradas por estado" name="CT-REG-01 · registro de una cuenta comercial en el servicio de M1 (SYS-FN-01, ADR-01) lista las cuentas filtradas por estado" time="0.001" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 y SYS-FN-36 · asientos de bitácora del registro registra la creación, el consentimiento con su marca temporal y la carga del documento, con usuario e IP" name="SYS-FN-35 y SYS-FN-36 · asientos de bitácora del registro registra la creación, el consentimiento con su marca temporal y la carga del documento, con usuario e IP" time="0.002" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 y SYS-FN-36 · asientos de bitácora del registro el documento se guarda con el tipo determinado por su contenido y se recupera para el Administrador" name="SYS-FN-35 y SYS-FN-36 · asientos de bitácora del registro el documento se guarda con el tipo determinado por su contenido y se recupera para el Administrador" time="0.002" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) aprobar pasa la cuenta a «Activa», habilita la credencial, asienta el resultado y publica CuentaAprobada" name="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) aprobar pasa la cuenta a «Activa», habilita la credencial, asienta el resultado y publica CuentaAprobada" time="0.002" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) rechazar registra el motivo en la bitácora y publica CuentaRechazada con la justificación" name="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) rechazar registra el motivo en la bitácora y publica CuentaRechazada con la justificación" time="0.002" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) una segunda decisión sobre la misma cuenta es una transición no permitida y no deja rastro" name="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) una segunda decisión sobre la misma cuenta es una transición no permitida y no deja rastro" time="0.001" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+    <testcase classname="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) rechazar sin justificación o validar una cuenta inexistente no cambia nada" name="CT-ADM-03 · aprobación y rechazo por el Administrador con asiento en la bitácora (SYS-FN-03) rechazar sin justificación o validar una cuenta inexistente no cambia nada" time="0" file="test/unitarias/dominio/servicio-usuarios.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:03" time="0.77" tests="10">
+    <testcase classname="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) el Administrador sembrado inicia sesión y recibe su rol y credenciales de la vida aprobada (DIS-06, DIS-24)" name="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) el Administrador sembrado inicia sesión y recibe su rol y credenciales de la vida aprobada (DIS-06, DIS-24)" time="0.003" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) una cuenta «Pendiente de validación» no inicia sesión (DIS-25)" name="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) una cuenta «Pendiente de validación» no inicia sesión (DIS-25)" time="0" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) una cuenta rechazada no inicia sesión y una habilitada sí, con el rol de su tipo (DIS-25)" name="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) una cuenta rechazada no inicia sesión y una habilitada sí, con el rol de su tipo (DIS-25)" time="0" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) rechaza una contraseña incorrecta y un correo inexistente con el mismo error, verificando siempre una huella" name="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) rechaza una contraseña incorrecta y un correo inexistente con el mismo error, verificando siempre una huella" time="0.001" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) no admite dos credenciales con el mismo correo ni contraseñas fuera de 12 a 128 caracteres (DIS-22)" name="CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04) no admite dos credenciales con el mismo correo ni contraseñas fuera de 12 a 128 caracteres (DIS-22)" time="0.002" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="ADR-04 · renovación con rotación, revocación y verificación sin estado renovar emite credenciales nuevas y revoca la credencial de renovación usada" name="ADR-04 · renovación con rotación, revocación y verificación sin estado renovar emite credenciales nuevas y revoca la credencial de renovación usada" time="0.001" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="ADR-04 · renovación con rotación, revocación y verificación sin estado una credencial de renovación vencida o desconocida no renueva" name="ADR-04 · renovación con rotación, revocación y verificación sin estado una credencial de renovación vencida o desconocida no renueva" time="0.001" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="ADR-04 · renovación con rotación, revocación y verificación sin estado cerrar la sesión revoca su credencial de renovación" name="ADR-04 · renovación con rotación, revocación y verificación sin estado cerrar la sesión revoca su credencial de renovación" time="0.001" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="ADR-04 · renovación con rotación, revocación y verificación sin estado una cuenta deshabilitada después de iniciar sesión ya no renueva" name="ADR-04 · renovación con rotación, revocación y verificación sin estado una cuenta deshabilitada después de iniciar sesión ya no renueva" time="0" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+    <testcase classname="ADR-04 · renovación con rotación, revocación y verificación sin estado una credencial de acceso que no verifica produce ACCESO_INVALIDO" name="ADR-04 · renovación con rotación, revocación y verificación sin estado una credencial de acceso que no verifica produce ACCESO_INVALIDO" time="0.004" file="test/unitarias/dominio/servicio-seguridad.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:04" time="1.231" tests="33">
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) una solicitud con todos los campos válidos no tiene infracciones y se registra «Pendiente de validación»" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) una solicitud con todos los campos válidos no tiene infracciones y se registra «Pendiente de validación»" time="0.003" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza el RUC vacío" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza el RUC vacío" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza razonSocial vacío como campo obligatorio" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza razonSocial vacío como campo obligatorio" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza departamento vacío como campo obligatorio" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza departamento vacío como campo obligatorio" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza municipio vacío como campo obligatorio" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza municipio vacío como campo obligatorio" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza rubro vacío como campo obligatorio" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza rubro vacío como campo obligatorio" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza telefonoMovil vacío como campo obligatorio" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza telefonoMovil vacío como campo obligatorio" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza tipo vacío como campo obligatorio" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza tipo vacío como campo obligatorio" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) informa todas las infracciones a la vez" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) informa todas las infracciones a la vez" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza un tipo de cuenta que no es Comprador, Proveedor ni Productor (DIS-17)" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza un tipo de cuenta que no es Comprador, Proveedor ni Productor (DIS-17)" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza un teléfono que no está en formato E.164 (DIS-19)" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza un teléfono que no está en formato E.164 (DIS-19)" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza textos que superan la longitud máxima del contrato" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) rechaza textos que superan la longitud máxima del contrato" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) normaliza el correo y recorta los espacios" name="CT-REG-01 · invariantes de la cuenta comercial (SYS-FN-01, PA-05) normaliza el correo y recorta los espacios" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) acepta J0310000000001" name="Objeto valor RUC (MD-01; formato de DIS-21) acepta J0310000000001" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) acepta 0012304560001A" name="Objeto valor RUC (MD-01; formato de DIS-21) acepta 0012304560001A" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) acepta  j0310000000001 " name="Objeto valor RUC (MD-01; formato de DIS-21) acepta  j0310000000001 " time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) rechaza J031000000000" name="Objeto valor RUC (MD-01; formato de DIS-21) rechaza J031000000000" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) rechaza 001-230456-0001A" name="Objeto valor RUC (MD-01; formato de DIS-21) rechaza 001-230456-0001A" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) rechaza 0012304560001" name="Objeto valor RUC (MD-01; formato de DIS-21) rechaza 0012304560001" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) rechaza X0310000000001" name="Objeto valor RUC (MD-01; formato de DIS-21) rechaza X0310000000001" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) rechaza J03100000000012" name="Objeto valor RUC (MD-01; formato de DIS-21) rechaza J03100000000012" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="Objeto valor RUC (MD-01; formato de DIS-21) normaliza a mayúsculas y no admite construir un RUC inválido" name="Objeto valor RUC (MD-01; formato de DIS-21) normaliza a mayúsculas y no admite construir un RUC inválido" time="0.002" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-02 · registro legal en PDF o JPG de hasta 5 MB, tipo comprobado por contenido (SYS-FN-02, DIS-29) acepta un PDF de 4 MB y un JPG" name="CT-REG-02 · registro legal en PDF o JPG de hasta 5 MB, tipo comprobado por contenido (SYS-FN-02, DIS-29) acepta un PDF de 4 MB y un JPG" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="CT-REG-02 · registro legal en PDF o JPG de hasta 5 MB, tipo comprobado por contenido (SYS-FN-02, DIS-29) rechaza un archivo de 8 MB, uno vacío y uno cuyo contenido no es PDF ni JPG" name="CT-REG-02 · registro legal en PDF o JPG de hasta 5 MB, tipo comprobado por contenido (SYS-FN-02, DIS-29) rechaza un archivo de 8 MB, uno vacío y uno cuyo contenido no es PDF ni JPG" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-36 · consentimiento obligatorio para registrarse sin aceptación expresa no se admite el registro" name="SYS-FN-36 · consentimiento obligatorio para registrarse sin aceptación expresa no se admite el registro" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-36 · consentimiento obligatorio para registrarse la cuenta conserva la marca temporal de la aceptación (atributo consentimiento de MD-01)" name="SYS-FN-36 · consentimiento obligatorio para registrarse la cuenta conserva la marca temporal de la aceptación (atributo consentimiento de MD-01)" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una cuenta pendiente se aprueba a «Activa» o se rechaza a «Rechazada» con justificación" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una cuenta pendiente se aprueba a «Activa» o se rechaza a «Rechazada» con justificación" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) el rechazo sin justificación se rechaza" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) el rechazo sin justificación se rechaza" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Activa» con «aprobar» es rechazada" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Activa» con «aprobar» es rechazada" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Activa» con «rechazar» es rechazada" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Activa» con «rechazar» es rechazada" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Rechazada» con «aprobar» es rechazada" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Rechazada» con «aprobar» es rechazada" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Rechazada» con «rechazar» es rechazada" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) una transición no prevista desde «Rechazada» con «rechazar» es rechazada" time="0.001" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+    <testcase classname="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) la validación no altera la cuenta original" name="AS-01 · máquina de estados de la cuenta comercial (SYS-FN-03, DIS-23) la validación no altera la cuenta original" time="0" file="test/unitarias/dominio/cuenta-comercial.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:05" time="16.427" tests="5">
+    <testcase classname="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 1 · el evento CuentaRegistrada se persiste en la misma transacción que la cuenta" name="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 1 · el evento CuentaRegistrada se persiste en la misma transacción que la cuenta" time="0.471" file="test/integracion/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 1b · si la transacción falla no queda ni la cuenta ni el evento" name="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 1b · si la transacción falla no queda ni la cuenta ni el evento" time="0.225" file="test/integracion/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 2 · el trabajador lo publica de forma asíncrona y alcanza el adaptador de notificación" name="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 2 · el trabajador lo publica de forma asíncrona y alcanza el adaptador de notificación" time="0.225" file="test/integracion/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 3 · el circuito abre ante un fallo simulado del proveedor y las notificaciones quedan pendientes" name="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 3 · el circuito abre ante un fallo simulado del proveedor y las notificaciones quedan pendientes" time="1.008" file="test/integracion/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 4 · al recuperarse el proveedor el circuito se cierra y se entregan las notificaciones acumuladas" name="IT-01 · criterio de salida de la línea base arquitectónica (ADR-01, ADR-02) 4 · al recuperarse el proveedor el circuito se cierra y se entregan las notificaciones acumuladas" time="0.392" file="test/integracion/linea-base.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:37:53" time="31.735" tests="17">
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) acepta un PDF de 4 MB y un JPG" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) acepta un PDF de 4 MB y un JPG" time="0.632" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) rechaza un archivo de 8 MB con un mensaje explicativo" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) rechaza un archivo de 8 MB con un mensaje explicativo" time="0.102" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) decide el tipo por el contenido y no por la extensión ni el tipo declarado" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) decide el tipo por el contenido y no por la extensión ni el tipo declarado" time="0.027" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) exige el documento (DIS-29)" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-REG-02 · carga del registro legal (SYS-FN-02) exige el documento (DIS-29)" time="0.016" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo SYS-FN-36 · consentimiento para el tratamiento de datos personales sin aceptación expresa rechaza el registro" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo SYS-FN-36 · consentimiento para el tratamiento de datos personales sin aceptación expresa rechaza el registro" time="0.019" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo SYS-FN-36 · consentimiento para el tratamiento de datos personales la aceptación consta en la bitácora con su marca temporal y en la cuenta" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo SYS-FN-36 · consentimiento para el tratamiento de datos personales la aceptación consta en la bitácora con su marca temporal y en la cuenta" time="0.217" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) el Administrador consulta el documento de registro legal de una cuenta" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) el Administrador consulta el documento de registro legal de una cuenta" time="0.178" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) aprobar cambia el estado a «Activa» y el resultado consta en la bitácora con el usuario y la IP" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) aprobar cambia el estado a «Activa» y el resultado consta en la bitácora con el usuario y la IP" time="0.187" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) rechazar registra el motivo en la bitácora" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) rechazar registra el motivo en la bitácora" time="0.132" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) rechazar sin motivo, decidir dos veces, una cuenta inexistente o un identificador inválido se rechazan" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) rechazar sin motivo, decidir dos veces, una cuenta inexistente o un identificador inválido se rechazan" time="0.296" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) solo el Administrador valida cuentas y consulta documentos (V-03)" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-ADM-03 · aprobación y rechazo por el Administrador (SYS-FN-03) solo el Administrador valida cuentas y consulta documentos (V-03)" time="0.302" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta aprobada de tipo Comprador inicia sesión con su rol" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta aprobada de tipo Comprador inicia sesión con su rol" time="0.253" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta aprobada de tipo Proveedor inicia sesión con su rol" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta aprobada de tipo Proveedor inicia sesión con su rol" time="0.211" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta aprobada de tipo Productor inicia sesión con su rol" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta aprobada de tipo Productor inicia sesión con su rol" time="0.294" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) el Administrador inicia sesión con su rol" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) el Administrador inicia sesión con su rol" time="0.142" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta rechazada no inicia sesión (DIS-25)" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo CT-SEG-04 · inicio de sesión con cada uno de los cuatro roles (SYS-FN-04) una cuenta rechazada no inicia sesión (DIS-25)" time="0.328" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+    <testcase classname="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo IT-02 · criterio de salida registro con documento, decisión administrativa, asiento inmutable y aviso al solicitante" name="IT-02 · afiliación y validación de cuentas comerciales de extremo a extremo IT-02 · criterio de salida registro con documento, decisión administrativa, asiento inmutable y aviso al solicitante" time="0.881" file="test/integracion/afiliacion.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="API de cuentas y sesiones (IT-01) conforme al contrato" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:37:53" time="34.497" tests="14">
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) registra la cuenta con todos los campos válidos en estado «Pendiente de validación»" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) registra la cuenta con todos los campos válidos en estado «Pendiente de validación»" time="0.465" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) con el RUC vacío rechaza el envío con un mensaje de error" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) con el RUC vacío rechaza el envío con un mensaje de error" time="0.03" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) rechaza el formato de RUC inválido con un mensaje que indica el formato (DIS-21)" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) rechaza el formato de RUC inválido con un mensaje que indica el formato (DIS-21)" time="0.048" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) rechaza propiedades no declaradas en el contrato y un cuerpo mal formado" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) rechaza propiedades no declaradas en el contrato y un cuerpo mal formado" time="0.112" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) responde 409 ante un RUC o un correo ya registrados" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01) responde 409 ante un RUC o un correo ya registrados" time="0.098" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-SEG-04 · POST /api/v1/sesiones (SYS-FN-04, ADR-04) el Administrador inicia sesión con su rol y recibe la credencial de renovación en una cookie protegida" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-SEG-04 · POST /api/v1/sesiones (SYS-FN-04, ADR-04) el Administrador inicia sesión con su rol y recibe la credencial de renovación en una cookie protegida" time="0.265" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-SEG-04 · POST /api/v1/sesiones (SYS-FN-04, ADR-04) una cuenta «Pendiente de validación» recibe 403 con el mensaje aprobado (DIS-25)" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-SEG-04 · POST /api/v1/sesiones (SYS-FN-04, ADR-04) una cuenta «Pendiente de validación» recibe 403 con el mensaje aprobado (DIS-25)" time="0.162" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato CT-SEG-04 · POST /api/v1/sesiones (SYS-FN-04, ADR-04) una contraseña incorrecta recibe 401 sin revelar si el correo existe" name="API de cuentas y sesiones (IT-01) conforme al contrato CT-SEG-04 · POST /api/v1/sesiones (SYS-FN-04, ADR-04) una contraseña incorrecta recibe 401 sin revelar si el correo existe" time="0.389" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato ADR-04 · renovación con rotación, identidad y cierre de sesión renueva con la cookie, rota la credencial y rechaza la cookie ya usada" name="API de cuentas y sesiones (IT-01) conforme al contrato ADR-04 · renovación con rotación, identidad y cierre de sesión renueva con la cookie, rota la credencial y rechaza la cookie ya usada" time="0.177" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato ADR-04 · renovación con rotación, identidad y cierre de sesión consulta la identidad con la credencial de acceso y cierra la sesión revocando la renovación" name="API de cuentas y sesiones (IT-01) conforme al contrato ADR-04 · renovación con rotación, identidad y cierre de sesión consulta la identidad con la credencial de acceso y cierra la sesión revocando la renovación" time="0.113" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato AS-03 · autenticación y control de rol como envolturas de la capa 2 401 sin credencial o con una credencial alterada" name="API de cuentas y sesiones (IT-01) conforme al contrato AS-03 · autenticación y control de rol como envolturas de la capa 2 401 sin credencial o con una credencial alterada" time="0.191" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato AS-03 · autenticación y control de rol como envolturas de la capa 2 403 cuando el rol no es el exigido" name="API de cuentas y sesiones (IT-01) conforme al contrato AS-03 · autenticación y control de rol como envolturas de la capa 2 403 cuando el rol no es el exigido" time="0.279" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="API de cuentas y sesiones (IT-01) conforme al contrato AS-03 · autenticación y control de rol como envolturas de la capa 2 el Administrador lista las cuentas y puede filtrarlas por estado" name="API de cuentas y sesiones (IT-01) conforme al contrato AS-03 · autenticación y control de rol como envolturas de la capa 2 el Administrador lista las cuentas y puede filtrarlas por estado" time="0.19" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+    <testcase classname="AS-03 · 429 a partir de la petición 121 por IP y minuto, con el contador compartido entre instancias (SYS-NFN-03, ADR-08) dos instancias suman en el mismo contador y la petición 121 recibe 429 con Retry-After" name="AS-03 · 429 a partir de la petición 121 por IP y minuto, con el contador compartido entre instancias (SYS-NFN-03, ADR-08) dos instancias suman en el mismo contador y la petición 121 recibe 429 con Retry-After" time="1.005" file="test/integracion/api-cuentas-sesiones.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:22" time="5.885" tests="5">
+    <testcase classname="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) reconstruye la cuenta comercial desde la fila" name="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) reconstruye la cuenta comercial desde la fila" time="0.024" file="test/integracion/repositorios-pg.spec.ts">
+    </testcase>
+    <testcase classname="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) traduce la violación de unicidad del RUC en ErrorConflicto aunque se salte la comprobación previa" name="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) traduce la violación de unicidad del RUC en ErrorConflicto aunque se salte la comprobación previa" time="0.005" file="test/integracion/repositorios-pg.spec.ts">
+    </testcase>
+    <testcase classname="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) traduce la violación de unicidad del correo en ErrorConflicto y propaga los demás errores" name="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) traduce la violación de unicidad del correo en ErrorConflicto y propaga los demás errores" time="0.006" file="test/integracion/repositorios-pg.spec.ts">
+    </testcase>
+    <testcase classname="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) una violación distinta de la unicidad del RUC no se disfraza de conflicto" name="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) una violación distinta de la unicidad del RUC no se disfraza de conflicto" time="0.004" file="test/integracion/repositorios-pg.spec.ts">
+    </testcase>
+    <testcase classname="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) errorPostgres lee el código de un error directo o envuelto" name="Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado) errorPostgres lee el código de un error directo o envuelto" time="0" file="test/integracion/repositorios-pg.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Catálogo de mensajes de la API (DIS-26)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:25" time="7.691" tests="6">
+    <testcase classname="Catálogo de mensajes de la API (DIS-26) construye mensajes específicos para los campos conocidos" name="Catálogo de mensajes de la API (DIS-26) construye mensajes específicos para los campos conocidos" time="0.001" file="test/unitarias/aplicacion/transversal.spec.ts">
+    </testcase>
+    <testcase classname="Catálogo de mensajes de la API (DIS-26) tiene mensajes de respaldo para cualquier campo y motivo" name="Catálogo de mensajes de la API (DIS-26) tiene mensajes de respaldo para cualquier campo y motivo" time="0" file="test/unitarias/aplicacion/transversal.spec.ts">
+    </testcase>
+    <testcase classname="Validación declarativa en la frontera (PA-05) traduce los errores de class-validator a infracciones del dominio" name="Validación declarativa en la frontera (PA-05) traduce los errores de class-validator a infracciones del dominio" time="0.073" file="test/unitarias/aplicacion/transversal.spec.ts">
+    </testcase>
+    <testcase classname="Traza de peticiones sin datos personales (V-03) registra método, ruta declarada, estado y duración, y no la URL concreta" name="Traza de peticiones sin datos personales (V-03) registra método, ruta declarada, estado y duración, y no la URL concreta" time="0.002" file="test/unitarias/aplicacion/transversal.spec.ts">
+    </testcase>
+    <testcase classname="Piezas de soporte de la bandeja la causa del fallo se reduce al tipo de error" name="Piezas de soporte de la bandeja la causa del fallo se reduce al tipo de error" time="0" file="test/unitarias/aplicacion/transversal.spec.ts">
+    </testcase>
+    <testcase classname="Piezas de soporte de la bandeja una transacción ajena no se acepta como transacción en memoria" name="Piezas de soporte de la bandeja una transacción ajena no se acepta como transacción en memoria" time="0.003" file="test/unitarias/aplicacion/transversal.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:28" time="5.121" tests="3">
+    <testcase classname="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02) envuelve el adaptador de WhatsApp en el interruptor, sondea la bandeja al iniciar y se detiene al cerrar" name="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02) envuelve el adaptador de WhatsApp en el interruptor, sondea la bandeja al iniciar y se detiene al cerrar" time="0.303" file="test/integracion/trabajador.spec.ts">
+    </testcase>
+    <testcase classname="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02) AS-05 · con CANAL_NOTIFICACION=correo la composición usa el adaptador de correo, también tras el interruptor" name="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02) AS-05 · con CANAL_NOTIFICACION=correo la composición usa el adaptador de correo, también tras el interruptor" time="0.005" file="test/integracion/trabajador.spec.ts">
+    </testcase>
+    <testcase classname="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02) purga las ventanas vencidas del contador de ADR-08" name="Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02) purga las ventanas vencidas del contador de ADR-08" time="0.024" file="test/integracion/trabajador.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:32" time="0.938" tests="4">
+    <testcase classname="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp con el proveedor disponible entrega y el circuito permanece cerrado" name="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp con el proveedor disponible entrega y el circuito permanece cerrado" time="0.002" file="test/unitarias/infraestructura/interruptor.spec.ts">
+    </testcase>
+    <testcase classname="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp el circuito abre ante el fallo simulado del proveedor y luego falla rápido sin llamarlo" name="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp el circuito abre ante el fallo simulado del proveedor y luego falla rápido sin llamarlo" time="0.004" file="test/unitarias/infraestructura/interruptor.spec.ts">
+    </testcase>
+    <testcase classname="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp pasado el tiempo de reapertura prueba de nuevo y cierra si el proveedor se recupera" name="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp pasado el tiempo de reapertura prueba de nuevo y cierra si el proveedor se recupera" time="0.072" file="test/unitarias/infraestructura/interruptor.spec.ts">
+    </testcase>
+    <testcase classname="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp convierte un error ajeno al contrato y el tiempo agotado en ErrorEntregaNotificacion" name="ADR-02 · interruptor de circuito sobre el adaptador de WhatsApp convierte un error ajeno al contrato y el tiempo agotado en ErrorEntregaNotificacion" time="0.014" file="test/unitarias/infraestructura/interruptor.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:33" time="0.71" tests="4">
+    <testcase classname="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01) entrega cada evento a los manejadores registrados para su tipo" name="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01) entrega cada evento a los manejadores registrados para su tipo" time="0.001" file="test/unitarias/aplicacion/despachador-eventos.spec.ts">
+    </testcase>
+    <testcase classname="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01) registra un manejador adicional para un evento nuevo sin modificar el despachador" name="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01) registra un manejador adicional para un evento nuevo sin modificar el despachador" time="0.001" file="test/unitarias/aplicacion/despachador-eventos.spec.ts">
+    </testcase>
+    <testcase classname="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01) propaga el fallo de un manejador para que el evento quede pendiente en la bandeja" name="AS-06 · despachador de eventos abierto a nuevos manejadores (PA-03, ADR-01) propaga el fallo de un manejador para que el evento quede pendiente en la bandeja" time="0.002" file="test/unitarias/aplicacion/despachador-eventos.spec.ts">
+    </testcase>
+    <testcase classname="Manejador NotificarCuentaRegistrada (IT-01; DIS-13, DIS-20) notifica al solicitante con el texto aprobado y sus datos de contacto" name="Manejador NotificarCuentaRegistrada (IT-01; DIS-13, DIS-20) notifica al solicitante con el texto aprobado y sus datos de contacto" time="0" file="test/unitarias/aplicacion/despachador-eventos.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="AS-02 · sondeo de la bandeja como pieza independiente del despacho" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:27" time="6.326" tests="5">
+    <testcase classname="AS-02 · sondeo de la bandeja como pieza independiente del despacho entrega los pendientes en orden y no los repite" name="AS-02 · sondeo de la bandeja como pieza independiente del despacho entrega los pendientes en orden y no los repite" time="0.003" file="test/unitarias/infraestructura/sondeo-bandeja.spec.ts">
+    </testcase>
+    <testcase classname="AS-02 · sondeo de la bandeja como pieza independiente del despacho un fallo deja el evento pendiente y lo reintenta después de la espera" name="AS-02 · sondeo de la bandeja como pieza independiente del despacho un fallo deja el evento pendiente y lo reintenta después de la espera" time="0.001" file="test/unitarias/infraestructura/sondeo-bandeja.spec.ts">
+    </testcase>
+    <testcase classname="AS-02 · sondeo de la bandeja como pieza independiente del despacho la espera entre reintentos crece y se acota a 60 s" name="AS-02 · sondeo de la bandeja como pieza independiente del despacho la espera entre reintentos crece y se acota a 60 s" time="0.001" file="test/unitarias/infraestructura/sondeo-bandeja.spec.ts">
+    </testcase>
+    <testcase classname="AS-02 · sondeo de la bandeja como pieza independiente del despacho iniciar sondea periódicamente y detener espera al ciclo en curso" name="AS-02 · sondeo de la bandeja como pieza independiente del despacho iniciar sondea periódicamente y detener espera al ciclo en curso" time="0.032" file="test/unitarias/infraestructura/sondeo-bandeja.spec.ts">
+    </testcase>
+    <testcase classname="AS-02 · sondeo de la bandeja como pieza independiente del despacho un ciclo que falla se informa y el sondeo continúa" name="AS-02 · sondeo de la bandeja como pieza independiente del despacho un ciclo que falla se informa y el sondeo continúa" time="0.026" file="test/unitarias/infraestructura/sondeo-bandeja.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Adaptadores de seguridad (ADR-04, V-03)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:33" time="1.121" tests="5">
+    <testcase classname="Adaptadores de seguridad (ADR-04, V-03) argon2id deriva una huella que no contiene la contraseña y la verifica" name="Adaptadores de seguridad (ADR-04, V-03) argon2id deriva una huella que no contiene la contraseña y la verifica" time="0.311" file="test/unitarias/infraestructura/seguridad.spec.ts">
+    </testcase>
+    <testcase classname="Adaptadores de seguridad (ADR-04, V-03) la credencial de acceso firmada se verifica y conserva los reclamos" name="Adaptadores de seguridad (ADR-04, V-03) la credencial de acceso firmada se verifica y conserva los reclamos" time="0.002" file="test/unitarias/infraestructura/seguridad.spec.ts">
+    </testcase>
+    <testcase classname="Adaptadores de seguridad (ADR-04, V-03) rechaza una credencial alterada, vencida, de otro secreto o con algoritmo distinto" name="Adaptadores de seguridad (ADR-04, V-03) rechaza una credencial alterada, vencida, de otro secreto o con algoritmo distinto" time="0.003" file="test/unitarias/infraestructura/seguridad.spec.ts">
+    </testcase>
+    <testcase classname="Adaptadores de seguridad (ADR-04, V-03) exige un secreto de firma de al menos 32 bytes" name="Adaptadores de seguridad (ADR-04, V-03) exige un secreto de firma de al menos 32 bytes" time="0.003" file="test/unitarias/infraestructura/seguridad.spec.ts">
+    </testcase>
+    <testcase classname="Adaptadores de seguridad (ADR-04, V-03) la credencial de renovación es aleatoria y su huella SHA-256 es determinista" name="Adaptadores de seguridad (ADR-04, V-03) la credencial de renovación es aleatoria y su huella SHA-256 es determinista" time="0" file="test/unitarias/infraestructura/seguridad.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Definiciones de esquema de la persistencia frente a las migraciones (PA-02)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:35" time="4.677" tests="1">
+    <testcase classname="Definiciones de esquema de la persistencia frente a las migraciones (PA-02) cada esquema declarado en el código existe en la base migrada y no hay esquemas no declarados" name="Definiciones de esquema de la persistencia frente a las migraciones (PA-02) cada esquema declarado en el código existe en la base migrada y no hay esquemas no declarados" time="0.016" file="test/integracion/esquemas-persistencia.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Contrato del almacén de documentos — memoria" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:34" time="6.133" tests="6">
+    <testcase classname="Contrato del almacén de documentos — memoria guarda y devuelve el documento con su tipo, y lo elimina" name="Contrato del almacén de documentos — memoria guarda y devuelve el documento con su tipo, y lo elimina" time="0.002" file="test/contrato/almacen-documentos.spec.ts">
+    </testcase>
+    <testcase classname="Contrato del almacén de documentos — memoria no sobrescribe un documento existente" name="Contrato del almacén de documentos — memoria no sobrescribe un documento existente" time="0.002" file="test/contrato/almacen-documentos.spec.ts">
+    </testcase>
+    <testcase classname="Contrato del almacén de documentos — sistema de archivos guarda y devuelve el documento con su tipo, y lo elimina" name="Contrato del almacén de documentos — sistema de archivos guarda y devuelve el documento con su tipo, y lo elimina" time="0.004" file="test/contrato/almacen-documentos.spec.ts">
+    </testcase>
+    <testcase classname="Contrato del almacén de documentos — sistema de archivos no sobrescribe un documento existente" name="Contrato del almacén de documentos — sistema de archivos no sobrescribe un documento existente" time="0.002" file="test/contrato/almacen-documentos.spec.ts">
+    </testcase>
+    <testcase classname="Almacén en el sistema de archivos rechaza claves que no son UUID, lo que impide el recorrido de rutas" name="Almacén en el sistema de archivos rechaza claves que no son UUID, lo que impide el recorrido de rutas" time="0.001" file="test/contrato/almacen-documentos.spec.ts">
+    </testcase>
+    <testcase classname="Almacén en el sistema de archivos crea los archivos solo legibles por el proceso" name="Almacén en el sistema de archivos crea los archivos solo legibles por el proceso" time="0.001" file="test/contrato/almacen-documentos.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:39" time="0.597" tests="3">
+    <testcase classname="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022) falla al arrancar si falta la URL de la base o el secreto de firma" name="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022) falla al arrancar si falta la URL de la base o el secreto de firma" time="0.004" file="test/unitarias/composicion/configuracion.spec.ts">
+    </testcase>
+    <testcase classname="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022) aplica valores seguros por defecto y el límite fijo de SYS-NFN-03" name="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022) aplica valores seguros por defecto y el límite fijo de SYS-NFN-03" time="0.001" file="test/unitarias/composicion/configuracion.spec.ts">
+    </testcase>
+    <testcase classname="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022) admite ajustar el entorno de ejecución sin cambiar el límite de peticiones" name="Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de ISO/IEC 27002:2022) admite ajustar el entorno de ejecución sin cambiar el límite de peticiones" time="0.005" file="test/unitarias/composicion/configuracion.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:40" time="5.648" tests="3">
+    <testcase classname="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) GET /api/v1/salud responde 200 con el cuerpo que declara el contrato y cabeceras de seguridad" name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) GET /api/v1/salud responde 200 con el cuerpo que declara el contrato y cabeceras de seguridad" time="0.025" file="test/integracion/salud.spec.ts">
+    </testcase>
+    <testcase classname="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) el validador rechaza una respuesta que no cumple el contrato" name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) el validador rechaza una respuesta que no cumple el contrato" time="0.004" file="test/integracion/salud.spec.ts">
+    </testcase>
+    <testcase classname="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) una ruta inexistente responde 404 con la forma uniforme de error" name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) una ruta inexistente responde 404 con la forma uniforme de error" time="0.004" file="test/integracion/salud.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="AS-08 · contrato del puerto de bitácora — memoria" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:34" time="11.855" tests="6">
+    <testcase classname="AS-08 · contrato del puerto de bitácora — memoria el puerto solo ofrece registrar (AS-12)" name="AS-08 · contrato del puerto de bitácora — memoria el puerto solo ofrece registrar (AS-12)" time="0.001" file="test/contrato/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="AS-08 · contrato del puerto de bitácora — memoria conserva cada asiento con usuario, acción, recurso, detalle, IP y marca temporal (SYS-FN-35)" name="AS-08 · contrato del puerto de bitácora — memoria conserva cada asiento con usuario, acción, recurso, detalle, IP y marca temporal (SYS-FN-35)" time="0.001" file="test/contrato/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="AS-08 · contrato del puerto de bitácora — memoria el asiento se confirma o se revierte con la transacción del cambio de estado" name="AS-08 · contrato del puerto de bitácora — memoria el asiento se confirma o se revierte con la transacción del cambio de estado" time="0.002" file="test/contrato/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-08 · contrato del puerto de bitácora — PostgreSQL el puerto solo ofrece registrar (AS-12)" name="con PostgreSQL real AS-08 · contrato del puerto de bitácora — PostgreSQL el puerto solo ofrece registrar (AS-12)" time="0.06" file="test/contrato/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-08 · contrato del puerto de bitácora — PostgreSQL conserva cada asiento con usuario, acción, recurso, detalle, IP y marca temporal (SYS-FN-35)" name="con PostgreSQL real AS-08 · contrato del puerto de bitácora — PostgreSQL conserva cada asiento con usuario, acción, recurso, detalle, IP y marca temporal (SYS-FN-35)" time="0.036" file="test/contrato/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-08 · contrato del puerto de bitácora — PostgreSQL el asiento se confirma o se revierte con la transacción del cambio de estado" name="con PostgreSQL real AS-08 · contrato del puerto de bitácora — PostgreSQL el asiento se confirma o se revierte con la transacción del cambio de estado" time="0.017" file="test/contrato/bitacora.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="AS-09 · contrato del puerto de notificación — WhatsApp (proveedor simulado)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:46" time="1.314" tests="4">
+    <testcase classname="AS-09 · contrato del puerto de notificación — WhatsApp (proveedor simulado) entrega el mensaje al destinatario por su canal" name="AS-09 · contrato del puerto de notificación — WhatsApp (proveedor simulado) entrega el mensaje al destinatario por su canal" time="0.001" file="test/contrato/notificacion.spec.ts">
+    </testcase>
+    <testcase classname="AS-09 · contrato del puerto de notificación — WhatsApp (proveedor simulado) si el proveedor falla rechaza con ErrorEntregaNotificacion de su canal" name="AS-09 · contrato del puerto de notificación — WhatsApp (proveedor simulado) si el proveedor falla rechaza con ErrorEntregaNotificacion de su canal" time="0.001" file="test/contrato/notificacion.spec.ts">
+    </testcase>
+    <testcase classname="AS-09 · contrato del puerto de notificación — correo (proveedor simulado) entrega el mensaje al destinatario por su canal" name="AS-09 · contrato del puerto de notificación — correo (proveedor simulado) entrega el mensaje al destinatario por su canal" time="0.001" file="test/contrato/notificacion.spec.ts">
+    </testcase>
+    <testcase classname="AS-09 · contrato del puerto de notificación — correo (proveedor simulado) si el proveedor falla rechaza con ErrorEntregaNotificacion de su canal" name="AS-09 · contrato del puerto de notificación — correo (proveedor simulado) si el proveedor falla rechaza con ErrorEntregaNotificacion de su canal" time="0" file="test/contrato/notificacion.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="AS-10 · contrato de la bandeja de salida — memoria" errors="0" failures="0" skipped="0" timestamp="2026-10-17T12:38:40" time="9.392" tests="10">
+    <testcase classname="AS-10 · contrato de la bandeja de salida — memoria persiste dentro de la transacción recibida y entrega en orden de publicación" name="AS-10 · contrato de la bandeja de salida — memoria persiste dentro de la transacción recibida y entrega en orden de publicación" time="0.002" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="AS-10 · contrato de la bandeja de salida — memoria no entrega el evento de una transacción revertida" name="AS-10 · contrato de la bandeja de salida — memoria no entrega el evento de una transacción revertida" time="0.002" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="AS-10 · contrato de la bandeja de salida — memoria un evento entregado no se vuelve a entregar" name="AS-10 · contrato de la bandeja de salida — memoria un evento entregado no se vuelve a entregar" time="0" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="AS-10 · contrato de la bandeja de salida — memoria un fallo de entrega deja el evento pendiente hasta que vence su reintento" name="AS-10 · contrato de la bandeja de salida — memoria un fallo de entrega deja el evento pendiente hasta que vence su reintento" time="0.001" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="AS-10 · contrato de la bandeja de salida — memoria respeta el límite del lote" name="AS-10 · contrato de la bandeja de salida — memoria respeta el límite del lote" time="0.001" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL persiste dentro de la transacción recibida y entrega en orden de publicación" name="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL persiste dentro de la transacción recibida y entrega en orden de publicación" time="0.029" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL no entrega el evento de una transacción revertida" name="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL no entrega el evento de una transacción revertida" time="0.015" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL un evento entregado no se vuelve a entregar" name="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL un evento entregado no se vuelve a entregar" time="0.016" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL un fallo de entrega deja el evento pendiente hasta que vence su reintento" name="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL un fallo de entrega deja el evento pendiente hasta que vence su reintento" time="0.02" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+    <testcase classname="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL respeta el límite del lote" name="con PostgreSQL real AS-10 · contrato de la bandeja de salida — PostgreSQL respeta el límite del lote" time="0.021" file="test/contrato/bandeja-salida.spec.ts">
+    </testcase>
+  </testsuite>
+</testsuites>
