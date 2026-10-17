@@ -1,0 +1,54 @@
+@startuml MD-02-paquetes
+' MD-02 — Modelo de paquetes (D5 §2.12.2)
+' Pregunta: ¿cómo se organizan los elementos en espacios de nombres, qué
+' dependencias son admisibles y cuáles están prohibidas?
+' Punto de vista rector: PV-01. Cuatro paquetes de capa, nueve de módulo y el
+' paquete de puertos. Por legibilidad se omite la flecha de cada módulo hacia
+' el paquete de puertos: todo módulo M1–M9 depende de él (D5 §2.12.2).
+' Trazabilidad: V-01, V-02; PA-01, PA-02; CR-01, CR-08. Iteración: IT-00.
+' Realización en el código: CLAUDE.md §3 y reglas de dependency-cruiser.
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #777777
+}
+
+package "Capa 1 — Presentación" as C1 <<capa>> {
+  package "cliente.web" as P1
+}
+package "Capa 2 — Aplicación / API" as C2 <<capa>> {
+  package "api.rest" as P2
+  package "api.seguridad" as P2b
+}
+package "Capa 3 — Dominio" as C3 <<capa>> {
+  package "M1 usuarios" as M1 <<modulo>>
+  package "M2 seguridad" as M2 <<modulo>>
+  package "M3 demandas" as M3 <<modulo>>
+  package "M4 ofertas" as M4 <<modulo>>
+  package "M5 busqueda" as M5 <<modulo>>
+  package "M6 cotizaciones" as M6 <<modulo>>
+  package "M7 chat.alertas" as M7 <<modulo>>
+  package "M8 reputacion.logistica" as M8 <<modulo>>
+  package "M9 administracion.auditoria" as M9 <<modulo>>
+  package "dominio.puertos" as PU <<puerto>>
+}
+package "Capa 4 — Infraestructura" as C4 <<capa>> {
+  package "infra.persistencia" as I1
+  package "infra.mensajeria" as I2
+  package "infra.cache" as I3
+  package "infra.tareas" as I4
+}
+
+P1 ..> P2 : <<use>> HTTPS
+P2 ..> PU : <<use>>
+I1 ..|> PU : <<realize>>
+I2 ..|> PU : <<realize>>
+I3 ..|> PU : <<realize>>
+I4 ..|> PU : <<realize>>
+M6 ..> M3 : <<use>>
+M6 ..> M4 : <<use>>
+M5 ..> M3 : <<use>> RO
+M5 ..> M4 : <<use>> RO
+@enduml

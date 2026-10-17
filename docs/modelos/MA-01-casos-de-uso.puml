@@ -1,0 +1,149 @@
+' MA-01 — Modelo de casos de uso (D5 §2.11.1)
+' Pregunta: ¿qué puede hacer cada clase de usuario con el sistema, y qué
+' exigencias cumple cada una de esas capacidades?
+' Punto de vista rector: PV-02. Un único modelo en dos submodelos (KA 11 §2):
+' ámbito A (PM-01 a PM-04) y ámbito B (PM-05 a PM-07 y soporte).
+' Trazabilidad: 27 casos de uso que cubren SYS-FN-01 a SYS-FN-37 (tabla de
+' D5 §2.11.1). Iteración: IT-00, revisado en cada iteración con módulo nuevo.
+
+@startuml MA-01-casos-de-uso-ambito-A
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam usecase {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam actor {
+  BackgroundColor #F4F4F4
+  BorderColor #444444
+}
+skinparam rectangle {
+  BorderColor #888888
+}
+left to right direction
+
+actor "Planificador\ndel sistema" as planificador
+actor "Comprador\nminorista" as comprador
+actor "Productor\nagrícola" as productor
+actor "Proveedor\nmayorista" as proveedor
+actor "Administrador\nde la plataforma" as administrador
+
+rectangle "Plataforma AbasteceNi — ámbito de análisis A" {
+  rectangle "Publicación · M3 · M4 · PM-02 · PM-03" {
+    usecase "CU-09\nExpirar y renovar bloque" as CU09
+    usecase "CU-12\nLiberar inventario vencido" as CU12
+    usecase "CU-08\nConsolidar demanda regional" as CU08
+    usecase "CU-07\nGestionar plantilla" as CU07
+    usecase "CU-06\nPublicar bloque de demanda" as CU06
+    usecase "CU-11\nReservar volumen" as CU11
+    usecase "CU-10\nPublicar excedente agrícola" as CU10
+  }
+  rectangle "Identidad y acceso · M1 · M2 · PM-01" {
+    usecase "CU-05\nRecuperar credencial" as CU05
+    usecase "CU-01\nRegistrar cuenta comercial" as CU01
+    usecase "CU-26\nOtorgar consentimiento" as CU26
+    usecase "CU-02\nCargar registro legal" as CU02
+    usecase "CU-04\nIniciar sesión con rol" as CU04
+    usecase "CU-03\nValidar cuenta comercial" as CU03
+  }
+  rectangle "Descubrimiento · M5 · PM-04" {
+    usecase "CU-13\nBuscar por filtros combinados" as CU13
+  }
+}
+
+planificador --> CU08
+planificador --> CU09
+planificador --> CU12
+comprador --> CU07
+comprador --> CU06
+comprador --> CU11
+comprador --> CU05
+comprador --> CU01
+comprador --> CU04
+comprador --> CU13
+productor --> CU10
+productor --> CU01
+productor --> CU04
+productor --> CU13
+proveedor --> CU01
+proveedor --> CU04
+proveedor --> CU13
+administrador --> CU03
+
+CU07 .> CU06 : <<extend>>
+CU06 .> CU08 : <<include>>
+CU01 .> CU26 : <<include>>
+CU01 .> CU02 : <<include>>
+@enduml
+
+@startuml MA-01-casos-de-uso-ambito-B
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam usecase {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam actor {
+  BackgroundColor #F4F4F4
+  BorderColor #444444
+}
+skinparam rectangle {
+  BorderColor #888888
+}
+left to right direction
+
+actor "Comprador\nminorista" as comprador
+actor "Proveedor\nmayorista" as proveedor
+actor "Productor\nagrícola" as productor
+actor "Administrador\nde la plataforma" as administrador
+actor "Planificador\ndel sistema" as planificador
+actor "Servicio externo\nde mensajería" as mensajeria
+
+rectangle "Plataforma AbasteceNi — ámbito de análisis B" {
+  rectangle "Negociación · M6 · M7 · PM-05" {
+    usecase "CU-14\nEmitir cotización" as CU14
+    usecase "CU-15\nAceptar o rechazar cotización" as CU15
+    usecase "CU-16\nEnviar contra-oferta" as CU16
+    usecase "CU-17\nConsultar precio de referencia" as CU17
+    usecase "CU-18\nConversar en canal privado" as CU18
+    usecase "CU-19\nNotificar al móvil" as CU19
+  }
+  rectangle "Cierre y reputación · M8 · PM-06" {
+    usecase "CU-20\nConfirmar entrega" as CU20
+    usecase "CU-21\nEvaluar a la contraparte" as CU21
+  }
+  rectangle "Gobierno · M9 · PS-01 · PS-02 · PE-02 · PM-07" {
+    usecase "CU-22\nGestionar ticket de incidencia" as CU22
+    usecase "CU-23\nConsultar tablero" as CU23
+    usecase "CU-24\nExportar transacciones" as CU24
+    usecase "CU-25\nConsultar bitácora" as CU25
+    usecase "CU-27\nSolicitar cancelación de cuenta" as CU27
+  }
+}
+
+comprador --> CU15
+comprador --> CU16
+comprador --> CU17
+comprador --> CU18
+comprador --> CU20
+comprador --> CU21
+comprador --> CU22
+comprador --> CU27
+proveedor --> CU14
+proveedor --> CU18
+proveedor --> CU21
+productor --> CU21
+productor --> CU22
+administrador --> CU22
+administrador --> CU23
+administrador --> CU24
+administrador --> CU25
+planificador --> CU22
+CU19 --> mensajeria
+
+CU15 .> CU19 : <<include>>
+CU15 .> CU18 : <<include>>
+CU16 .> CU14 : <<extend>>
+CU14 .> CU17 : <<extend>>
+CU20 .> CU21 : <<include>>
+@enduml

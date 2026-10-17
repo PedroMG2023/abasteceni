@@ -1,0 +1,36 @@
+@startuml MA-03-estados-cotizacion
+' MA-03 — Modelo de máquina de estados (D5 §2.11.3)
+' Pregunta: ¿qué estados admite una cotización, qué eventos provocan sus
+' transiciones, bajo qué guardas y qué efectos produce cada entrada?
+' Punto de vista rector: PV-02. Fuente reproducida de D5 Anexo A, muestra 1.
+' Trazabilidad: SYS-FN-18, 19, 20 y 22; RF-04. Iteración: IT-06.
+' El estado «Bloqueada» lo incorporó SYS-FN-20 en D2 v1.1 (INC-13).
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam state {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+
+[*] --> Emitida : emitir(precio, plazo, vigencia)\n[bloque vigente y no adjudicado]
+state "En negociacion" as NEG {
+  state Emitida
+  state ContraOfertada
+  Emitida --> ContraOfertada : contraOfertar()\n[rondas < 3] / rondas := rondas + 1
+  ContraOfertada --> Emitida : reemitir()\n[rondas < 3] / rondas := rondas + 1
+  Emitida : entry / publicarEvento(CotizacionEmitida)
+  ContraOfertada : entry / publicarEvento(ContraOfertaEmitida)
+}
+NEG --> Rechazada : rechazar()
+NEG --> Vencida : after(vigencia)
+Emitida --> Adjudicada : aceptar()
+ContraOfertada --> Bloqueada : contraOfertar() [rondas = 3]
+Adjudicada : entry / habilitarCanalPrivado()
+Adjudicada : entry / publicarEvento(CotizacionAdjudicada)
+Adjudicada : do / registrarAsientoAuditoria()
+Bloqueada --> Rechazada : cerrar()
+Adjudicada --> [*]
+Rechazada --> [*]
+Vencida --> [*]
+@enduml

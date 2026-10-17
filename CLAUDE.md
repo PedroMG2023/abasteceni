@@ -140,7 +140,7 @@ Trabajos que se ejecutan en cada cambio (DM-06, PR-08):
 4. dependency-cruiser con las reglas de §3. Cualquier violación detiene la integración (MT-03 > 0).
 5. Prueba negativa: un fixture con un acceso cruzado deliberado de `m3` a una pieza interna de `m4` debe ser rechazado. Si deja de ser rechazado, la CI falla. Es el criterio de salida de IT-00.
 6. Lint del contrato OpenAPI.
-7. Verificación sintáctica de los 14 modelos de `docs/modelos/` (D5 Anexo A, AM-03).
+7. Verificación sintáctica de los 14 modelos de `docs/modelos/` (D5 Anexo A, AM-03), con PlantUML 1.2026.8 fijado como jar descargado de las versiones publicadas oficiales. El paquete `plantuml` de Debian (1.2020) no admite la sintaxis de MD-04 ni de MD-07.
 8. `npm audit --audit-level=high`.
 9. Análisis estático de seguridad con CodeQL (`javascript-typescript`, consultas `security-extended`). Es gratuito en un repositorio público. Sus alertas son la evidencia del control 8.29 de ISO/IEC 27002:2022.
 

@@ -1,0 +1,106 @@
+@startuml MA-02-actividad-negociacion
+' MA-02 — Modelo de actividades (D5 §2.11.2)
+' Pregunta: ¿cómo transcurre la negociación y adjudicación desde que un
+' proveedor decide cotizar hasta que el acuerdo queda cerrado, y qué parte
+' ejecuta cada participante?
+' Punto de vista rector: PV-05. Cuatro particiones, una bifurcación
+' concurrente, cuatro nodos de decisión y un ciclo acotado.
+' Trazabilidad: PM-05; SYS-FN-18 a 22 y 25; RF-04. Iteración: IT-06 (IT-07
+' añade el canal privado).
+' Correcciones respecto de la figura 3 de D5 v1.1 (INC-16): agotadas las tres
+' rondas, la cotización pasa a «Bloqueada» (SYS-FN-20 v1.1, MA-03), no a
+' aceptación; la persistencia y la respuesta pertenecen a la partición del
+' sistema, no a la del proveedor.
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam activity {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam swimlane {
+  BorderColor #444444
+}
+
+|#F7F7F7|Proveedor mayorista|
+start
+:Localizar bloque de demanda
+consolidado (CU-13);
+:Componer cotización:
+precio por volumen,
+plazo y vigencia;
+|Sistema — M6 Cotizaciones|
+:Validar invariantes
+de la cotización;
+if (¿bloque aún vigente
+y no adjudicado?) then (no)
+  |Proveedor mayorista|
+  :Recibir rechazo motivado;
+  stop
+else (sí)
+endif
+|Sistema — M6 Cotizaciones|
+:Persistir cotización y
+evento de dominio en
+una sola transacción
+(ADR-01);
+:Responder al proveedor
+sin esperar la notificación
+(PA-03);
+|#F2F2F2|Trabajador asíncrono — M7|
+fork
+  :Publicar evento desde
+  la bandeja de salida;
+  :Enviar notificación por
+  el canal externo
+  (SYS-FN-25, ≤ 60 s);
+fork again
+  :Registrar asiento
+  de auditoría (M9);
+end fork
+|Comprador minorista|
+:Consultar cotización
+y precio de referencia
+de 30 días (SYS-FN-21);
+repeat
+  |Comprador minorista|
+  if (¿decisión?) then (rechazar)
+    |Sistema — M6 Cotizaciones|
+    :Marcar cotización
+    como Rechazada;
+    stop
+  elseif (¿contra-oferta?) then (sí)
+    |Comprador minorista|
+    :Enviar contra-oferta
+    (SYS-FN-20);
+    |Sistema — M6 Cotizaciones|
+    :Incrementar contador
+    de rondas;
+    if (¿rondas < 3?) then (no)
+      :Marcar cotización
+      como Bloqueada
+      (SYS-FN-20);
+      stop
+    else (sí)
+    endif
+  else (aceptar)
+  endif
+  |Comprador minorista|
+repeat while (¿hubo contra-oferta?) is (sí) not (no)
+:Aceptar cotización
+(SYS-FN-19);
+|Sistema — M6 Cotizaciones|
+:Adjudicar el acuerdo y
+registrar marca temporal
+en la bitácora;
+|Trabajador asíncrono — M7|
+:Habilitar canal privado
+entre las partes
+(SYS-FN-22);
+:Notificar la adjudicación
+a ambas partes;
+|Sistema — M6 Cotizaciones|
+:Cerrar el bloque de demanda
+para nuevas cotizaciones;
+stop
+@enduml

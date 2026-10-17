@@ -1,0 +1,39 @@
+@startuml MA-06-tiempos-reserva
+' MA-06 — Modelo de tiempos (D5 §2.11.6)
+' Pregunta: ¿cómo evoluciona en el tiempo el volumen publicado de un excedente
+' desde que un comprador manifiesta interés, y en qué instantes se emiten las
+' notificaciones?
+' Punto de vista rector: PV-05. Una línea de estados discretos, dos líneas
+' compactas y una restricción de duración. El eje es ordinal, no a escala:
+' la restricción de duración fija la magnitud verdadera.
+' Trazabilidad: SYS-FN-16, SYS-FN-17; RF-05; PM-03; O-NEG-02. Iteración: IT-04.
+
+skinparam defaultFontName "DejaVu Sans"
+
+robust "Volumen publicado" as V
+concise "Reserva del comprador" as R
+concise "Notificación emitida" as N
+
+@0
+V is Disponible
+R is "sin reserva"
+N is "sin aviso"
+
+@2
+V is Reservado
+R is vigente
+N is reserva
+
+@4
+N is "sin aviso"
+
+@10
+V is Disponible
+R is vencida
+N is liberación
+
+@12
+N is "sin aviso"
+
+N@2 <-> @10 : {48 h de período de gracia}
+@enduml

@@ -1,0 +1,76 @@
+@startuml MA-04-secuencia-cotizacion
+' MA-04 — Modelo de secuencia (D5 §2.11.4)
+' Pregunta: ¿en qué orden se intercambian los mensajes durante la emisión de
+' una cotización, y en qué punto la respuesta al usuario se desacopla de la
+' notificación externa?
+' Punto de vista rector: PV-05 (línea vertical = línea de vida; rectángulo
+' estrecho = activación; flecha discontinua = respuesta o retorno).
+' Ocho líneas de vida y dieciséis mensajes numerados (INC-16).
+' Trazabilidad: SYS-FN-18, SYS-FN-25; SYS-NFN-05; ADR-01, ADR-02.
+' Iteración: IT-06 (tramo síncrono) e IT-07 (tramo diferido).
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam sequence {
+  ParticipantBackgroundColor #F4F4F4
+  ParticipantBorderColor #555555
+  ActorBackgroundColor #F4F4F4
+  ActorBorderColor #444444
+  LifeLineBorderColor #555555
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+autonumber "<b>[0]"
+
+actor Proveedor as prov
+participant "Cliente web\n<<capa 1>>" as web
+participant "API REST\n<<capa 2>>" as api
+participant "M6 Cotizaciones\n<<capa 3>>" as m6
+participant "Repositorio y\nbandeja de salida\n<<capa 4>>" as repo
+participant "Trabajador\nasíncrono\n<<capa 4>>" as wrk
+participant "M7 Alertas\n<<capa 3>>" as m7
+actor Comprador as comp
+
+prov -> web : completar cotización
+activate web
+web -> api : POST /api/v1/cotizaciones
+activate api
+api -> api : autenticar y autorizar\nrol Proveedor (PA-05)
+api -> m6 : emitirCotizacion(bloqueId,\nprecio, plazo, vigencia)
+activate m6
+m6 -> m6 : consultar vigencia del bloque\nen M3 y validar invariantes
+m6 -> repo : guardar(cotizacion,\neventoCotizacionEmitida)
+activate repo
+repo --> m6 : confirmación
+deactivate repo
+note over repo
+  Una sola transacción: el cambio de estado
+  y el evento se persisten juntos (ADR-01)
+end note
+m6 --> api : cotizacionId
+deactivate m6
+api --> web : 201 Created
+deactivate api
+web --> prov : confirmación visible
+deactivate web
+|||
+wrk -> repo : sondear bandeja de salida
+activate wrk
+activate repo
+repo --> wrk : eventoCotizacionEmitida
+deactivate repo
+wrk ->> m7 : manejar(evento)
+activate m7
+m7 -> m7 : resolver franja de silencio\n(SYS-FN-26)
+m7 ->> comp : notificar al móvil\npor el puerto de mensajería
+note over wrk, m7
+  Interruptor de circuito (ADR-02) en el adaptador
+  del puerto: si el proveedor externo falla, la entrega
+  se difiere sin degradar el tiempo de respuesta de la API
+end note
+m7 --> wrk : evento procesado
+deactivate m7
+deactivate wrk
+@enduml

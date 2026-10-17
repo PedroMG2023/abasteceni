@@ -1,0 +1,88 @@
+@startuml MD-03-componentes
+' MD-03 — Modelo de componentes (D5 §2.12.3)
+' Pregunta: ¿de qué componentes reemplazables se compone el sistema, qué
+' interfaces provee y requiere cada uno, y por dónde cruza la frontera entre el
+' proceso de aplicación y el trabajador asíncrono?
+' Punto de vista rector: PV-01, con aportación de PV-02. Dos unidades de
+' ejecución, once componentes internos, tres interfaces de puerto y cuatro
+' elementos de persistencia y servicio externo.
+' Trazabilidad: V-02; ADR-01, ADR-02, ADR-03; PA-01, PA-03. Iteración: IT-01.
+' Realización: main.api.ts y main.trabajador.ts (CLAUDE.md §3).
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam component {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam database {
+  BackgroundColor #F4F4F4
+  BorderColor #444444
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+
+actor "Usuario\n(teléfono de gama media)" as usuario
+component "Cliente web responsivo" as cliente
+interface "REST /api/v1" as rest
+
+component "Trabajador asíncrono" as trabajador {
+  component "M7 Chat y alertas" as m7
+  component "Adaptador de correo\n(canal de reserva)" as correo
+  component "Adaptador de mensajería\n(interruptor de circuito)" as mensajeria
+}
+
+component "Servicio de aplicación\n(monolito modular)" as servicio {
+  interface "PuertoNotificacion" as pNotif
+  component "Adaptador primario\nAPI REST" as apiRest
+  component "M8 · M9\nReputación y gobierno" as m89
+  component "M1 · M2\nIdentidad" as m12
+  component "M3 · M4\nPublicación" as m34
+  component "M6\nCotizaciones" as m6
+  component "Adaptador de\npersistencia" as persistencia
+  component "Adaptador de\nbandeja de salida" as bandeja
+  component "M5\nBúsqueda" as m5
+  interface "PuertoRepositorio" as pRepo
+  interface "PuertoPublicacionEventos" as pEventos
+}
+
+component "Servicio externo\nde mensajería" as externo
+database "Base de datos primaria\n(esquema por módulo)" as primaria
+database "Réplica de lectura" as replica
+component "Caché distribuida" as cache
+
+usuario --> cliente
+cliente --> rest
+rest - apiRest
+apiRest --> m89
+apiRest --> m12
+apiRest --> m34
+apiRest --> m6
+apiRest --> m5
+m7 ..> pNotif
+correo ..|> pNotif
+mensajeria ..|> pNotif
+mensajeria --> externo
+m89 ..> pRepo
+m12 ..> pRepo
+m34 ..> pRepo
+m6 ..> pRepo
+m34 ..> pEventos
+m6 ..> pEventos
+persistencia ..|> pRepo
+bandeja ..|> pEventos
+persistencia --> primaria
+bandeja --> primaria
+bandeja ..> trabajador : evento publicado
+m5 ..> replica : solo lectura
+m5 ..> cache
+primaria --> replica : replicación
+
+note right of bandeja
+  Bandeja de salida transaccional (ADR-01):
+  el evento se escribe en la misma transacción
+  que el cambio de estado del agregado.
+end note
+@enduml

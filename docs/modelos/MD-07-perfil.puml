@@ -1,0 +1,89 @@
+@startuml MD-07-perfil
+' MD-07 — Modelo de perfil (D5 §2.12.7 y Anexo B)
+' Pregunta: ¿qué metaclases extiende el perfil «AbasteceNi», con qué
+' estereotipos, qué propiedades añade cada uno y qué restricciones impone?
+' Pertenece a la capa MOF-M2 y gobierna la lectura de los demás modelos.
+' Cinco metaclases extendidas, nueve estereotipos, diez valores etiquetados y
+' tres restricciones formales (INC-16 corrige el conteo de valores etiquetados).
+' Trazabilidad: PA-01, PA-02, PA-03, PA-06; ADR-01, ADR-05; SYS-FN-35, 36, 37.
+' Iteración: IT-00.
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam classAttributeIconSize 0
+skinparam class {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+hide circle
+hide empty members
+
+package "Metamodelo UML 2 — capa MOF-M2" {
+  class Package <<metaclass>>
+  class Dependency <<metaclass>>
+  class Component <<metaclass>>
+  class Class <<metaclass>>
+  class Property <<metaclass>>
+}
+
+package "Perfil «AbasteceNi» — extensión ligera" {
+  class modulo <<stereotype>> {
+    identificador : String {M1..M9}
+    esquemaPropio : String
+    iteracion : String {IT-00..IT-10}
+  }
+  class entidadRaiz <<stereotype>> {
+    requisito : String [1..*]
+  }
+  class capa <<stereotype>> {
+    orden : Integer {1..4}
+  }
+  class objetoValor <<stereotype>> {
+    inmutable : Boolean = true
+  }
+  class puerto <<stereotype>>
+  class adaptador <<stereotype>> {
+    puertoRealizado : String
+  }
+  class eventoDominio <<stereotype>> {
+    transaccional : Boolean = true
+  }
+  class auditable <<stereotype>>
+  class datoPersonal <<stereotype>> {
+    clasificacion : String
+    retencion : String
+  }
+}
+
+modulo -up-|> Package : <<extend>>
+capa -up-|> Package : <<extend>>
+entidadRaiz -up-|> Class : <<extend>>
+objetoValor -up-|> Class : <<extend>>
+eventoDominio -up-|> Class : <<extend>>
+auditable -up-|> Class : <<extend>>
+puerto -up-|> Component : <<extend>>
+puerto -up-|> Dependency : <<extend>>
+adaptador -up-|> Component : <<extend>>
+datoPersonal -up-|> Property : <<extend>>
+
+note bottom of modulo
+  <b>context</b> Package inv PA_02:
+   self.ownedElement->forAll(e |
+     e.clientDependency.supplier->forAll(s |
+       s.package = self or s.isPublicInterface))
+end note
+note bottom of entidadRaiz
+  <b>context</b> Class inv PA_01:
+   self.clientDependency.supplier->forAll(s |
+     s.getAppliedStereotype() <> 'adaptador')
+end note
+note bottom of auditable
+  <b>context</b> Class inv PA_06:
+   self.ownedOperation->forAll(op |
+     op.name <> 'actualizar' and op.name <> 'borrar')
+end note
+@enduml

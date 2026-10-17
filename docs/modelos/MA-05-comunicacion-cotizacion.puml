@@ -1,0 +1,49 @@
+@startuml MA-05-comunicacion-cotizacion
+' MA-05 — Modelo de comunicación (D5 §2.11.5)
+' Pregunta: ¿qué objetos deben conocerse entre sí para que la emisión de una
+' cotización sea posible, y cuántos vínculos distintos atraviesa el mensaje?
+' Punto de vista rector: PV-01. Diez objetos y doce mensajes numerados.
+' Trazabilidad: los mismos elementos de MA-04, proyectados sobre la topología
+' de enlaces. Iteración: IT-06 e IT-07.
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam object {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+
+object "prov : Proveedor" as prov
+object "ui : ClienteWeb" as ui
+object "api : RecursoCotizaciones" as api
+object "m6 : ServicioCotizacion" as m6
+object "m3 : ServicioBloques" as m3
+object "outbox : BandejaSalida" as outbox
+object "wrk : TrabajadorEventos" as wrk
+object "m7 : ServicioAlertas" as m7
+object "m9 : ServicioAuditoria" as m9
+object "comp : Comprador" as comp
+
+prov --> ui : 1: emitirCotizacion()
+ui --> api : 2: POST /api/v1/cotizaciones
+api --> m6 : 3: emitirCotizacion(bloqueId, precio, plazo)
+m6 --> m3 : 4: consultarVigencia(bloqueId)
+m3 --> m6 : 5: <<return>> vigente
+m6 --> outbox : 6: guardar(cotizacion, evento) {transaccional}
+api --> ui : 7: <<return>> 201 Created
+wrk --> outbox : 8: sondear()
+outbox --> wrk : 9: <<return>> eventoCotizacionEmitida
+wrk --> m7 : 10: manejar(evento) {asíncrono}
+wrk --> m9 : 11: registrarAsiento(evento) {asíncrono}
+m7 --> comp : 12: notificar() {≤ 60 s}
+
+note bottom of outbox
+  El vínculo 6 y el vínculo 8 comparten el mismo
+  objeto: es la frontera entre el camino síncrono
+  (1-7) y el camino diferido (8-12), conforme a PA-03.
+end note
+@enduml

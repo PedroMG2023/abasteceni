@@ -1,0 +1,53 @@
+@startuml MD-04-estructura-compuesta-m6
+' MD-04 — Modelo de estructura compuesta (D5 §2.12.4)
+' Pregunta: ¿cómo se organiza el interior de un módulo de dominio, qué partes
+' lo componen y a través de qué puertos se comunica con el exterior sin
+' conocer quién está al otro lado?
+' Punto de vista rector: PV-01. Un clasificador estructurado, cuatro partes
+' internas, cuatro puertos y sus conectores.
+' Trazabilidad: M6; PA-01; ADR-01; RF-04. Iteración: IT-06.
+' Origen de AS-19 y AS-20 (docs/evidencia/matriz-AS.md).
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam component {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+
+component "M6 Cotizaciones\n<<modulo>>" as m6 {
+  portin "API interna\nIEmisionCotizacion" as pEmision
+  portout "IRepositorioCotizacion" as pRepo
+  portout "IConsultaBloques" as pBloques
+  portout "Eventos de dominio\nIPublicacionEventos" as pEventos
+  component "ServicioCotizacion\n<<parte>>" as servicio
+  component "MaquinaEstadosCotizacion\n<<parte>>" as maquina
+  component "PoliticaRondas\n<<parte>>" as politica
+  component "CalculadoraPrecioReferencia\n<<parte>>" as calculadora
+}
+
+component "Adaptador de persistencia\n<<adaptador>>" as persistencia
+component "M3 Demandas" as m3
+component "Bandeja de salida\n<<adaptador>>" as bandeja
+
+pEmision --> servicio
+servicio --> pRepo
+servicio --> maquina : transición gobernada
+servicio --> politica : ¿admite ronda?
+servicio --> calculadora : histograma de 30 días
+servicio --> pEventos
+calculadora --> pBloques
+pRepo -- persistencia
+pBloques -- m3
+pEventos -- bandeja
+
+note right of m6
+  Leyenda: el rectángulo pequeño sobre el borde es un <b>puerto</b>;
+  las partes internas solo se comunican con el exterior a través de él.
+  Las partes nunca conocen al adaptador que realiza el puerto (PA-01).
+end note
+@enduml

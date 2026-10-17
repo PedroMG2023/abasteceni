@@ -1,0 +1,92 @@
+@startuml MA-07-vista-interaccion
+' MA-07 — Modelo de vista de interacción (D5 §2.11.7)
+' Pregunta: ¿cómo se encadenan las interacciones parciales que los demás
+' modelos describen, y cuál es el recorrido completo de una transacción desde
+' la afiliación hasta la liquidación?
+' Punto de vista rector: PV-05 como eje integrador. Diez ocurrencias de
+' interacción, cuatro operadores de decisión, un operador paralelo y un ciclo
+' acotado.
+' Trazabilidad: PM-01 a PM-07; verifica el Anexo C.2 de D1.
+' Correcciones respecto de la figura 8 de D5 v1.1 (INC-16): se añade la rama
+' «aceptación» y, agotadas las tres rondas, la cotización queda «Bloqueada»
+' (SYS-FN-20 v1.1, MA-03) en lugar de adjudicarse.
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #555555
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+
+start
+:ref
+<b>Afiliación y validación</b>
+(PM-01 · CU-01 a CU-04)
+participantes: solicitante, M1, M2, M9;
+if (¿cuenta validada?) then (no)
+  :ref
+  <b>Rechazo motivado y notificación</b>
+  (M1, M7);
+  stop
+else (sí)
+endif
+fork
+  :ref
+  <b>Publicación y consolidación de bloques de demanda</b>
+  (PM-02 · CU-06 a CU-09)
+  participantes: comprador, M3;
+fork again
+  :ref
+  <b>Publicación y reserva de excedente agrícola</b>
+  (PM-03 · CU-10 a CU-12)
+  participantes: productor, M4;
+end fork
+:ref
+<b>Descubrimiento por filtros combinados</b>
+(PM-04 · CU-13)
+participantes: proveedor, M5, réplica de lectura;
+:ref
+<b>Emisión de cotización</b>
+(PM-05 · CU-14 · véase MA-04 y MA-05)
+participantes: proveedor, M6, M7;
+repeat
+  if (¿decisión del comprador?) then (rechazo)
+    stop
+  elseif (¿contra-oferta?) then (sí)
+    :ref
+    <b>Ronda de contra-oferta</b>
+    (CU-16 · véase MA-03);
+    if (¿rondas < 3?) then (no)
+      :Cotización Bloqueada
+      (SYS-FN-20 · véase MA-03);
+      stop
+    else (sí)
+    endif
+  else (aceptación)
+  endif
+repeat while (¿hubo contra-oferta?) is (sí) not (no)
+:ref
+<b>Adjudicación y apertura del canal privado</b>
+(PM-05 · CU-15, CU-18);
+:ref
+<b>Confirmación de entrega y evaluación bidireccional</b>
+(PM-06 · CU-20, CU-21)
+participantes: ambas partes, M8;
+:ref
+<b>Exportación de transacciones cerradas para la liquidación externa</b>
+(PM-07 parcial · CU-24)
+participantes: administrador, M9;
+stop
+note right
+  Leyenda del punto de vista:
+  cada nodo rotulado <b>ref</b> denota una
+  ocurrencia de interacción desarrollada
+  en otro modelo de esta serie; el rombo
+  denota un operador de decisión (alt);
+  la barra gruesa, un operador par.
+end note
+@enduml
