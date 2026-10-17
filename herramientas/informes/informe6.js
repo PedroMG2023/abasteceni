@@ -86,9 +86,10 @@ const contenido = [
     [
       ['`it-00/entorno`', 'PR #1', '`main`', 'Fusionada (`9e16046`)', 'Menos de un día'],
       ['`it-01/linea-base`', 'PR #2', '`it-00/entorno`, reapuntada a `main` tras fusionarse #1', 'Fusionada (`8d1845e`)', 'Menos de un día'],
-      ['`it-02/afiliacion`', 'PR #3 (la #4 se cerró como duplicada)', '`main`', E.IT02_INTEGRADA ? 'Fusionada' : 'Abierta, actualizada con `main`, CI en verde', 'Menos de un día'],
-      ['`it-02/informes`', 'PR #5', '`it-02/afiliacion`', 'Informes de la fase de desarrollo; abierta', 'Menos de un día'],
-      ['`it-02/bloqueo`', 'PR #6', '`it-02/informes`', E.BLOQUEO_INTEGRADO ? 'Fusionada' : 'SYS-FN-07 y mejora del formulario; abierta', 'Menos de un día'],
+      ['`it-02/afiliacion`', 'PR #3 (la #4 se cerró como duplicada)', '`main`', E.IT02_INTEGRADA ? 'Fusionada (`6d0f2d3`)' : 'Abierta, actualizada con `main`, CI en verde', 'Menos de un día'],
+      ['`it-02/informes`', 'PR #5', '`it-02/afiliacion`, reapuntada a `main` tras fusionarse #3', 'Fusionada (`72c7a93`)', 'Menos de un día'],
+      ['`it-02/bloqueo`', 'PR #6', '`it-02/informes`, reapuntada a `main` tras fusionarse #5', E.BLOQUEO_INTEGRADO ? 'Fusionada (`2bd1b3e`)' : 'SYS-FN-07 y mejora del formulario; abierta', 'Menos de un día'],
+      ['`it-02/cierre`', 'PR #7', '`main`', 'Decisiones DIS-26, 27, 32 y 35, y esta versión de los informes', 'Menos de un día'],
     ],
     [18, 20, 26, 22, 14],
   ),
@@ -116,8 +117,8 @@ const contenido = [
     '**Protección de main** (ISO/IEC 27002 8.4 y 8.32): solicitud de integración obligatoria, prohibición de push directo y forzado (también para administradores) y los diez trabajos de la CI como checks obligatorios en modo estricto, es decir, con la rama al día. La activó el titular del repositorio (DIS-11); el trabajo 10, añadido en IT-01, pasó a ser obligatorio el 17 de octubre, tras la integración de la PR #5.',
     '**Revisión cruzada (DM-05):** ' + (REVISION_REGISTRADA
       ? 'consta en las solicitudes de integración con resultado favorable.'
-      : 'las solicitudes #1 y #2 se fusionaron sin una revisión humana registrada en GitHub; solo consta el análisis automático de CodeQL. La segunda persona del equipo todavía no es colaboradora del repositorio, por lo que no puede aprobar en la plataforma. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad del proceso de configuración a la fecha.'),
-    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 35 entradas (DIS-01 a DIS-35): 34 resueltas y 1 abierta para la revisión (DIS-35, firma de `validar` en MD-01). Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
+      : 'las solicitudes #1, #2, #3, #5 y #6 se fusionaron sin una revisión humana registrada en GitHub; solo consta el análisis automático de CodeQL. La segunda persona del equipo todavía no es colaboradora del repositorio, por lo que no puede aprobar en la plataforma. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad del proceso de configuración a la fecha.'),
+    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 35 entradas (DIS-01 a DIS-35), todas resueltas con aprobación del equipo. Las de DIS-32 y DIS-35 modifican MD-01 y quedan pendientes de incorporarse a D5 v1.2. Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
     '**Decisiones (PR-11):** el registro contiene ADR-01 a ADR-09. Las elecciones técnicas de la construcción que no alteran la arquitectura (versiones, parámetros del interruptor) se registran en `iteraciones.md`, como prevé ADR-07.',
     '**Gobierno del cambio de requisitos (DM-09):** no se admitieron cambios al catálogo. Las precisiones aprobadas (DIS-16 a DIS-23, DIS-28 a DIS-31) se acumulan para la próxima versión menor de D2 y D5, como prevé D4 §2.16.',
   ]),
@@ -198,7 +199,7 @@ const contenido = [
     ['Elemento', 'Estado'],
     [
       ['Identificación de elementos, ramas de vida corta, commits trazables, CI de diez trabajos, protección de `main`', 'Cumplido'],
-      ['Revisión cruzada registrada (DM-05; DM-04, condición 5)', REVISION_REGISTRADA ? 'Cumplido' : 'Pendiente: no consta en las PR #1 y #2'],
+      ['Revisión cruzada registrada (DM-05; DM-04, condición 5)', REVISION_REGISTRADA ? 'Cumplido' : 'Pendiente: no consta en las PR #1 a #6'],
       ['Segunda persona del equipo como colaboradora en GitHub', 'Pendiente'],
       ['Trabajo 10 como check obligatorio de `main`', 'Pendiente'],
       ['Integración de IT-02 (PR #3) y de los informes', E.IT02_INTEGRADA ? 'IT-02 integrada; informes pendientes' : 'Pendiente de revisión'],

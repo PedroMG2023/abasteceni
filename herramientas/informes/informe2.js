@@ -183,7 +183,7 @@ const contenido = [
       ['Resumen de errores al inicio del formulario y foco en el primer error', 'Corregida (`5273441`)', '§2.3, pantalla 3; `PaginaRegistro.test.tsx`'],
       ['RUC con guiones normalizado y confirmación al aprobar', 'Mejoras propuestas', '§2.3; exigen modificar DIS-21 y DIS-26'],
       ['Evaluación con participantes (ISO/IEC 25062)', 'Pendiente', 'Diseño en el §2.6'],
-      ['Integración en `main`', E.IT02_INTEGRADA ? 'IT-00, IT-01 e IT-02 integradas' : 'IT-00 e IT-01 integradas; IT-02 pendiente de la revisión cruzada', 'PR #1, #2 y #3'],
+      ['Integración en `main`', E.BLOQUEO_INTEGRADO ? 'IT-00, IT-01, IT-02 (tramo A) y la corrección del formulario integradas' : E.IT02_INTEGRADA ? 'IT-00, IT-01 e IT-02 integradas' : 'IT-00 e IT-01 integradas; IT-02 pendiente de la revisión cruzada', E.BLOQUEO_INTEGRADO ? 'PR #1, #2, #3 y #6' : 'PR #1, #2 y #3'],
     ],
     [40, 26, 34],
   ),

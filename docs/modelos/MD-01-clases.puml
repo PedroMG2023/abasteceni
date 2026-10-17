@@ -10,7 +10,9 @@
 ' Trazabilidad: M1, M3, M4, M6, M8; SYS-FN-01, 02, 09, 11, 14, 16, 17, 18,
 ' 19, 20, 27 y 30. Dieciséis clases en cinco paquetes de módulo.
 ' DIS-32 (aprobada): «registroLegal» realiza SYS-FN-02 (clave en el almacén de
-' documentos y tipo de contenido). Pendiente de reflejarse en D5 v1.2.
+' documentos y tipo de contenido). DIS-35 (aprobada): «validar» recibe la decisión
+' y la justificación que exige SYS-FN-03; el Administrador queda en la bitácora.
+' Ambos cambios están pendientes de reflejarse en D5 v1.2.
 
 skinparam shadowing false
 skinparam classAttributeIconSize 0
@@ -37,7 +39,7 @@ package "M1 Usuarios" {
     - ubicacion : Ubicacion
     - estado : EstadoCuenta
     - consentimiento : Consentimiento
-    + validar(a : Administrador) : void
+    + validar(decision : Decision, justificacion : String [0..1]) : void
     + solicitarCancelacion() : void
   }
   class Productor <<entidadRaiz>>
