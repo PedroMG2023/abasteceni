@@ -17,7 +17,7 @@ test.describe('CT-REG-01 · registro de una cuenta comercial de extremo a extrem
     await llenarRegistro(page, { ...cuenta, ruc: '' });
     await page.getByRole('button', { name: 'Registrar cuenta' }).click();
 
-    await expect(page.getByLabel('RUC')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByLabel('RUC', { exact: true })).toHaveAttribute('aria-invalid', 'true');
     await expect(page.getByText('Indique el RUC.')).toBeVisible();
     expect(await consultar('SELECT 1 FROM m1_usuarios.cuentas_comerciales WHERE correo = $1', [cuenta.correo])).toEqual([]);
   });
