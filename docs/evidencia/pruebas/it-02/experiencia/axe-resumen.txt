@@ -1,0 +1,5 @@
+axe · inicio: 0 infracciones, 16 reglas superadas
+axe · registro: 0 infracciones, 20 reglas superadas
+axe · inicio de sesión: 0 infracciones, 19 reglas superadas
+axe · panel del Administrador: 0 infracciones, 20 reglas superadas
+axe · registro con errores: 0 infracciones, 23 reglas superadas
