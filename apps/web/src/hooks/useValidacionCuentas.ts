@@ -12,19 +12,17 @@ export function useValidacionCuentas() {
   const [aviso, setAviso] = useState<string | null>(null);
   const [cargando, setCargando] = useState(true);
 
-  const cargar = useCallback(async () => {
-    try {
-      setPendientes(await cliente.listarCuentas('Pendiente de validación'));
-    } catch (error) {
-      setAviso(error instanceof ErrorApi ? error.cuerpo.mensaje : MENSAJE_SIN_CONEXION);
-    } finally {
-      setCargando(false);
-    }
-  }, [cliente]);
-
   useEffect(() => {
-    void cargar();
-  }, [cargar]);
+    let vigente = true;
+    cliente
+      .listarCuentas('Pendiente de validación')
+      .then((cuentas) => vigente && setPendientes(cuentas))
+      .catch((error: unknown) => vigente && setAviso(error instanceof ErrorApi ? error.cuerpo.mensaje : MENSAJE_SIN_CONEXION))
+      .finally(() => vigente && setCargando(false));
+    return () => {
+      vigente = false;
+    };
+  }, [cliente]);
 
   const decidir = useCallback(
     async (id: string, decision: 'aprobar' | 'rechazar', justificacion?: string) => {
