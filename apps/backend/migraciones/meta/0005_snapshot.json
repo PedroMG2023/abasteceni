@@ -1,0 +1,505 @@
+{
+  "id": "97b0df63-96a4-489f-b854-a0e5b294ce33",
+  "prevId": "cc861285-8c8a-49c9-b32b-bd9a6dcd2e12",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "m1_usuarios.cuentas_comerciales": {
+      "name": "cuentas_comerciales",
+      "schema": "m1_usuarios",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "razon_social": {
+          "name": "razon_social",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ruc": {
+          "name": "ruc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "departamento": {
+          "name": "departamento",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "municipio": {
+          "name": "municipio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rubro": {
+          "name": "rubro",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "telefono_movil": {
+          "name": "telefono_movil",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "correo": {
+          "name": "correo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "estado": {
+          "name": "estado",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registrada_en": {
+          "name": "registrada_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "cuentas_comerciales_ruc_unico": {
+          "name": "cuentas_comerciales_ruc_unico",
+          "columns": [
+            "ruc"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "cuentas_comerciales_tipo": {
+          "name": "cuentas_comerciales_tipo",
+          "value": "\"m1_usuarios\".\"cuentas_comerciales\".\"tipo\" IN ('Comprador', 'Proveedor', 'Productor')"
+        },
+        "cuentas_comerciales_estado": {
+          "name": "cuentas_comerciales_estado",
+          "value": "\"m1_usuarios\".\"cuentas_comerciales\".\"estado\" IN ('Pendiente de validación', 'Activa', 'Rechazada')"
+        },
+        "cuentas_comerciales_obligatorios": {
+          "name": "cuentas_comerciales_obligatorios",
+          "value": "btrim(\"m1_usuarios\".\"cuentas_comerciales\".\"razon_social\") <> '' AND btrim(\"m1_usuarios\".\"cuentas_comerciales\".\"departamento\") <> '' AND btrim(\"m1_usuarios\".\"cuentas_comerciales\".\"municipio\") <> '' AND btrim(\"m1_usuarios\".\"cuentas_comerciales\".\"rubro\") <> ''"
+        },
+        "cuentas_comerciales_ruc_formato": {
+          "name": "cuentas_comerciales_ruc_formato",
+          "value": "\"m1_usuarios\".\"cuentas_comerciales\".\"ruc\" ~ '^(J[0-9]{13}|[0-9]{13}[A-Z])$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "m2_seguridad.credenciales": {
+      "name": "credenciales",
+      "schema": "m2_seguridad",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "cuenta_id": {
+          "name": "cuenta_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "correo": {
+          "name": "correo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hash_contrasena": {
+          "name": "hash_contrasena",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "rol": {
+          "name": "rol",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "habilitacion": {
+          "name": "habilitacion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creada_en": {
+          "name": "creada_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "credenciales_cuenta_unica": {
+          "name": "credenciales_cuenta_unica",
+          "columns": [
+            "cuenta_id"
+          ],
+          "nullsNotDistinct": false
+        },
+        "credenciales_correo_unico": {
+          "name": "credenciales_correo_unico",
+          "columns": [
+            "correo"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "credenciales_rol": {
+          "name": "credenciales_rol",
+          "value": "\"m2_seguridad\".\"credenciales\".\"rol\" IN ('Comprador', 'Proveedor', 'Productor', 'Administrador')"
+        },
+        "credenciales_habilitacion": {
+          "name": "credenciales_habilitacion",
+          "value": "\"m2_seguridad\".\"credenciales\".\"habilitacion\" IN ('habilitada', 'pendiente', 'rechazada')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "m2_seguridad.sesiones": {
+      "name": "sesiones",
+      "schema": "m2_seguridad",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "credencial_id": {
+          "name": "credencial_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "huella": {
+          "name": "huella",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "creada_en": {
+          "name": "creada_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expira_en": {
+          "name": "expira_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revocada_en": {
+          "name": "revocada_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "sesiones_credencial_id_credenciales_id_fk": {
+          "name": "sesiones_credencial_id_credenciales_id_fk",
+          "tableFrom": "sesiones",
+          "columnsFrom": [
+            "credencial_id"
+          ],
+          "tableTo": "credenciales",
+          "schemaTo": "m2_seguridad",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "sesiones_huella_unica": {
+          "name": "sesiones_huella_unica",
+          "columns": [
+            "huella"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "m9_administracion.bitacora": {
+      "name": "bitacora",
+      "schema": "m9_administracion",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "usuario_id": {
+          "name": "usuario_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accion": {
+          "name": "accion",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurso_tipo": {
+          "name": "recurso_tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurso_id": {
+          "name": "recurso_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "detalle": {
+          "name": "detalle",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registrado_en": {
+          "name": "registrado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "bitacora_recurso": {
+          "name": "bitacora_recurso",
+          "columns": [
+            {
+              "expression": "recurso_tipo",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "recurso_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "bitacora_accion": {
+          "name": "bitacora_accion",
+          "value": "btrim(\"m9_administracion\".\"bitacora\".\"accion\") <> ''"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "plataforma.bandeja_salida": {
+      "name": "bandeja_salida",
+      "schema": "plataforma",
+      "columns": {
+        "secuencia": {
+          "name": "secuencia",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tipo": {
+          "name": "tipo",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "datos": {
+          "name": "datos",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ocurrido_en": {
+          "name": "ocurrido_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "publicado_en": {
+          "name": "publicado_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "intentos": {
+          "name": "intentos",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "proximo_intento_en": {
+          "name": "proximo_intento_en",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ultimo_error": {
+          "name": "ultimo_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "bandeja_salida_pendientes": {
+          "name": "bandeja_salida_pendientes",
+          "columns": [
+            {
+              "expression": "secuencia",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "where": "\"plataforma\".\"bandeja_salida\".\"publicado_en\" IS NULL",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "bandeja_salida_id_unique": {
+          "name": "bandeja_salida_id_unique",
+          "columns": [
+            "id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "plataforma.contador_peticiones": {
+      "name": "contador_peticiones",
+      "schema": "plataforma",
+      "columns": {
+        "clave": {
+          "name": "clave",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ventana": {
+          "name": "ventana",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cuenta": {
+          "name": "cuenta",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "contador_peticiones_clave_ventana_pk": {
+          "name": "contador_peticiones_clave_ventana_pk",
+          "columns": [
+            "clave",
+            "ventana"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {
+    "m1_usuarios": "m1_usuarios",
+    "m2_seguridad": "m2_seguridad",
+    "m3_demandas": "m3_demandas",
+    "m4_ofertas": "m4_ofertas",
+    "m5_busqueda": "m5_busqueda",
+    "m6_cotizaciones": "m6_cotizaciones",
+    "m7_chat": "m7_chat",
+    "m8_reputacion": "m8_reputacion",
+    "m9_administracion": "m9_administracion",
+    "plataforma": "plataforma"
+  },
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

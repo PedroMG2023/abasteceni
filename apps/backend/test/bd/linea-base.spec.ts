@@ -7,7 +7,7 @@ import { RepositorioUsuariosPg } from '../../src/infraestructura/persistencia/m1
 import { UnidadTrabajoPg } from '../../src/infraestructura/persistencia/unidad-trabajo-pg';
 import { iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-datos';
 import { consultar } from '../soporte/consultas';
-import { solicitudValida } from '../unitarias/datos';
+import { REGISTRO_LEGAL, solicitudValida } from '../unitarias/datos';
 
 // Privilegios declarados en las migraciones 0001 y 0003 (ADR-05): ni más ni menos.
 const PRIVILEGIOS_DECLARADOS = [
@@ -30,7 +30,7 @@ const PRIVILEGIOS_DECLARADOS = [
 ];
 
 function cuenta(id: string, ruc: string): CuentaComercial {
-  return CuentaComercial.registrar(solicitudValida({ ruc }), { id, ahora: new Date('2026-10-17T12:00:00Z') });
+  return CuentaComercial.registrar(solicitudValida({ ruc }), { id, ahora: new Date('2026-10-17T12:00:00Z'), registroLegal: REGISTRO_LEGAL });
 }
 
 describe('Base de datos de la línea base (IT-01)', () => {

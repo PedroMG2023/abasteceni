@@ -20,6 +20,11 @@ export const cuentasComerciales = esquema.table(
     correo: text('correo').notNull(),
     estado: text('estado').notNull(),
     registradaEn: timestamp('registrada_en', { withTimezone: true }).notNull(),
+    // Consentimiento de SYS-FN-36 (atributo consentimiento de MD-01).
+    consentimientoAceptadoEn: timestamp('consentimiento_aceptado_en', { withTimezone: true }).notNull(),
+    // Documento de registro legal de SYS-FN-02 en el almacén de documentos (DIS-32).
+    registroLegalClave: uuid('registro_legal_clave').notNull(),
+    registroLegalTipo: text('registro_legal_tipo').notNull(),
   },
   (t) => [
     check('cuentas_comerciales_tipo', sql`${t.tipo} IN ('Comprador', 'Proveedor', 'Productor')`),
@@ -29,5 +34,6 @@ export const cuentasComerciales = esquema.table(
       sql`btrim(${t.razonSocial}) <> '' AND btrim(${t.departamento}) <> '' AND btrim(${t.municipio}) <> '' AND btrim(${t.rubro}) <> ''`,
     ),
     check('cuentas_comerciales_ruc_formato', sql`${t.ruc} ~ '^(J[0-9]{13}|[0-9]{13}[A-Z])$'`),
+    check('cuentas_comerciales_registro_legal_tipo', sql`${t.registroLegalTipo} IN ('application/pdf', 'image/jpeg')`),
   ],
 );

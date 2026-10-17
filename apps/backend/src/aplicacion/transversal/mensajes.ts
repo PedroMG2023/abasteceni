@@ -14,6 +14,23 @@ const ETIQUETAS: Record<string, string> = {
   telefonoMovil: 'el teléfono móvil',
   correo: 'el correo electrónico',
   contrasena: 'la contraseña',
+  justificacion: 'el motivo del rechazo',
+  decision: 'la decisión',
+};
+
+// Mensajes completos para los campos cuyo texto no se arma con la etiqueta.
+const ESPECIFICOS: Record<string, Partial<Record<DetalleValidacion['motivo'], string>>> = {
+  registroLegal: {
+    obligatorio: 'Adjunte el documento de registro legal (Cédula RUC o patente municipal).',
+    formato: 'Cargue el documento en formato PDF o JPG.',
+    longitud: 'El documento supera el tamaño máximo de 5 MB.',
+  },
+  aceptaConsentimiento: {
+    obligatorio: 'Debe aceptar la declaración de consentimiento para registrarse.',
+    valor: 'Debe aceptar la declaración de consentimiento para registrarse.',
+  },
+  decision: { valor: 'Elija aprobar o rechazar.', obligatorio: 'Elija aprobar o rechazar.' },
+  justificacion: { obligatorio: 'Indique el motivo del rechazo.' },
 };
 
 const FORMATOS: Record<string, string> = {
@@ -34,9 +51,14 @@ export const MENSAJE_SOLICITUD_INVALIDA = 'Revise los datos marcados.';
 export const MENSAJE_DEMASIADAS_PETICIONES = 'Se superó el límite de peticiones. Intente de nuevo en un minuto.';
 export const MENSAJE_PROHIBIDO = 'No tiene permiso para realizar esta operación.';
 export const MENSAJE_NO_ENCONTRADO = 'El recurso solicitado no existe.';
+export const MENSAJE_DOCUMENTO_DEMASIADO_GRANDE = 'El documento supera el tamaño máximo de 5 MB.';
+export const MENSAJE_CUENTA_NO_ENCONTRADA = 'La cuenta indicada no existe.';
+export const MENSAJE_TRANSICION_NO_PERMITIDA = 'La cuenta ya fue validada; no admite esta decisión.';
 export const MENSAJE_ERROR_INTERNO = 'Ocurrió un error inesperado. Intente de nuevo más tarde.';
 
 export function mensajeCampo(detalle: DetalleValidacion): string {
+  const especifico = ESPECIFICOS[detalle.campo]?.[detalle.motivo];
+  if (especifico) return especifico;
   const etiqueta = ETIQUETAS[detalle.campo] ?? `el campo ${detalle.campo}`;
   switch (detalle.motivo) {
     case 'obligatorio':

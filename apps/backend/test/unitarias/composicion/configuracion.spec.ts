@@ -17,6 +17,7 @@ describe('Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de
       cookieSegura: true,
       proxiesConfiables: 0,
       limitePeticionesPorMinuto: 120,
+      directorioDocumentos: 'almacen-documentos',
       trabajador: { intervaloSondeoMs: 1000, tamanoLote: 20, whatsappSimuladoDisponible: true, canalNotificacion: 'whatsapp' },
     });
   });

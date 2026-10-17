@@ -10,6 +10,7 @@ import { iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-da
 import { configuracionPrueba } from '../soporte/configuracion';
 import { consultar } from '../soporte/consultas';
 import { validarRespuesta } from '../soporte/contrato';
+import { registrarPorHttp } from '../soporte/registro-http';
 import { solicitudValida } from '../unitarias/datos';
 
 const ADMIN = { correo: 'admin@abasteceni.com.ni', contrasena: 'clave-de-administrador' };
@@ -47,7 +48,7 @@ describe('API de cuentas y sesiones (IT-01) conforme al contrato', () => {
 
   describe('CT-REG-01 · POST /api/v1/cuentas (SYS-FN-01)', () => {
     it('registra la cuenta con todos los campos válidos en estado «Pendiente de validación»', async () => {
-      const respuesta = conforme('/cuentas', 'post', await http().post('/api/v1/cuentas').send(solicitudValida()));
+      const respuesta = conforme('/cuentas', 'post', await registrarPorHttp(app, solicitudValida()));
 
       expect(respuesta.status).toBe(201);
       expect(respuesta.body.estado).toBe('Pendiente de validación');
@@ -57,7 +58,7 @@ describe('API de cuentas y sesiones (IT-01) conforme al contrato', () => {
     });
 
     it('con el RUC vacío rechaza el envío con un mensaje de error', async () => {
-      const respuesta = conforme('/cuentas', 'post', await http().post('/api/v1/cuentas').send(solicitudValida({ ruc: '' })));
+      const respuesta = conforme('/cuentas', 'post', await registrarPorHttp(app, solicitudValida({ ruc: '' })));
 
       expect(respuesta.status).toBe(400);
       expect(respuesta.body).toEqual({
@@ -68,7 +69,7 @@ describe('API de cuentas y sesiones (IT-01) conforme al contrato', () => {
     });
 
     it('rechaza el formato de RUC inválido con un mensaje que indica el formato (DIS-21)', async () => {
-      const respuesta = conforme('/cuentas', 'post', await http().post('/api/v1/cuentas').send(solicitudValida({ ruc: '12345' })));
+      const respuesta = conforme('/cuentas', 'post', await registrarPorHttp(app, solicitudValida({ ruc: '12345' })));
 
       expect(respuesta.status).toBe(400);
       expect(respuesta.body.detalles).toEqual([
@@ -77,21 +78,21 @@ describe('API de cuentas y sesiones (IT-01) conforme al contrato', () => {
     });
 
     it('rechaza propiedades no declaradas en el contrato y un cuerpo mal formado', async () => {
-      const extra = conforme('/cuentas', 'post', await http().post('/api/v1/cuentas').send({ ...solicitudValida(), rol: 'Administrador' }));
+      const extra = conforme('/cuentas', 'post', await registrarPorHttp(app, { ...solicitudValida(), rol: 'Administrador' } as never));
       expect(extra.status).toBe(400);
       expect(extra.body.detalles).toEqual([{ campo: 'rol', mensaje: 'El valor de el campo rol no es válido.' }]);
 
-      const malFormado = await http().post('/api/v1/cuentas').set('Content-Type', 'application/json').send('{"tipo":');
+      const malFormado = await http().post('/api/v1/sesiones').set('Content-Type', 'application/json').send('{"correo":');
       expect(malFormado.status).toBe(400);
       expect(malFormado.body.codigo).toBe('SOLICITUD_INVALIDA');
     });
 
     it('responde 409 ante un RUC o un correo ya registrados', async () => {
-      const ruc = conforme('/cuentas', 'post', await http().post('/api/v1/cuentas').send(solicitudValida({ correo: 'otra@farmacia.ni' })));
+      const ruc = conforme('/cuentas', 'post', await registrarPorHttp(app, solicitudValida({ correo: 'otra@farmacia.ni' })));
       expect(ruc.status).toBe(409);
       expect(ruc.body).toEqual({ codigo: 'RUC_REGISTRADO', mensaje: 'Ya existe una cuenta registrada con ese RUC.' });
 
-      const correo = conforme('/cuentas', 'post', await http().post('/api/v1/cuentas').send(solicitudValida({ ruc: 'J0310000000009' })));
+      const correo = conforme('/cuentas', 'post', await registrarPorHttp(app, solicitudValida({ ruc: 'J0310000000009' })));
       expect(correo.status).toBe(409);
       expect(correo.body.codigo).toBe('CORREO_REGISTRADO');
     });
@@ -170,9 +171,7 @@ describe('API de cuentas y sesiones (IT-01) conforme al contrato', () => {
     });
 
     it('403 cuando el rol no es el exigido', async () => {
-      const registro = await http().post('/api/v1/cuentas').send(
-        solicitudValida({ tipo: 'Proveedor', ruc: 'J0310000000002', correo: 'ventas@distribuidora.ni' }),
-      );
+      const registro = await registrarPorHttp(app, solicitudValida({ tipo: 'Proveedor', ruc: 'J0310000000002', correo: 'ventas@distribuidora.ni' }));
       const seguridad = app.get<ServicioSeguridad>(SIMBOLOS.servicioSeguridad);
       await app.get<PuertoUnidadTrabajo>(UNIDAD_TRABAJO).ejecutar((tx) => seguridad.cambiarHabilitacion(registro.body.id, 'habilitada', tx));
       const sesion = await iniciarSesion({ correo: 'ventas@distribuidora.ni', contrasena: 'una-clave-de-doce' });

@@ -6,6 +6,7 @@ import {
   type EstadoCuenta,
   type PuertoRepositorioUsuarios,
   type TipoCuenta,
+  type TipoRegistroLegal,
 } from '../../../dominio/m1-usuarios';
 import { ErrorConflicto, type Transaccion } from '../../../dominio/puertos';
 import { conexion, errorPostgres, type BaseDatos } from '../base-datos';
@@ -26,6 +27,8 @@ function aEntidad(fila: Fila): CuentaComercial {
     correo: fila.correo,
     estado: fila.estado as EstadoCuenta,
     registradaEn: fila.registradaEn,
+    consentimientoAceptadoEn: fila.consentimientoAceptadoEn,
+    registroLegal: { clave: fila.registroLegalClave, tipo: fila.registroLegalTipo as TipoRegistroLegal },
   });
 }
 
@@ -54,6 +57,9 @@ export class RepositorioUsuariosPg implements PuertoRepositorioUsuarios {
       correo: cuenta.correo,
       estado: cuenta.estado,
       registradaEn: cuenta.registradaEn,
+      consentimientoAceptadoEn: cuenta.consentimientoAceptadoEn,
+      registroLegalClave: cuenta.registroLegal.clave,
+      registroLegalTipo: cuenta.registroLegal.tipo,
     };
     try {
       await conexion(this.db, tx)
@@ -65,6 +71,12 @@ export class RepositorioUsuariosPg implements PuertoRepositorioUsuarios {
       if (errorPostgres(error).restriccion === 'cuentas_comerciales_ruc_unico') throw new ErrorConflicto('RUC_REGISTRADO');
       throw error;
     }
+  }
+
+  async buscarPorId(id: string, tx?: Transaccion): Promise<CuentaComercial | null> {
+    const consulta = conexion(this.db, tx).select().from(cuentasComerciales).where(eq(cuentasComerciales.id, id)).limit(1);
+    const [fila] = tx ? await consulta.for('update') : await consulta;
+    return fila ? aEntidad(fila) : null;
   }
 
   async listar(filtro: { estado?: EstadoCuenta }): Promise<CuentaComercial[]> {

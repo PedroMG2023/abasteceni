@@ -42,3 +42,23 @@ export class ErrorAccesoDenegado extends Error {
     this.name = 'ErrorAccesoDenegado';
   }
 }
+
+export type CodigoNoEncontrado = 'CUENTA_NO_ENCONTRADA';
+
+export class ErrorNoEncontrado extends Error {
+  constructor(readonly codigo: CodigoNoEncontrado) {
+    super(codigo);
+    this.name = 'ErrorNoEncontrado';
+  }
+}
+
+// Transición no prevista por una máquina de estados del dominio (AS-01).
+export type CodigoTransicion = 'TRANSICION_NO_PERMITIDA';
+
+export class ErrorTransicion extends Error {
+  constructor(readonly codigo: CodigoTransicion = 'TRANSICION_NO_PERMITIDA') {
+    super(codigo);
+    this.name = 'ErrorTransicion';
+  }
+}
+
