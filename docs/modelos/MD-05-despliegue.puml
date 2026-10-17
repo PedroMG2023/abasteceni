@@ -1,0 +1,88 @@
+@startuml MD-05-despliegue
+' MD-05 — Modelo de despliegue (D5 §2.12.5)
+' Pregunta: ¿sobre qué nodos se despliegan los artefactos, por qué canales se
+' comunican y qué elementos se incorporan bajo demanda?
+' Punto de vista rector: PV-04. Leyenda: rectángulo = nodo de ejecución;
+' cilindro = almacenamiento persistente; línea discontinua = canal de solo
+' lectura; borde discontinuo = elemento incorporado bajo demanda.
+' Trazabilidad: V-04; SYS-NFN-06, 07, 08, 09, 10 y 13; ADR-03, ADR-04, ADR-06;
+' RO-02 y RO-03. Servicio y trabajador son dos procesos del mismo artefacto
+' (D3 V-04, MD-03); la tecnología la fija ADR-07 fuera de D5 (INC-16).
+
+skinparam shadowing false
+skinparam defaultFontName "DejaVu Sans"
+skinparam node {
+  BackgroundColor #FFFFFF
+  BorderColor #444444
+}
+skinparam artifact {
+  BackgroundColor #F2F2F2
+  BorderColor #555555
+}
+skinparam database {
+  BackgroundColor #F4F4F4
+  BorderColor #444444
+}
+skinparam cloud {
+  BackgroundColor #F0F0F0
+  BorderColor #555555
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+
+node "Dispositivo del usuario\n<<dispositivo>>" as dispositivo {
+  artifact "Navegador móvil\nred 3G/4G degradada" as navegador
+}
+
+node "Balanceador de carga\nterminación TLS 1.3" as balanceador {
+  artifact "Límite 120 pet./min por IP\n(SYS-NFN-03, ADR-08)" as limite
+}
+
+node "Red de distribución\nde contenido" as cdn {
+  artifact "Activos estáticos\n≤ 2,5 MB (RNF-01)" as activos
+}
+
+node "Instancia de aplicación 1\n<<sin estado>>" as inst1 {
+  artifact "abasteceni\nservicio de aplicación" as app1
+}
+
+node "Instancia de aplicación N\n<<sin estado>> <<bajo demanda>>" as instN #line.dashed {
+  artifact "abasteceni\nservicio de aplicación" as appN
+}
+
+node "Nodo trabajador\n<<proceso asíncrono>>" as trabajador {
+  artifact "abasteceni\ntrabajador" as worker
+}
+
+database "Base de datos primaria\nAES-256 en reposo" as primaria
+database "Réplica de lectura" as replica
+node "Caché distribuida" as cache
+node "Almacén de objetos\nregistros legales" as almacen
+cloud "Servicio externo\nde mensajería" as mensajeria
+cloud "Servicio de correo\nsaliente" as correo
+
+navegador --> balanceador : HTTPS / TLS 1.3
+navegador --> activos : HTTPS
+balanceador --> inst1
+balanceador --> instN
+inst1 --> primaria
+instN --> primaria
+inst1 ..> replica : solo lectura
+instN ..> replica : solo lectura
+inst1 --> cache
+inst1 --> almacen
+trabajador --> primaria : sondeo de la bandeja de salida
+trabajador --> mensajeria : notificación (ADR-02)
+trabajador --> correo : canal de reserva
+primaria --> replica : replicación
+
+note right of instN
+  La instancia N materializa el escalamiento
+  horizontal de RNF-05; es posible porque
+  ninguna instancia guarda estado de sesión
+  en memoria (PA-04, ADR-04).
+end note
+
+@enduml

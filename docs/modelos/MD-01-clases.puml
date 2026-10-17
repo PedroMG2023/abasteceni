@@ -1,0 +1,149 @@
+@startuml MD-01-clases
+' MD-01 — Modelo de clases del dominio (D5 §2.12.1)
+' Pregunta: ¿qué conceptos del dominio existen, qué atributos y operaciones
+' les corresponden, cómo se relacionan y qué invariantes cumplen?
+' Punto de vista rector: PV-01, con aportación de PV-03 (dato personal).
+' Perfil: solo estereotipos del Anexo B de D5 (DML-02). Las entidades internas
+' de un agregado no llevan estereotipo: solo la raíz es referenciable desde
+' otro módulo (restricción R2). «datoPersonal» se aplica a atributos (Property),
+' no a la clase (D5 §2.12.1, INC-16).
+' Trazabilidad: M1, M3, M4, M6, M8; SYS-FN-01, 02, 09, 11, 14, 16, 17, 18,
+' 19, 20, 27 y 30. Dieciséis clases en cinco paquetes de módulo.
+
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam defaultFontName "DejaVu Sans"
+skinparam class {
+  BackgroundColor #F4F4F4
+  BorderColor #555555
+}
+skinparam package {
+  BorderColor #777777
+}
+skinparam note {
+  BackgroundColor #FFFFFF
+  BorderColor #999999
+}
+hide circle
+hide empty members
+
+package "M1 Usuarios" {
+  class CuentaComercial <<entidadRaiz>> {
+    - razonSocial : String <<datoPersonal>>
+    - ruc : RUC <<datoPersonal>>
+    - ubicacion : Ubicacion
+    - estado : EstadoCuenta
+    - consentimiento : Consentimiento
+    + validar(a : Administrador) : void
+    + solicitarCancelacion() : void
+  }
+  class Productor <<entidadRaiz>>
+  class Comprador <<entidadRaiz>>
+  class Proveedor <<entidadRaiz>>
+  class RUC <<objetoValor>> {
+    - numero : String
+    + esValido() : Boolean
+  }
+  class Ubicacion <<objetoValor>> {
+    - departamento : String
+    - municipio : String
+  }
+  CuentaComercial <|-- Productor
+  CuentaComercial <|-- Comprador
+  CuentaComercial <|-- Proveedor
+  CuentaComercial *-- "1" RUC
+  CuentaComercial *-- "1" Ubicacion
+}
+
+package "M3 Demandas" {
+  class PlantillaDemanda
+  class BloqueDemanda <<entidadRaiz>> {
+    - categoria : Categoria
+    - departamento : String
+    - volumenAgregado : Volumen
+    - estado : EstadoBloque
+    - expiraEn : Fecha
+    + consolidar(d : Demanda) : void
+    + expirar() : void
+  }
+  class Demanda {
+    - categoria : Categoria
+    - volumen : Volumen
+    - fechaLimite : Fecha
+  }
+  BloqueDemanda "1" o-- "1..*" Demanda : consolida
+}
+
+package "M4 Ofertas" {
+  class OfertaExcedente <<entidadRaiz>> {
+    - rubro : String
+    - volumen : Volumen
+    - calidadDeclarada : String
+    + reservar(c : Comprador) : Reserva
+    + liberarVencidas() : void
+  }
+  class Reserva {
+    - volumenReservado : Volumen
+    - venceEn : Instante
+    - estado : EstadoReserva
+  }
+  OfertaExcedente "1" *-- "0..*" Reserva
+}
+
+package "M6 Cotizaciones" {
+  class Cotizacion <<entidadRaiz>> {
+    - precioUnitario : Dinero
+    - plazoEntregaDias : Integer
+    - vigencia : Fecha
+    - rondas : Integer
+    - estado : EstadoCotizacion
+    + aceptar() : Acuerdo
+    + rechazar() : void
+    + contraOfertar(c : ContraOferta) : void
+  }
+  class ContraOferta {
+    - precioPropuesto : Dinero
+    - volumen : Volumen
+    - emitidaEn : Instante
+  }
+  class Acuerdo <<entidadRaiz>> <<auditable>> {
+    - adjudicadoEn : Instante
+    - estado : EstadoAcuerdo
+  }
+  Cotizacion "1" *-- "0..3" ContraOferta
+  Cotizacion "1" --> "0..1" Acuerdo : adjudica
+}
+
+package "M8 Reputación" {
+  class Evaluacion {
+    - estrellas : Integer
+    - emitidaEn : Instante
+  }
+  class Reputacion <<objetoValor>> {
+    - promedio : Decimal
+    - insignia : Boolean
+  }
+}
+
+Productor "1" --> "0..*" OfertaExcedente : publica
+Comprador "1" --> "0..*" PlantillaDemanda : conserva
+Comprador "1" --> "0..*" Demanda : publica
+Reserva "0..*" --> "1" Comprador : a favor de
+Proveedor "1" --> "0..*" Cotizacion : emite
+Cotizacion "0..*" --> "1" BloqueDemanda : responde a
+Acuerdo "1" --> "2" Evaluacion : origina
+CuentaComercial --> "0..1" Reputacion
+
+note bottom of Cotizacion
+  <b>inv</b> self.rondas <= 3                  (SYS-FN-20)
+  <b>inv</b> self.estado = #Adjudicada implies
+       self.bloque.estado <> #Expirado      (SYS-FN-12)
+end note
+
+note bottom of Reserva
+  <b>inv</b> self.volumenReservado <=
+       self.oferta.volumen * 0.80          (SYS-FN-16)
+  <b>inv</b> self.venceEn = self.creadaEn + 48h (SYS-FN-17)
+end note
+
+@enduml

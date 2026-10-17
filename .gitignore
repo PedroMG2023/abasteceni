@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+docs/figuras/
+docs/evidencia/dependencias.png
+*.log
+.DS_Store
+~$*.docx
