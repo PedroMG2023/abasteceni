@@ -40,6 +40,8 @@ describe('AS-04 · hook del caso de uso «registrar cuenta» con el cliente de p
     expect(cliente.llamadas).toEqual([]);
     expect(result.current.errores.ruc).toBe('Indique el RUC.');
     expect(result.current.estado).toBe('editando');
+    expect(result.current.aviso).toBe('Revise los datos marcados.');
+    expect(result.current.rechazos).toBe(1);
   });
 
   it('CT-REG-01 · con todos los campos válidos envía la solicitud y queda «Pendiente de validación»', async () => {

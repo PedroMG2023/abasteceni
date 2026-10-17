@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import { useEffect, useRef, type FormEvent } from 'react';
 import { AvisoFormulario } from '../componentes/AvisoFormulario';
 import { CampoFormulario } from '../componentes/CampoFormulario';
 import { CAMPOS_REGISTRO } from '../componentes/campos-registro';
@@ -8,7 +8,14 @@ import { useRegistroCuenta } from '../hooks/useRegistroCuenta';
 // Registro de una cuenta comercial (SYS-FN-01). Solo renderiza; el estado y el
 // envío los provee el hook del caso de uso (AS-04).
 export function PaginaRegistro() {
-  const { valores, errores, cambiar, elegirArchivo, consentimiento, aceptarConsentimiento, enviar, estado, aviso, cuenta } = useRegistroCuenta();
+  const { valores, errores, cambiar, elegirArchivo, consentimiento, aceptarConsentimiento, enviar, estado, aviso, cuenta, rechazos } = useRegistroCuenta();
+  const formulario = useRef<HTMLFormElement>(null);
+
+  // Tras un envío rechazado, el foco va al primer campo con error, que anuncia su
+  // mensaje (ISO 9241-110, robustez frente a errores de uso; WCAG 3.3.1).
+  useEffect(() => {
+    if (rechazos > 0) formulario.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
+  }, [rechazos]);
 
   if (estado === 'registrada' && cuenta) {
     return (
@@ -30,7 +37,7 @@ export function PaginaRegistro() {
   return (
     <main>
       <h1>Registrar una cuenta comercial</h1>
-      <form onSubmit={alEnviar} noValidate>
+      <form ref={formulario} onSubmit={alEnviar} noValidate>
         {aviso && <AvisoFormulario tipo="error" texto={aviso} />}
         {CAMPOS_REGISTRO.map((definicion) => (
           <CampoFormulario
