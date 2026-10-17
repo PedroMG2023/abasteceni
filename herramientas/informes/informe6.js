@@ -1,5 +1,19 @@
 const { p, h1, h2, h3, vinetas, tabla, documento, escribir } = require('./comun');
+const { execFileSync } = require('child_process');
+const path = require('path');
 const E = require('./estado');
+
+// Recuentos de commits desde la base documental (28f9d6d), calculados del historial.
+const asuntos = execFileSync('git', ['log', '--no-merges', '--format=%s', '28f9d6d..HEAD'], { cwd: path.resolve(__dirname, '../..'), encoding: 'utf8' })
+  .trim()
+  .split('\n');
+const porTipo = asuntos.reduce((acc, a) => {
+  const tipo = (a.match(/^([a-z]+)(\([^)]*\))?:/) ?? [])[1] ?? 'otro';
+  acc[tipo] = (acc[tipo] ?? 0) + 1;
+  return acc;
+}, {});
+const n = (tipo) => String(porTipo[tipo] ?? 0);
+const conReferencias = asuntos.filter((a) => a.includes('[')).length;
 
 const REVISION_REGISTRADA = process.env.REVISION_REGISTRADA === '1';
 
@@ -73,7 +87,8 @@ const contenido = [
       ['`it-00/entorno`', 'PR #1', '`main`', 'Fusionada (`9e16046`)', 'Menos de un día'],
       ['`it-01/linea-base`', 'PR #2', '`it-00/entorno`, reapuntada a `main` tras fusionarse #1', 'Fusionada (`8d1845e`)', 'Menos de un día'],
       ['`it-02/afiliacion`', 'PR #3 (la #4 se cerró como duplicada)', '`main`', E.IT02_INTEGRADA ? 'Fusionada' : 'Abierta, actualizada con `main`, CI en verde', 'Menos de un día'],
-      ['`it-02/informes`', 'Pendiente', '`it-02/afiliacion`', 'Informes de la fase de desarrollo', 'Menos de un día'],
+      ['`it-02/informes`', 'PR #5', '`it-02/afiliacion`', 'Informes de la fase de desarrollo; abierta', 'Menos de un día'],
+      ['`it-02/bloqueo`', 'PR #6', '`it-02/informes`', E.BLOQUEO_INTEGRADO ? 'Fusionada' : 'SYS-FN-07 y mejora del formulario; abierta', 'Menos de un día'],
     ],
     [18, 20, 26, 22, 14],
   ),
@@ -84,17 +99,17 @@ const contenido = [
   tabla(
     ['Tipo', 'Commits desde IT-00', 'Uso'],
     [
-      ['`feat`', '11', 'Funcionalidad: contrato, dominio, infraestructura, capa 2, composición, web'],
-      ['`docs`', '9', 'Evidencia de cierre de iteración, discrepancias, informes'],
-      ['`test`', '7', 'Pruebas de base de datos, de sistema, de accesibilidad'],
-      ['`fix`', '3', 'Correcciones detectadas por la CI y por las mediciones'],
-      ['`build`', '1', 'Monorepo y pila de ADR-07'],
-      ['`ci`', '1', 'Los nueve trabajos de integración continua y la prueba negativa'],
-      ['`wip`', '1', 'Trabajo en curso confirmado de urgencia ante un corte de cuota de la herramienta de asistencia (`3700413`)'],
+      ['`feat`', n('feat'), 'Funcionalidad: contrato, dominio, infraestructura, capa 2, composición, web, SYS-FN-07'],
+      ['`docs`', n('docs'), 'Evidencia de cierre de iteración, discrepancias, informes'],
+      ['`test`', n('test'), 'Pruebas de base de datos, de sistema, de accesibilidad, de bloqueo'],
+      ['`fix`', n('fix'), 'Correcciones detectadas por la CI y por las mediciones'],
+      ['`build`', n('build'), 'Monorepo y pila de ADR-07; generador de los informes'],
+      ['`ci`', n('ci'), 'Los nueve trabajos de integración continua y la prueba negativa'],
+      ['`wip`', n('wip'), 'Trabajo en curso confirmado de urgencia ante un corte de cuota de la herramienta de asistencia (`3700413`)'],
     ],
     [14, 22, 64],
   ),
-  p('Los 33 commits sin fusión desde IT-00 llevan al menos una referencia entre corchetes a un requisito, una decisión o un elemento de la matriz, lo que permite la trazabilidad desde el historial hasta la serie (ISO/IEC/IEEE 29148, atributo de trazabilidad).'),
+  p(`De los ${asuntos.length} commits sin fusión desde IT-00, ${conReferencias} llevan al menos una referencia entre corchetes a un requisito, una decisión o un elemento de la matriz, lo que permite la trazabilidad desde el historial hasta la serie (ISO/IEC/IEEE 29148, atributo de trazabilidad).`),
 
   h2('2.5 Control de cambios'),
   vinetas([
@@ -102,7 +117,7 @@ const contenido = [
     '**Revisión cruzada (DM-05):** ' + (REVISION_REGISTRADA
       ? 'consta en las solicitudes de integración con resultado favorable.'
       : 'las solicitudes #1 y #2 se fusionaron sin una revisión humana registrada en GitHub; solo consta el análisis automático de CodeQL. La segunda persona del equipo todavía no es colaboradora del repositorio, por lo que no puede aprobar en la plataforma. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad del proceso de configuración a la fecha.'),
-    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 33 entradas (DIS-01 a DIS-33): 30 resueltas y 3 abiertas para la revisión (DIS-26, DIS-27 y DIS-32). Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
+    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 34 entradas (DIS-01 a DIS-34): 31 resueltas y 3 abiertas para la revisión (DIS-26, DIS-27 y DIS-32). Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
     '**Decisiones (PR-11):** el registro contiene ADR-01 a ADR-09. Las elecciones técnicas de la construcción que no alteran la arquitectura (versiones, parámetros del interruptor) se registran en `iteraciones.md`, como prevé ADR-07.',
     '**Gobierno del cambio de requisitos (DM-09):** no se admitieron cambios al catálogo. Las precisiones aprobadas (DIS-16 a DIS-23, DIS-28 a DIS-31) se acumulan para la próxima versión menor de D2 y D5, como prevé D4 §2.16.',
   ]),
@@ -150,7 +165,7 @@ const contenido = [
     [
       ['Matriz AS (`docs/evidencia/matriz-AS.md`)', '17 elementos Evidenciados, 1 en Discrepancia (AS-13, por nombres) y 2 de Diseño (AS-19 y AS-20)'],
       ['Iteraciones (`docs/evidencia/iteraciones.md`)', 'Entradas de cierre de IT-00, IT-01 e IT-02 con MT-03, cobertura, versiones, CI y pendientes'],
-      ['Discrepancias', '33 entradas: 30 resueltas y 3 abiertas'],
+      ['Discrepancias', '34 entradas: 31 resueltas y 3 abiertas'],
       ['Reportes de pruebas', 'JUnit y cobertura por iteración; capturas y mediciones de experiencia de usuario de IT-02'],
       ['Ejecuciones de CI de cierre', 'IT-00: 39020586251 (9/9). IT-01: 39023391840 (10/10). IT-02: 39033238576 (10/10). Informes: 39036501600 (10/10)'],
     ],

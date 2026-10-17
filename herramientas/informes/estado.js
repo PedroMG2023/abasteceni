@@ -10,6 +10,12 @@ module.exports = {
     ? { pr: 'PR #3', estado: `Integrada en \`main\` (commit de fusión \`${COMMIT_IT02}\`)`, corto: 'Integrado (PR #3)' }
     : { pr: 'PR #3', estado: 'Construida y verificada; pendiente de la revisión cruzada (DM-05) para integrarse', corto: 'Pendiente de revisión cruzada (PR #3)' },
   IT02_INTEGRADA,
+  // Tramo B parcial (SYS-FN-07) y mejora del formulario: rama it-02/bloqueo, PR #6.
+  BLOQUEO_INTEGRADO: process.env.BLOQUEO_INTEGRADO === '1',
+  bloqueo:
+    process.env.BLOQUEO_INTEGRADO === '1'
+      ? 'integrado en `main` (PR #6)'
+      : 'construido y verificado en la rama `it-02/bloqueo`, pendiente de la revisión cruzada (PR #6)',
   // Frase de resumen para la introducción de cada informe.
   resumen: IT02_INTEGRADA
     ? 'IT-00, IT-01 e IT-02 (tramo A) están integradas en `main` (PR #1, #2 y #3), con la batería en verde.'

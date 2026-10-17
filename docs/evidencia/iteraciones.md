@@ -170,3 +170,34 @@ En el sistema completo (Playwright sobre Docker Compose), el evento de un regist
 - **Propuestas abiertas para la revisión:** DIS-26 (catálogo de mensajes, ampliado con los de IT-02), DIS-27 y DIS-32.
 - Revisión cruzada (DM-05) y etiqueta `it-02`.
 
+
+## IT-02 — Tramo B parcial (SYS-FN-07) y mejora del formulario
+
+**Alcance.** Del tramo B de IT-02 (SYS-FN-07 y 05) se construyó SYS-FN-07: bloqueo de 15 minutos tras 5 intentos fallidos consecutivos y aviso al correo registrado, con las reglas aprobadas en DIS-34. SYS-FN-05 (recuperación por enlace de 15 minutos) y el tramo C (SYS-FN-08 y 06) quedan pendientes. Se corrigió además el hallazgo del informe 2: el formulario de registro muestra un aviso de errores y lleva el foco al primer campo inválido.
+
+**Criterio de aceptación CT-SEG-07.** «Ejecutar 5 intentos fallidos y verificar bloqueo de 15 min más el correo de notificación al titular.» **Cumplido** en tres niveles:
+
+- `apps/backend/test/unitarias/dominio/servicio-seguridad.spec.ts`: 5 casos, incluidos el reinicio del contador tras un éxito y el fin del bloqueo a los 15 minutos;
+- `apps/backend/test/integracion/bloqueo.spec.ts`: 401 en los cuatro primeros intentos, 403 `CUENTA_BLOQUEADA` en el quinto, bloqueo de 15 minutos en la base y aviso entregado por el canal de correo;
+- `e2e/pruebas/sesion.spec.ts`: el mismo recorrido desde la interfaz, con el evento publicado por el trabajador.
+
+| Campo | Valor |
+|---|---|
+| Rama | `it-02/bloqueo`, PR #6 (base `it-02/informes`) |
+| Commits | `5273441` formulario · `66957e3` SYS-FN-07 · `779cde9` prueba de sistema · `adf161c` evidencia |
+| MT-03 | **0** violaciones (182 módulos) |
+| Pruebas | Backend: 164. Base de datos: 27. Frontend: 45. Sistema: 22. Todas pasan, en local y en la CI |
+| Cobertura del backend | Global: 98,33 % de sentencias y 93,60 % de ramas. `dominio/`: 99,70 % de sentencias y 99,14 % de ramas |
+| Cobertura del frontend | 98,26 % de sentencias y 92,45 % de ramas |
+| CI | Ejecución 39042977012 sobre `adf161c`: 10 de 10 trabajos en verde |
+| Evidencia | `docs/evidencia/pruebas/it-02/tramo-b/` (JUnit de backend, base de datos, frontend y sistema; resúmenes de cobertura) |
+| Pila | Sin cambios de versión respecto del cierre de IT-02 |
+| Migración | `0007_bloqueo-intentos.sql`: `intentos_fallidos` (NOT NULL, por defecto 0, ≥ 0) y `bloqueada_hasta` en `m2_seguridad.credenciales` |
+
+**Decisiones técnicas.**
+
+- El incremento del contador es atómico en SQL (`UPDATE … SET intentos_fallidos = intentos_fallidos + 1 RETURNING`), para que dos intentos simultáneos no se pierdan.
+- El bloqueo y el evento `CuentaBloqueada` se confirman en la misma transacción (ADR-01).
+- El aviso usa un notificador de correo propio en el trabajador, con su interruptor (ADR-02), porque SYS-FN-07 dirige el aviso «al correo registrado» con independencia del canal general.
+
+**Pendientes.** SYS-FN-05, SYS-FN-06 y SYS-FN-08; revisión cruzada de la PR #6.

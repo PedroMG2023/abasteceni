@@ -2,12 +2,14 @@
 # Regenera los informes de docs/informes/ (CLAUDE.md §13) desde la evidencia
 # versionada. Requiere Docker (diagrama físico), Graphviz y Python con Pillow.
 # Variables: IT02_INTEGRADA=1 y COMMIT_IT02=<sha> cuando se fusione IT-02;
-# RUN_SISTEMA y JUNIT_SISTEMA para el informe 4a.
+# RUN_SISTEMA, JUNIT_SISTEMA, RAMA_SISTEMA, RUN_BACKEND y JUNIT_BACKEND para el
+# informe 4a; BLOQUEO_INTEGRADO=1 cuando se fusione la PR #6; REVISION_REGISTRADA=1
+# cuando consten las revisiones humanas en las PR (informe 6).
 set -euo pipefail
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 AQUI="${RAIZ}/herramientas/informes"
 export FIGURAS="$(mktemp -d)"
-cd "${AQUI}" && npm install --no-audit --no-fund --silent
+cd "${AQUI}" && npm ci --no-audit --no-fund --silent
 
 # Figura del informe 1: grafo de dependencias agrupado por capa y módulo.
 (cd "${RAIZ}" && npx depcruise apps/backend/src --config .dependency-cruiser.cjs --output-type dot \
