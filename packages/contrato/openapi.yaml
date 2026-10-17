@@ -18,6 +18,10 @@ security:
 tags:
   - name: Plataforma
     description: Operación de la plataforma (D3 R-03, sondas de vitalidad)
+  - name: Cuentas
+    description: M1 Usuarios y validación (SYS-FN-01 a 03)
+  - name: Sesiones
+    description: M2 Seguridad y sesiones (SYS-FN-04; ADR-04, PA-04)
 paths:
   /salud:
     get:
@@ -39,6 +43,168 @@ paths:
                 estado: operativo
         '429':
           $ref: '#/components/responses/DemasiadasPeticiones'
+  /cuentas:
+    post:
+      tags: [Cuentas]
+      operationId: registrarCuenta
+      summary: Registrar una cuenta comercial
+      description: |
+        Registra una cuenta comercial en estado «Pendiente de validación»
+        (SYS-FN-01, CT-REG-01). Además de los campos de SYS-FN-01 captura el
+        tipo de cuenta (DIS-17), el teléfono móvil (DIS-19), el correo y la
+        contraseña (DIS-16). El evento CuentaRegistrada se persiste en la misma
+        transacción (ADR-01).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudRegistroCuenta'
+            example:
+              tipo: Comprador
+              razonSocial: Farmacia San Benito
+              ruc: J0310000000001
+              departamento: Chinandega
+              municipio: El Viejo
+              rubro: Farmacia
+              telefonoMovil: '+50588887777'
+              correo: compras@farmaciasanbenito.com.ni
+              contrasena: una-clave-de-doce-o-mas
+      responses:
+        '201':
+          description: Cuenta registrada, pendiente de validación.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CuentaRegistrada'
+              example:
+                id: 7f3c9a7e-2b1d-4c55-9a8e-2f1b6c0d9e11
+                estado: Pendiente de validación
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+    get:
+      tags: [Cuentas]
+      operationId: listarCuentas
+      summary: Listar las cuentas comerciales
+      description: |
+        Lista las cuentas comerciales, opcionalmente filtradas por estado, para
+        el panel del Administrador de la plataforma (SYS-FN-03). Contiene datos
+        personales (V-03): solo el Administrador accede.
+      parameters:
+        - name: estado
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/EstadoCuenta'
+      responses:
+        '200':
+          description: Cuentas comerciales.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ResumenCuenta'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /sesiones:
+    post:
+      tags: [Sesiones]
+      operationId: iniciarSesion
+      summary: Iniciar sesión con correo y contraseña
+      description: |
+        Concede acceso y asigna el rol al iniciar la sesión (SYS-FN-04). Emite
+        una credencial de acceso firmada de vida corta y una credencial de
+        renovación en una cookie HttpOnly (ADR-04, DIS-06).
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudInicioSesion'
+      responses:
+        '201':
+          description: Sesión iniciada.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/CookieRenovacion'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionIniciada'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /sesiones/renovacion:
+    post:
+      tags: [Sesiones]
+      operationId: renovarSesion
+      summary: Renovar la credencial de acceso
+      description: |
+        Emite una credencial de acceso nueva a partir de la credencial de
+        renovación y rota esta última (ADR-04, DIS-06). La anterior queda
+        revocada.
+      security:
+        - credencialRenovacion: []
+      responses:
+        '201':
+          description: Credenciales renovadas.
+          headers:
+            Set-Cookie:
+              $ref: '#/components/headers/CookieRenovacion'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SesionIniciada'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /sesiones/actual:
+    get:
+      tags: [Sesiones]
+      operationId: consultarSesionActual
+      summary: Consultar la identidad de la sesión actual
+      responses:
+        '200':
+          description: Identidad y rol de la sesión.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Identidad'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+    delete:
+      tags: [Sesiones]
+      operationId: cerrarSesion
+      summary: Cerrar la sesión actual
+      description: Revoca la credencial de renovación de la sesión (ADR-04).
+      responses:
+        '204':
+          description: Sesión cerrada.
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
 components:
   securitySchemes:
     credencialAcceso:
@@ -46,7 +212,41 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: Credencial de acceso firmada de vida corta (ADR-04, PA-04).
+    credencialRenovacion:
+      type: apiKey
+      in: cookie
+      name: abasteceni_renovacion
+      description: Credencial de renovación en cookie HttpOnly, SameSite=Strict, ruta /api/v1/sesiones (ADR-04).
+  headers:
+    CookieRenovacion:
+      description: Cookie HttpOnly con la credencial de renovación, válida 7 días (DIS-06).
+      schema:
+        type: string
   responses:
+    SolicitudInvalida:
+      description: La solicitud no cumple las validaciones (PA-05).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflicto:
+      description: Ya existe una cuenta con ese RUC o con ese correo.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoAutenticado:
+      description: Falta la credencial, es inválida o ha expirado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Prohibido:
+      description: El rol o el estado de la cuenta no autoriza la operación.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     DemasiadasPeticiones:
       description: Se superó el límite de 120 peticiones por minuto por IP (SYS-NFN-03, ADR-08).
       content:
@@ -57,6 +257,125 @@ components:
             codigo: DEMASIADAS_PETICIONES
             mensaje: Se superó el límite de peticiones. Intente de nuevo en un minuto.
   schemas:
+    TipoCuenta:
+      type: string
+      description: Tipo de cuenta comercial (MD-01; DIS-17).
+      enum: [Comprador, Proveedor, Productor]
+    Rol:
+      type: string
+      description: Rol asignado al iniciar la sesión (SYS-FN-04).
+      enum: [Comprador, Proveedor, Productor, Administrador]
+    EstadoCuenta:
+      type: string
+      description: Estado de la cuenta comercial (D2 SYS-FN-01 y 03; DIS-23).
+      enum: [Pendiente de validación, Activa, Rechazada]
+    SolicitudRegistroCuenta:
+      type: object
+      additionalProperties: false
+      required: [tipo, razonSocial, ruc, departamento, municipio, rubro, telefonoMovil, correo, contrasena]
+      properties:
+        tipo:
+          $ref: '#/components/schemas/TipoCuenta'
+        razonSocial:
+          type: string
+          maxLength: 200
+        ruc:
+          type: string
+          description: «J» y 13 dígitos, o 13 dígitos y una letra (DIS-21).
+          maxLength: 14
+        departamento:
+          type: string
+          maxLength: 100
+        municipio:
+          type: string
+          maxLength: 100
+        rubro:
+          type: string
+          maxLength: 100
+        telefonoMovil:
+          type: string
+          description: Formato internacional UIT-T E.164 (DIS-19).
+          maxLength: 16
+        correo:
+          type: string
+          maxLength: 254
+        contrasena:
+          type: string
+          description: Entre 12 y 128 caracteres (DIS-22).
+          minLength: 12
+          maxLength: 128
+    CuentaRegistrada:
+      type: object
+      additionalProperties: false
+      required: [id, estado]
+      properties:
+        id:
+          type: string
+          format: uuid
+        estado:
+          $ref: '#/components/schemas/EstadoCuenta'
+    ResumenCuenta:
+      type: object
+      additionalProperties: false
+      required: [id, tipo, razonSocial, ruc, departamento, municipio, rubro, estado, registradaEn]
+      properties:
+        id:
+          type: string
+          format: uuid
+        tipo:
+          $ref: '#/components/schemas/TipoCuenta'
+        razonSocial:
+          type: string
+        ruc:
+          type: string
+        departamento:
+          type: string
+        municipio:
+          type: string
+        rubro:
+          type: string
+        estado:
+          $ref: '#/components/schemas/EstadoCuenta'
+        registradaEn:
+          type: string
+          format: date-time
+    SolicitudInicioSesion:
+      type: object
+      additionalProperties: false
+      required: [correo, contrasena]
+      properties:
+        correo:
+          type: string
+          maxLength: 254
+        contrasena:
+          type: string
+          maxLength: 128
+    SesionIniciada:
+      type: object
+      additionalProperties: false
+      required: [credencialAcceso, tipo, expiraEnSegundos, rol]
+      properties:
+        credencialAcceso:
+          type: string
+          description: Credencial firmada de vida corta (15 minutos, DIS-06).
+        tipo:
+          type: string
+          enum: [Bearer]
+        expiraEnSegundos:
+          type: integer
+        rol:
+          $ref: '#/components/schemas/Rol'
+    Identidad:
+      type: object
+      additionalProperties: false
+      required: [rol]
+      properties:
+        rol:
+          $ref: '#/components/schemas/Rol'
+        cuentaId:
+          type: string
+          format: uuid
+          nullable: true
     Salud:
       type: object
       required: [estado]
