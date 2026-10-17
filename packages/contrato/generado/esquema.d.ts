@@ -114,7 +114,10 @@ export interface paths {
          * Iniciar sesión con correo y contraseña
          * @description Concede acceso y asigna el rol al iniciar la sesión (SYS-FN-04). Emite
          *     una credencial de acceso firmada de vida corta y una credencial de
-         *     renovación en una cookie HttpOnly (ADR-04, DIS-06).
+         *     renovación en una cookie HttpOnly (ADR-04, DIS-06). Tras 5 intentos
+         *     fallidos consecutivos la cuenta se bloquea 15 minutos y se avisa al
+         *     correo registrado (SYS-FN-07, DIS-34): responde 403 con el código
+         *     CUENTA_BLOQUEADA.
          */
         post: operations["iniciarSesion"];
         delete?: never;

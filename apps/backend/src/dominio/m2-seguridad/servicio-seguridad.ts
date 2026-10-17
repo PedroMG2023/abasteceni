@@ -4,12 +4,21 @@ import {
   ErrorConflicto,
   ErrorValidacion,
   type PuertoIdentificadores,
+  type PuertoPublicacionEventos,
   type PuertoReloj,
   type PuertoUnidadTrabajo,
   type Transaccion,
 } from '../puertos';
-import { sesionVigente, type Credencial, type Habilitacion } from './credencial';
-import { normalizarCorreo, validarDatosCredencial, VIDA_ACCESO_SEGUNDOS, VIDA_RENOVACION_SEGUNDOS } from './politica';
+import { credencialBloqueada, sesionVigente, type Credencial, type Habilitacion } from './credencial';
+import { CUENTA_BLOQUEADA, type CuentaBloqueada } from './eventos';
+import {
+  BLOQUEO_SEGUNDOS,
+  MAXIMO_INTENTOS_FALLIDOS,
+  normalizarCorreo,
+  validarDatosCredencial,
+  VIDA_ACCESO_SEGUNDOS,
+  VIDA_RENOVACION_SEGUNDOS,
+} from './politica';
 import type {
   PuertoDerivacionClave,
   PuertoFirmaAcceso,
@@ -22,6 +31,7 @@ import type { Rol } from './rol';
 export interface DependenciasSeguridad {
   repositorio: PuertoRepositorioSeguridad;
   unidadTrabajo: PuertoUnidadTrabajo;
+  eventos: PuertoPublicacionEventos;
   derivacion: PuertoDerivacionClave;
   firma: PuertoFirmaAcceso;
   secretos: PuertoSecretosRenovacion;
@@ -87,11 +97,38 @@ export class ServicioSeguridad implements RegistroCredenciales {
 
   async iniciarSesion(datos: { correo: string; contrasena: string }): Promise<SesionEmitida> {
     const credencial = await this.d.repositorio.buscarCredencialPorCorreo(normalizarCorreo(datos.correo));
+    // SYS-FN-07: durante el bloqueo no se evalúa la contraseña (DIS-34).
+    if (credencial && credencialBloqueada(credencial, this.d.reloj.ahora())) throw new ErrorAccesoDenegado('CUENTA_BLOQUEADA');
     const hash = credencial?.hashContrasena ?? (await this.obtenerHashReferencia());
     const valida = await this.d.derivacion.verificar(hash, datos.contrasena);
-    if (!credencial || !valida) throw new ErrorAutenticacion('CREDENCIALES_INVALIDAS');
+    if (!credencial) throw new ErrorAutenticacion('CREDENCIALES_INVALIDAS');
+    if (!valida) {
+      if (await this.registrarFallo(credencial)) throw new ErrorAccesoDenegado('CUENTA_BLOQUEADA');
+      throw new ErrorAutenticacion('CREDENCIALES_INVALIDAS');
+    }
+    if (credencial.intentosFallidos > 0) await this.d.repositorio.reiniciarIntentos(credencial.id);
     this.exigirHabilitada(credencial);
     return this.emitir(credencial);
+  }
+
+  // Cuenta el fallo; al quinto consecutivo bloquea durante 15 minutos y publica
+  // CuentaBloqueada en la misma transacción (SYS-FN-07; ADR-01). Devuelve si bloqueó.
+  private registrarFallo(credencial: Credencial): Promise<boolean> {
+    return this.d.unidadTrabajo.ejecutar(async (tx) => {
+      const intentos = await this.d.repositorio.registrarIntentoFallido(credencial.id, tx);
+      if (intentos < MAXIMO_INTENTOS_FALLIDOS) return false;
+      const ahora = this.d.reloj.ahora();
+      const hasta = new Date(ahora.getTime() + BLOQUEO_SEGUNDOS * 1000);
+      await this.d.repositorio.bloquear(credencial.id, hasta, tx);
+      const evento: CuentaBloqueada = {
+        id: this.d.identificadores.generar(),
+        tipo: CUENTA_BLOQUEADA,
+        ocurridoEn: ahora,
+        datos: { credencialId: credencial.id, correo: credencial.correo, bloqueadaHasta: hasta.toISOString() },
+      };
+      await this.d.eventos.publicar(evento, tx);
+      return true;
+    });
   }
 
   // Rota la credencial de renovación: la presentada queda revocada (ADR-04).
@@ -141,6 +178,8 @@ export class ServicioSeguridad implements RegistroCredenciales {
         rol: datos.rol,
         habilitacion: datos.habilitacion,
         creadaEn: this.d.reloj.ahora(),
+        intentosFallidos: 0,
+        bloqueadaHasta: null,
       },
       tx,
     );

@@ -76,3 +76,20 @@ describe('Registro legal y consentimiento en la página de registro (SYS-FN-02, 
     expect(simulado.estado.aceptarConsentimiento).toHaveBeenCalledWith(true);
   });
 });
+
+describe('ISO 9241-110 · robustez frente a errores de uso en el registro', () => {
+  it('tras un envío rechazado lleva el foco al primer campo con error', () => {
+    simulado.estado = { ...simulado.estado, errores: { razonSocial: 'Indique la razón social.', ruc: 'Indique el RUC.' }, aviso: 'Revise los datos marcados.', rechazos: 1 };
+    render(<PaginaRegistro />);
+
+    expect(screen.getByLabelText('Razón social')).toHaveFocus();
+    expect(screen.getAllByRole('alert')[0]).toHaveTextContent('Revise los datos marcados.');
+  });
+
+  it('sin envíos rechazados no mueve el foco', () => {
+    simulado.estado = { ...simulado.estado, errores: { ruc: 'Indique el RUC.' }, rechazos: 0 };
+    render(<PaginaRegistro />);
+
+    expect(screen.getByLabelText('RUC')).not.toHaveFocus();
+  });
+});

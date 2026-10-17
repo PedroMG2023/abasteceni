@@ -9,6 +9,8 @@ export type EstadoEnvio = 'editando' | 'enviando' | 'registrada';
 type CampoAdjunto = 'registroLegal' | 'aceptaConsentimiento';
 
 const MENSAJE_SIN_CONEXION = 'No se pudo enviar la solicitud. Revise su conexión e intente de nuevo.';
+// Mismo texto que la API para una solicitud inválida (DIS-26).
+const MENSAJE_REVISAR = 'Revise los datos marcados.';
 
 function comprobarArchivo(archivo: File | null): string | undefined {
   if (!archivo) return MENSAJES_ADJUNTOS.registroLegalObligatorio;
@@ -28,6 +30,8 @@ export function useRegistroCuenta() {
   const [estado, setEstado] = useState<EstadoEnvio>('editando');
   const [aviso, setAviso] = useState<string | null>(null);
   const [cuenta, setCuenta] = useState<CuentaRegistrada | null>(null);
+  // Cuenta los envíos rechazados para que la vista lleve el foco al primer error.
+  const [rechazos, setRechazos] = useState(0);
   const { valores, validarTodo, asignarErrores } = formulario;
 
   const elegirArchivo = useCallback((elegido: File | null) => {
@@ -48,7 +52,11 @@ export function useRegistroCuenta() {
       aceptaConsentimiento: consentimiento ? undefined : MENSAJES_ADJUNTOS.consentimiento,
     };
     setErroresAdjuntos(adjuntos);
-    if (!camposValidos || adjuntos.registroLegal || adjuntos.aceptaConsentimiento) return;
+    if (!camposValidos || adjuntos.registroLegal || adjuntos.aceptaConsentimiento) {
+      setAviso(MENSAJE_REVISAR);
+      setRechazos((n) => n + 1);
+      return;
+    }
     setEstado('enviando');
     try {
       const solicitud = { ...valores, aceptaConsentimiento: true, registroLegal: archivo } as SolicitudRegistroCuenta;
@@ -67,6 +75,7 @@ export function useRegistroCuenta() {
         asignarErrores(porCampo);
         setErroresAdjuntos(porAdjunto);
         setAviso(error.cuerpo.mensaje);
+        setRechazos((n) => n + 1);
       } else {
         setAviso(MENSAJE_SIN_CONEXION);
       }
@@ -84,5 +93,6 @@ export function useRegistroCuenta() {
     estado,
     aviso,
     cuenta,
+    rechazos,
   };
 }

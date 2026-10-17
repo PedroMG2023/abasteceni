@@ -92,7 +92,7 @@ const contenido = [
       ['Autodescripción', 'Cada campo dice qué se espera: el RUC indica su formato y el teléfono, el código de país y su uso para los avisos por WhatsApp (SYS-NFN-11)', 'Cumple'],
       ['Robustez frente a errores de uso', 'Los errores se señalan en el propio campo (`aria-invalid`, borde rojo y texto), dicen cómo corregir y no borran lo escrito. El servidor repite la validación y su respuesta se coloca en el mismo campo (PA-05).', 'Cumple'],
       ['Robustez frente a errores de uso', 'Un RUC escrito con guiones se rechaza (pantalla 4). La regla aprobada (DIS-21) exige «sin guiones», pero el sistema podría tolerarlos y normalizarlos', 'Mejora propuesta'],
-      ['Robustez y autodescripción', 'Con errores, el formulario no muestra un resumen arriba ni lleva el foco al primer campo inválido. En un teléfono (pantalla 3) hay que desplazarse para encontrarlos', 'Mejora pendiente'],
+      ['Robustez y autodescripción', 'Hallazgo: con errores, el formulario no mostraba un resumen arriba ni llevaba el foco al primer campo inválido, y en un teléfono había que desplazarse para encontrarlos. **Corregido durante la evaluación** (commit `5273441`, ' + E.bloqueo + '): aviso «Revise los datos marcados.» arriba y foco en el primer campo con error, que anuncia su mensaje (WCAG 3.3.1). La pantalla 3 de la figura 1 ya muestra el aviso; la anterior se conserva como `03-registro-errores-sin-aviso.png`', 'Corregido'],
       ['Conformidad con las expectativas', 'El selector de archivo muestra «Choose File»: es el control nativo del navegador de pruebas, configurado en inglés. En un navegador en español aparece en español', 'Observación'],
       ['Controlabilidad', 'El usuario decide el orden, puede volver a cualquier campo y nada se envía hasta que lo pide', 'Cumple'],
     ],
@@ -157,7 +157,7 @@ const contenido = [
   tabla(
     ['Sección del CIF', 'Contenido para AbasteceNi'],
     [
-      ['Resumen ejecutivo', 'La interfaz de afiliación cumple los umbrales medibles de rendimiento, peso, adaptación y accesibilidad automatizada (SYS-NFN-08 a 10 y 12). La inspección por principios de ISO 9241-110 identificó dos mejoras pendientes y dos propuestas. No se han realizado sesiones con participantes.'],
+      ['Resumen ejecutivo', 'La interfaz de afiliación cumple los umbrales medibles de rendimiento, peso, adaptación y accesibilidad automatizada (SYS-NFN-08 a 10 y 12). La inspección por principios de ISO 9241-110 identificó cuatro mejoras: una corregida durante la evaluación (el aviso de errores del formulario), una pendiente que depende de M3 y dos propuestas que requieren modificar reglas aprobadas. No se han realizado sesiones con participantes.'],
       ['Introducción: producto', 'Capa 1 de AbasteceNi: registro de cuenta comercial, inicio de sesión y paneles por rol (IT-01 e IT-02).'],
       ['Introducción: objetivos', 'Verificar los umbrales de D2 y la conformidad con ISO 9241-110 del flujo de afiliación (PM-01).'],
       ['Método: participantes', '**No realizado.** No hubo participantes del público objetivo en esta fase. Diseño previsto: cinco comerciantes de Chinandega y El Viejo, al menos dos con alfabetización digital baja (RO-06), reclutados por U-03.'],
@@ -180,7 +180,7 @@ const contenido = [
       ['SYS-NFN-11: ayuda contextual en el registro', 'Construida', 'Ayuda en los campos críticos del registro'],
       ['SYS-NFN-11: tutoriales en video de hasta 3 minutos', 'Pendiente', 'No construidos en el alcance vigente'],
       ['SYS-NFN-12: teclado y WCAG 2.1 AA (automatizado)', 'Verificado', '0 infracciones en cinco vistas; pruebas de teclado'],
-      ['Resumen de errores al inicio del formulario y foco en el primer error', 'Mejora pendiente', '§2.3, pantalla 3'],
+      ['Resumen de errores al inicio del formulario y foco en el primer error', 'Corregida (`5273441`)', '§2.3, pantalla 3; `PaginaRegistro.test.tsx`'],
       ['RUC con guiones normalizado y confirmación al aprobar', 'Mejoras propuestas', '§2.3; exigen modificar DIS-21 y DIS-26'],
       ['Evaluación con participantes (ISO/IEC 25062)', 'Pendiente', 'Diseño en el §2.6'],
       ['Integración en `main`', E.IT02_INTEGRADA ? 'IT-00, IT-01 e IT-02 integradas' : 'IT-00 e IT-01 integradas; IT-02 pendiente de la revisión cruzada', 'PR #1, #2 y #3'],
@@ -190,7 +190,7 @@ const contenido = [
 
   h1('3. Conclusiones'),
   p(`La interfaz de afiliación cumple los umbrales cuantitativos de la serie en el contexto de uso más exigente que la serie declara: teléfono de gama media y red 3G. Con la compresión activada, la carga más lenta fue de ${s(maximo(conCompresion, '3G'))} en 3G y de ${s(maximo(conCompresion, '4G'))} en 4G, con un peso de ${kb(peso(conCompresion))}, una décima parte del presupuesto de 2,5 MB. El análisis con axe-core no encontró infracciones WCAG 2.1 A ni AA, y la operación por teclado se verificó de forma automática.`),
-  p('La medición cumplió también su función de control: reveló que los activos no se servían comprimidos, en contra de SYS-NFN-10, y la corrección redujo la carga en 3G de forma apreciable. La inspección por principios de ISO 9241-110 identificó mejoras concretas: el resumen de errores, la tolerancia a los guiones del RUC y la confirmación al aprobar. Las dos últimas requieren modificar reglas aprobadas por el equipo y no se implementan sin esa decisión.'),
+  p('La medición cumplió también su función de control: reveló que los activos no se servían comprimidos, en contra de SYS-NFN-10, y la corrección redujo la carga en 3G de forma apreciable. La inspección por principios de ISO 9241-110 identificó mejoras concretas: el resumen de errores, la tolerancia a los guiones del RUC y la confirmación al aprobar. La primera se corrigió durante la propia evaluación. Las dos últimas requieren modificar reglas aprobadas por el equipo y no se implementan sin esa decisión.'),
   p('La evaluación con participantes del público objetivo sigue pendiente y es la que puede confirmar o refutar la adecuación de los textos para personas con alfabetización digital baja (RO-06). El formato CIF de ISO/IEC 25062 queda preparado para registrarla.'),
 
   h1('4. Referencias normativas y bibliográficas'),

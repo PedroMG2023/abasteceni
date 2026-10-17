@@ -7,7 +7,7 @@ const contenido = [
   h2('1.1 Propósito del documento'),
   p('Este informe muestra cómo el código construido de AbasteceNi realiza los controles de seguridad de ISO/IEC 27001:2022 (Anexo A), desarrollados en ISO/IEC 27002:2022, con OWASP ASVS 4.0.3 como lista de verificación técnica y la Ley No. 787 de Protección de Datos Personales de Nicaragua como marco legal. Para cada control se indica la práctica en el repositorio, el archivo y la línea donde se realiza, la prueba que la verifica y su estado. Los resultados del análisis estático (CodeQL) y de la auditoría de dependencias (`npm audit`) se informan con sus cifras reales, incluido el único hallazgo de gravedad alta y su tratamiento.'),
   h2('1.2 Alcance y estado de integración'),
-  p('El alcance es el código de IT-00, IT-01 e IT-02 (tramo A): registro de cuentas, carga del registro legal, inicio de sesión sin estado, validación administrativa, bitácora inmutable y consentimiento. ' + E.resumen + ' Los requisitos de seguridad de los tramos B y C (SYS-FN-05 a 08) y los que dependen de la infraestructura de producción (SYS-NFN-01 y 02) se declaran como pendientes.'),
+  p('El alcance es el código de IT-00, IT-01 e IT-02 (tramo A): registro de cuentas, carga del registro legal, inicio de sesión sin estado, validación administrativa, bitácora inmutable y consentimiento. ' + E.resumen + ' SYS-FN-07 (bloqueo por intentos, tramo B) está ' + E.bloqueo + '. Los requisitos de seguridad restantes de los tramos B y C (SYS-FN-05, 06 y 08) y los que dependen de la infraestructura de producción (SYS-NFN-01 y 02) se declaran como pendientes.'),
   h2('1.3 Insumos heredados de la serie'),
   tabla(
     ['Insumo', 'Origen', 'Consecuencia'],
@@ -36,13 +36,13 @@ const contenido = [
     [
       ['5.34 Privacidad y protección de datos personales', 'Consentimiento obligatorio con texto aprobado y asiento de bitácora (SYS-FN-36, DIS-28); datos de V-03 fuera de las trazas', '§2.5; `afiliacion.spec.ts`', 'Construido; cifrado en reposo y supresión pendientes'],
       ['8.4 Acceso al código fuente', '`main` protegida: PR obligatorio, sin push directo ni forzado, también para administradores; 9 trabajos de CI obligatorios', 'Configuración de GitHub (DIS-11)', 'Activo'],
-      ['8.5 Autenticación segura', 'argon2id, credencial de acceso de 15 minutos, renovación rotada y revocable (ADR-04, DIS-06)', '§2.2', 'Construido; bloqueo por intentos (SYS-FN-07) pendiente'],
+      ['8.5 Autenticación segura', 'argon2id, credencial de acceso de 15 minutos, renovación rotada y revocable (ADR-04, DIS-06)', '§2.2', 'Construido, incluido el bloqueo por intentos (SYS-FN-07)'],
       ['8.8 Gestión de vulnerabilidades técnicas', 'Archivo de bloqueo, `npm audit --audit-level=high` en cada cambio, scripts de instalación de terceros denegados', '§2.8', 'Activo'],
       ['8.9 Gestión de la configuración', 'Secretos solo en variables de entorno; `.env.example` sin valores; el arranque falla si falta un secreto', '§2.9', 'Activo'],
       ['8.15 Registro de eventos', 'Bitácora inmutable en M9 con usuario, acción, marca temporal e IP (SYS-FN-35, ADR-05)', '§2.6; informe 4b', 'Construido; retención de 90 días y 7 años pendiente'],
       ['8.24 Uso de criptografía', 'argon2id, HMAC-SHA256 para la credencial de acceso, SHA-256 para la huella de la renovación, 256 bits aleatorios', '§2.2', 'Construido; TLS 1.3 y AES-256 en reposo dependen de producción (ADR-09)'],
       ['8.25 Ciclo de vida de desarrollo seguro', 'Definición de Terminado (DM-04), revisión cruzada (DM-05), CI con verificación de dependencias (DM-06)', 'Informe 6', 'Activo'],
-      ['8.26 Requisitos de seguridad de la aplicación', 'SYS-FN-04 a 08 y SYS-NFN-01 a 03 con criterio de aceptación verificable', '§2.11', 'SYS-FN-04 y SYS-NFN-03 verificados; resto pendiente'],
+      ['8.26 Requisitos de seguridad de la aplicación', 'SYS-FN-04 a 08 y SYS-NFN-01 a 03 con criterio de aceptación verificable', '§2.11', 'SYS-FN-04, SYS-FN-07 y SYS-NFN-03 verificados; resto pendiente'],
       ['8.27 Principios de arquitectura segura', 'PA-05 (frontera y dominio) y PA-06 (solo adición), con reglas de dependencia que la CI hace cumplir', '§2.3 y §2.4', 'Activo'],
       ['8.28 Codificación segura', 'Consultas parametrizadas, validación declarativa y de dominio, tipo de archivo por contenido', '§2.4', 'Activo'],
       ['8.29 Pruebas de seguridad', 'Pruebas 401, 403 y 429 (AS-03), de la bitácora, de las credenciales y de la carga de archivos; CodeQL `security-extended`', '§2.7 y §2.10', 'Activo'],
@@ -56,11 +56,12 @@ const contenido = [
   vinetas([
     `**Almacenamiento de la contraseña** (ASVS V2.4.1): argon2id con los parámetros por defecto de la biblioteca (64 MiB, 3 iteraciones, paralelismo 4), por encima del mínimo que recomienda OWASP (\`${B}/infraestructura/seguridad/derivacion-argon2.ts\`). La contraseña nunca se guarda, se registra en trazas ni se devuelve por la API (V-03).`,
     '**Longitud** (ASVS V2.1.1 y V2.1.2): de 12 a 128 caracteres (DIS-22), validada en la frontera y en el dominio.',
-    `**Sin enumeración de cuentas:** un correo inexistente y una contraseña incorrecta reciben el mismo mensaje, y en ambos casos se verifica una huella argon2, lo que iguala el tiempo de respuesta (\`${B}/dominio/m2-seguridad/servicio-seguridad.ts:90\`). Lo comprueba \`api-cuentas-sesiones.spec.ts\`.`,
+    `**Sin enumeración de cuentas:** un correo inexistente y una contraseña incorrecta reciben el mismo mensaje, y en ambos casos se verifica una huella argon2, lo que iguala el tiempo de respuesta (\`${B}/dominio/m2-seguridad/servicio-seguridad.ts:102-103\`). Lo comprueba \`api-cuentas-sesiones.spec.ts\`.`,
     `**Credencial de acceso** (ADR-04; ASVS V3.5.3): JWT HS256 de 15 minutos con emisor y audiencia fijos. La verificación fija el algoritmo (\`${B}/infraestructura/seguridad/firma-jwt.ts:26\`), y el secreto debe tener al menos 32 bytes. \`test/unitarias/infraestructura/seguridad.spec.ts\` rechaza credenciales alteradas, vencidas, de otro secreto, con algoritmo \`none\` (línea 33) o con un rol ajeno al catálogo.`,
-    `**Credencial de renovación:** 256 bits aleatorios. El servidor solo guarda su huella SHA-256 (\`servicio-seguridad.ts:158\`), la rota en cada uso y revoca la anterior (\`:106\`); al cerrar sesión, la revoca. Viaja en una cookie con los atributos de ASVS V3.4.1, V3.4.2, V3.4.3 y V3.4.5: \`Secure\`, \`HttpOnly\`, \`SameSite=Strict\` y \`Path=/api/v1/sesiones\` (\`${B}/aplicacion/m2-seguridad/sesiones.controller.ts:63\`).`,
+    `**Credencial de renovación:** 256 bits aleatorios. El servidor solo guarda su huella SHA-256 (\`servicio-seguridad.ts:197\`), la rota en cada uso y revoca la anterior (\`:143\`); al cerrar sesión, la revoca. Viaja en una cookie con los atributos de ASVS V3.4.1, V3.4.2, V3.4.3 y V3.4.5: \`Secure\`, \`HttpOnly\`, \`SameSite=Strict\` y \`Path=/api/v1/sesiones\` (\`${B}/aplicacion/m2-seguridad/sesiones.controller.ts:63\`).`,
     '**Habilitación:** solo inician sesión las cuentas «Activa» y el Administrador (DIS-25). Una cuenta rechazada después de iniciar sesión ya no puede renovar.',
-    '**Pendiente:** bloqueo tras cinco intentos fallidos (SYS-FN-07, ASVS V2.2.1), límite de dos dispositivos (SYS-FN-08), segundo factor TOTP (SYS-FN-06) y recuperación por enlace temporal (SYS-FN-05), es decir, los tramos B y C. Hasta entonces, el límite de 120 peticiones por minuto e IP mitiga parcialmente los ataques de fuerza bruta.',
+    `**Bloqueo por intentos fallidos** (SYS-FN-07; ASVS V2.2.1; DIS-34): al quinto fallo consecutivo la cuenta se bloquea 15 minutos (\`${B}/dominio/m2-seguridad/servicio-seguridad.ts\`). El contador se incrementa de forma atómica en el esquema de M2; durante el bloqueo no se evalúa la contraseña; un inicio exitoso reinicia el contador. El trabajador avisa al correo registrado. Lo verifican \`servicio-seguridad.spec.ts\` (5 casos), \`test/integracion/bloqueo.spec.ts\` y \`e2e/pruebas/sesion.spec.ts\`. Estado: ${E.bloqueo}.`,
+    '**Pendiente:** límite de dos dispositivos (SYS-FN-08), segundo factor TOTP (SYS-FN-06) y recuperación por enlace temporal (SYS-FN-05), del tramo C y del resto del tramo B.',
   ]),
 
   h2('2.3 Control de acceso (ASVS V4; PA-05)'),
@@ -119,6 +120,7 @@ const contenido = [
     ['Alerta', 'Regla y gravedad', 'Ubicación', 'Análisis', 'Tratamiento'],
     [
       ['#1', '`js/clear-text-storage-of-sensitive-data`, alta', '`sesiones.controller.ts:63`', 'La credencial de renovación se envía al navegador en una cookie sin cifrar. Es una decisión deliberada (ADR-04): esa credencial debe residir en el cliente, y cifrarla no reduciría el riesgo porque seguiría siendo una credencial al portador. Está protegida con HttpOnly, Secure, SameSite=Strict, ruta restringida, vida de 7 días, rotación en cada uso y revocación; el servidor solo guarda su huella.', 'Descartada como «Won\'t fix» por el titular del repositorio, con la justificación registrada en DIS-33'],
+      ['#2', '`js/double-escaping`, alta', '`herramientas/informes/comun.js:153`', 'El generador de estos informes decodificaba las entidades de los reportes JUnit con reemplazos encadenados, de modo que «&amp;lt;» terminaba como «<». No forma parte del producto: lee reportes que produce la propia CI y no genera HTML.', 'Corregida con una decodificación de una sola pasada (commit `dfe8e42`); CodeQL la cerró en la ejecución siguiente'],
     ],
     [8, 20, 16, 38, 18],
   ),
@@ -135,6 +137,7 @@ const contenido = [
       ['Rotación, reutilización, vencimiento y revocación de la renovación', '`servicio-seguridad.spec.ts`; `api-cuentas-sesiones.spec.ts`', 'Pasa'],
       ['Cookie HttpOnly, SameSite=Strict, ruta y vida', '`api-cuentas-sesiones.spec.ts`; `e2e/pruebas/sesion.spec.ts`', 'Pasa'],
       ['Mensaje idéntico para correo inexistente y contraseña incorrecta', '`api-cuentas-sesiones.spec.ts`', 'Pasa'],
+      ['CT-SEG-07: bloqueo al quinto intento, sin evaluar la contraseña durante 15 minutos, y aviso al correo', '`servicio-seguridad.spec.ts`; `test/integracion/bloqueo.spec.ts`; `e2e/pruebas/sesion.spec.ts`', 'Pasa'],
       ['UPDATE, DELETE y TRUNCATE de la bitácora fallan (42501)', '`test/bd/bitacora.spec.ts`; `e2e/pruebas/afiliacion.spec.ts`', 'Pasa'],
       ['Privilegios de `abasteceni_app` exactamente los declarados', '`test/bd/linea-base.spec.ts`', 'Pasa'],
       ['Tipo de archivo por contenido, tope de 5 MB y claves contra recorrido de rutas', '`afiliacion.spec.ts`; `almacen-documentos.spec.ts`', 'Pasa'],
@@ -149,7 +152,7 @@ const contenido = [
   tabla(
     ['Capítulo', 'Requisitos atendidos', 'Pendientes'],
     [
-      ['V2 Autenticación', 'V2.1.1, V2.1.2 (longitud), V2.4.1 (argon2id)', 'V2.2.1 (bloqueo, SYS-FN-07), V2.5 (recuperación, SYS-FN-05), V2.8 (TOTP, SYS-FN-06)'],
+      ['V2 Autenticación', 'V2.1.1, V2.1.2 (longitud), V2.2.1 (bloqueo por intentos, SYS-FN-07), V2.4.1 (argon2id)', 'V2.5 (recuperación, SYS-FN-05), V2.8 (TOTP, SYS-FN-06)'],
       ['V3 Gestión de sesiones', 'V3.4.1, V3.4.2, V3.4.3, V3.4.5 (atributos de la cookie); V3.5.3 (credencial firmada); revocación de la renovación al cerrar sesión', 'Revocación inmediata de la credencial de acceso: vive como máximo 15 minutos (ADR-04)'],
       ['V4 Control de acceso', 'V4.1.1, V4.1.3, V4.1.5 (denegación por defecto, mínimo privilegio, control en el servidor)', '—'],
       ['V5 Validación', 'V5.1.3 (validación positiva), V5.3.4 (consultas parametrizadas)', '—'],
@@ -165,7 +168,8 @@ const contenido = [
     ['Elemento', 'Estado'],
     [
       ['Autenticación sin estado, control de acceso, límite de peticiones, validación, carga segura, bitácora inmutable, consentimiento, secretos, CodeQL y auditoría de dependencias', E.IT02_INTEGRADA ? 'Construido, verificado e integrado en `main`' : 'Construido y verificado; lo de IT-01 integrado en `main`, lo de IT-02 pendiente de la revisión cruzada (PR #3)'],
-      ['SYS-FN-05, 06, 07 y 08 (recuperación, TOTP, bloqueo, límite de dispositivos)', 'Pendiente: tramos B y C de IT-02, no construidos a la fecha de corte'],
+      ['SYS-FN-07 (bloqueo por intentos fallidos)', 'Construido y verificado; ' + E.bloqueo],
+      ['SYS-FN-05, 06 y 08 (recuperación, TOTP, límite de dispositivos)', 'Pendiente: no construidos a la fecha de corte'],
       ['SYS-NFN-01 (AES-256 en reposo) y SYS-NFN-02 (TLS 1.3)', 'Pendiente: servicios gestionados de producción (ADR-09, informe 5)'],
       ['SYS-NFN-04 (retención de la bitácora) y SYS-FN-37 (supresión)', 'Pendiente: IT-09'],
       ['Análisis antimalware de los documentos cargados', 'Propuesta: no lo exige ningún documento de la serie; se registraría como regla nueva'],
@@ -175,7 +179,7 @@ const contenido = [
 
   h1('3. Conclusiones'),
   p('Los controles de ISO/IEC 27002:2022 de la tabla de CLAUDE.md §9 tienen, en el código construido, una práctica concreta y una prueba automatizada que la verifica en cada cambio. Las propiedades críticas no dependen solo del código de la aplicación: la inmutabilidad de la bitácora la hace cumplir PostgreSQL, el límite de peticiones se comparte entre instancias en la base de datos y la protección de `main` impide integrar sin la CI en verde.'),
-  p('El análisis estático encontró una alerta de gravedad alta. Se analizó y se descartó con justificación documentada, porque corresponde a una decisión de arquitectura cuyas protecciones están implementadas y probadas. La auditoría de dependencias no tiene hallazgos altos ni críticos. Los requisitos de seguridad pendientes están identificados: bloqueo por intentos, recuperación, segundo factor y límite de dispositivos (tramos B y C), y los que dependen de la infraestructura de producción.'),
+  p('El análisis estático encontró dos alertas de gravedad alta. La del código del producto se analizó y se descartó con justificación documentada, porque corresponde a una decisión de arquitectura cuyas protecciones están implementadas y probadas; la del generador de informes se corrigió. La auditoría de dependencias no tiene hallazgos altos ni críticos. Del tramo B se construyó el bloqueo por intentos fallidos (SYS-FN-07). Los requisitos de seguridad pendientes están identificados: recuperación, segundo factor y límite de dispositivos, y los que dependen de la infraestructura de producción.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] ISO/IEC 27001:2022. _Information security, cybersecurity and privacy protection — Information security management systems — Requirements_, Anexo A.'),
@@ -195,6 +199,7 @@ const contenido = [
       ['39023391840', '`it-01/linea-base`', 'En verde', 'En verde'],
       ['39033238576', '`it-02/afiliacion`', 'En verde', 'En verde'],
       ['39036501600', '`it-02/informes`', 'En verde', 'En verde'],
+      ['39042977012', '`it-02/bloqueo`', 'En verde', 'En verde'],
     ],
     [22, 28, 25, 25],
   ),

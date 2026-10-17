@@ -9,6 +9,10 @@ export interface PuertoRepositorioSeguridad {
   buscarCredencialPorCorreo(correo: string): Promise<Credencial | null>;
   buscarCredencialPorId(id: string, tx?: Transaccion): Promise<Credencial | null>;
   cambiarHabilitacion(cuentaId: string, habilitacion: Habilitacion, tx: Transaccion): Promise<void>;
+  // SYS-FN-07: incremento atómico; devuelve el número de intentos fallidos consecutivos.
+  registrarIntentoFallido(credencialId: string, tx: Transaccion): Promise<number>;
+  bloquear(credencialId: string, hasta: Date, tx: Transaccion): Promise<void>;
+  reiniciarIntentos(credencialId: string): Promise<void>;
   guardarSesion(sesion: SesionRenovacion, tx?: Transaccion): Promise<void>;
   buscarSesionPorHuella(huella: string, tx?: Transaccion): Promise<SesionRenovacion | null>;
   revocarSesion(id: string, revocadaEn: Date, tx?: Transaccion): Promise<void>;

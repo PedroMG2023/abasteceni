@@ -44,7 +44,7 @@ describe('Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado)', ()
 
   it('traduce la violación de unicidad del correo en ErrorConflicto y propaga los demás errores', async () => {
     const repositorio = new RepositorioSeguridadPg(conexion.db);
-    const credencial = { id: ID(3), cuentaId: null, correo: 'x@y.ni', hashContrasena: 'h', rol: 'Comprador' as const, habilitacion: 'pendiente' as const, creadaEn: new Date() };
+    const credencial = { id: ID(3), cuentaId: null, correo: 'x@y.ni', hashContrasena: 'h', rol: 'Comprador' as const, habilitacion: 'pendiente' as const, creadaEn: new Date(), intentosFallidos: 0, bloqueadaHasta: null };
     await unidad.ejecutar((tx) => repositorio.guardarCredencial(credencial, tx));
 
     await expect(unidad.ejecutar((tx) => repositorio.guardarCredencial({ ...credencial, id: ID(4) }, tx))).rejects.toEqual(

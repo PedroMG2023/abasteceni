@@ -5,7 +5,8 @@ const E = require('./estado');
 const REPO = path.resolve(__dirname, '../..');
 const RUN = process.env.RUN_SISTEMA; // ejecución de CI con los 21 escenarios
 const sistema = leerJUnit(process.env.JUNIT_SISTEMA);
-const backend = leerJUnit(path.join(REPO, 'docs/evidencia/pruebas/it-02/backend/junit.xml'));
+const backend = leerJUnit(process.env.JUNIT_BACKEND ?? path.join(REPO, 'docs/evidencia/pruebas/it-02/backend/junit.xml'));
+const RUN_BACKEND = process.env.RUN_BACKEND ?? 'ejecución 39033238576';
 const http = backend.filter((c) => c.archivo.startsWith('test/integracion/'));
 const seg = (t) => t.toFixed(2).replace('.', ',') + ' s';
 const archivo = (c) => (c.archivo ? path.basename(c.archivo) : c.suite.split(' › ')[0].replace(/^pruebas\//, ''));
@@ -22,7 +23,7 @@ const contenido = [
   h2('1.1 Propósito del documento'),
   p('Este informe documenta las pruebas de sistema de AbasteceNi con la estructura de ISO/IEC/IEEE 29119-3. Comprende dos niveles: las pruebas **de extremo a extremo** con Playwright, que recorren la interfaz real contra la API, el trabajador y PostgreSQL levantados con Docker Compose, y las pruebas **de integración HTTP**, que ejercitan la API completa contra PostgreSQL real y validan cada respuesta contra el contrato OpenAPI (PA-07). Cada escenario cita el criterio de aceptación (CT) o el requisito (SYS-FN, SYS-NFN) que verifica.'),
   h2('1.2 Alcance y estado de integración'),
-  p(`Las pruebas cubren lo construido en IT-00, IT-01 e IT-02 (tramo A). Las de extremo a extremo se ejecutan en el trabajo 10 de la CI (DIS-14); la ejecución citada es la ${RUN}, sobre la rama \`it-02/informes\`, que contiene el código de IT-02 y los escenarios de accesibilidad añadidos para el informe 2. ${E.resumen}`),
+  p(`Las pruebas cubren lo construido en IT-00, IT-01 e IT-02 (tramo A). Las de extremo a extremo se ejecutan en el trabajo 10 de la CI (DIS-14); la ejecución citada es la ${RUN}, sobre la rama \`${process.env.RAMA_SISTEMA ?? 'it-02/informes'}\`, que contiene el código de IT-02, los escenarios de accesibilidad del informe 2 y los de CT-SEG-07. ${E.resumen}`),
   h2('1.3 Insumos heredados de la serie'),
   tabla(
     ['Insumo', 'Origen', 'Uso en las pruebas de sistema'],
@@ -66,6 +67,7 @@ const contenido = [
       ['PDF de 4 MB aceptado; 8 MB rechazado con mensaje; contenido que no es PDF ni JPG rechazado', 'CT-REG-02', 'Valores límite alrededor de 5 MB; tipo por contenido frente a extensión', 'Sistema e integración HTTP'],
       ['Aprobar pasa a «Activa»; rechazar registra el motivo en la bitácora', 'CT-ADM-03', 'Transiciones de estado válidas e inválidas', 'Sistema e integración HTTP'],
       ['Cada uno de los cuatro roles inicia sesión y ve su panel', 'CT-SEG-04', 'Partición por rol', 'Sistema e integración HTTP'],
+      ['Cuatro intentos fallidos responden 401; el quinto bloquea; durante el bloqueo la clave correcta también falla; aviso al correo', 'CT-SEG-07', 'Valor límite 4/5 intentos; transición de estado', 'Sistema e integración HTTP'],
       ['La decisión consta en la bitácora y no puede modificarse', 'Criterio de salida de IT-02; SYS-FN-35', 'Intento de UPDATE y DELETE con el rol de la aplicación', 'Sistema e integración'],
       ['Consentimiento obligatorio y registrado con marca temporal', 'SYS-FN-36', 'Clase inválida (sin aceptar) y verificación en la bitácora', 'Sistema e integración HTTP'],
       ['Evento persistido con su cambio de estado, publicado y entregado; el circuito abre ante el fallo', 'Criterio de salida de IT-01', 'Inyección de fallos en el proveedor simulado', 'Integración; sistema para la publicación'],
@@ -86,7 +88,7 @@ const contenido = [
   p(`Casos ejecutados en la ${RUN} de la CI (trabajo 10), con sus tiempos:`),
   tabla(['ID', 'Archivo', 'Escenario', 'Tiempo', 'Resultado'], casosSistema, [10, 16, 50, 11, 13]),
   h3('Casos de integración HTTP'),
-  p(`La batería principal ejecutó ${http.length} casos de integración HTTP contra PostgreSQL real en la ejecución 39033238576, todos en verde. Cada respuesta se valida contra \`packages/contrato/openapi.yaml\` (\`test/soporte/contrato.ts\`).`),
+  p(`La batería principal ejecutó ${http.length} casos de integración HTTP contra PostgreSQL real en la ${RUN_BACKEND}, todos en verde. Cada respuesta se valida contra \`packages/contrato/openapi.yaml\` (\`test/soporte/contrato.ts\`).`),
   tabla(['Archivo', 'Casos'], porArchivoHttp, [80, 20]),
 
   h2('2.5 Trazabilidad de los criterios de aceptación'),
@@ -97,6 +99,7 @@ const contenido = [
       ['CT-REG-02 (SYS-FN-02)', 'Prueba', '`afiliacion.spec.ts` (sistema e integración)', 'Pasa'],
       ['CT-ADM-03 (SYS-FN-03)', 'Prueba', '`afiliacion.spec.ts` (sistema e integración)', 'Pasa'],
       ['CT-SEG-04 (SYS-FN-04)', 'Prueba', '`sesion.spec.ts`; `afiliacion.spec.ts` (cuatro roles)', 'Pasa'],
+      ['CT-SEG-07 (SYS-FN-07)', 'Prueba', '`sesion.spec.ts` (sistema); `bloqueo.spec.ts` (integración, con el aviso por correo)', 'Pasa'],
       ['SYS-FN-35', 'Análisis de la tabla de auditoría', '`afiliacion.spec.ts`; suite `bd/` (informe 4b)', 'Pasa'],
       ['SYS-FN-36', 'Inspección del formulario y del registro', '`afiliacion.spec.ts` (consentimiento); captura de la pantalla 2 (informe 2)', 'Pasa'],
       ['SYS-NFN-03', 'Análisis con prueba de carga de 200 peticiones por minuto', '`api-cuentas-sesiones.spec.ts`: 120 peticiones pasan y la 121 recibe 429 con dos instancias. No se ejecutó la prueba de carga de 200', 'Pasa en el valor límite; carga pendiente'],
@@ -113,9 +116,9 @@ const contenido = [
     [
       ['Escenarios de extremo a extremo', `${sistema.length} ejecutados · ${sistema.filter((c) => !c.fallo).length} pasan · ${sistema.filter((c) => c.fallo).length} fallan`],
       ['Casos de integración HTTP', `${http.length} ejecutados · todos pasan`],
-      ['Criterios de aceptación de D2 del alcance ejecutados', 'CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04, SYS-FN-35 y SYS-FN-36: 6 de 6'],
+      ['Criterios de aceptación de D2 del alcance ejecutados', 'CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04, CT-SEG-07, SYS-FN-35 y SYS-FN-36: 7 de 7'],
       ['Retardo de publicación de eventos (MT-04)', '0,51 s (IT-01) y 0,08 s (IT-02) en la CI; umbral comprometido de 60 s (R-02)'],
-      ['Ejecuciones de CI', `IT-01: 39023391840 (8 escenarios). IT-02: 39033238576 (13 escenarios). Con accesibilidad: ${RUN} (${sistema.length} escenarios)`],
+      ['Ejecuciones de CI', `IT-01: 39023391840 (8 escenarios). IT-02: 39033238576 (13 escenarios). Con accesibilidad y CT-SEG-07: ${RUN} (${sistema.length} escenarios)`],
     ],
     [36, 64],
   ),
@@ -139,15 +142,16 @@ const contenido = [
       ['Criterios de aceptación de SYS-FN-01 a 04, 35 y 36', E.IT02_INTEGRADA ? 'Verificados e integrados en `main`' : 'Verificados en sistema e integración; SYS-FN-01 y 04 de IT-01 integrados; los de IT-02, pendientes de la PR #3'],
       ['Prueba de carga de 200 peticiones por minuto (SYS-NFN-03) y de 500 usuarios concurrentes (SYS-NFN-06)', 'Pendientes: requieren el entorno de nube de ADR-09'],
       ['TLS 1.3 (SYS-NFN-02) y cifrado en reposo (SYS-NFN-01)', 'Pendientes: los aporta la infraestructura de producción (ADR-09); el entorno de sistema local no termina TLS'],
-      ['CT-SEG-05 a CT-SEG-08 (tramos B y C de IT-02)', 'Pendientes: no construidos a la fecha de corte'],
+      ['CT-SEG-07 (SYS-FN-07)', 'Verificado; ' + E.bloqueo],
+      ['CT-SEG-05, CT-SEG-06 y CT-SEG-08', 'Pendientes: no construidos a la fecha de corte'],
       ['Notificaciones reales por WhatsApp Business API y correo', 'Pendientes: en el alcance vigente se verifican con proveedores simulados'],
     ],
     [50, 50],
   ),
 
   h1('3. Conclusiones'),
-  p('Los seis criterios de aceptación de D2 del alcance construido se ejecutaron con el método asignado y su resultado consta, como exige la condición 1 de la Definición de Terminado. También se ejecutaron, contra el sistema completo, los criterios de salida de IT-01 e IT-02. Las pruebas de sistema corren en cada cambio dentro de la CI, sobre la misma imagen que se desplegaría, con secretos de un solo uso y un entorno que se destruye al terminar.'),
-  p('Las pruebas cumplieron su función de control: detectaron y llevaron a corregir cinco defectos que no habrían aparecido en las pruebas unitarias. Entre ellos, una sonda de vitalidad inutilizable por el balanceador y activos sin comprimir que ponían la carga en 3G al borde del umbral. Quedan pendientes las pruebas que dependen de la infraestructura de producción (carga, TLS y cifrado en reposo) y las de los tramos B y C.'),
+  p((E.BLOQUEO_INTEGRADO ? 'Los siete criterios de aceptación de D2 del alcance construido se ejecutaron' : 'Los seis criterios de aceptación de D2 del alcance integrado en `main` se ejecutaron, y también CT-SEG-07, construido en la rama `it-02/bloqueo` y pendiente de la revisión cruzada (PR #6). Todos se ejecutaron') + ' con el método asignado y su resultado consta, como exige la condición 1 de la Definición de Terminado. También se ejecutaron, contra el sistema completo, los criterios de salida de IT-01 e IT-02. Las pruebas de sistema corren en cada cambio dentro de la CI, sobre la misma imagen que se desplegaría, con secretos de un solo uso y un entorno que se destruye al terminar.'),
+  p('Las pruebas cumplieron su función de control: detectaron y llevaron a corregir cinco defectos que no habrían aparecido en las pruebas unitarias. Entre ellos, una sonda de vitalidad inutilizable por el balanceador y activos sin comprimir que ponían la carga en 3G al borde del umbral. Quedan pendientes las pruebas que dependen de la infraestructura de producción (carga, TLS y cifrado en reposo) y las de SYS-FN-05, 06 y 08.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] ISO/IEC/IEEE 29119-1:2022, 29119-2:2021 y 29119-3:2021. _Software and systems engineering — Software testing_, partes 1, 2 y 3.'),

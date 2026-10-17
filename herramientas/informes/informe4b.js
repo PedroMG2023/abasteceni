@@ -30,6 +30,7 @@ const contenido = [
       ['IT-00', 'Roles `abasteceni_propietario` y `abasteceni_app`; diez esquemas; privilegios de uso sin creación', E.it00.estado],
       ['IT-01', 'Tablas de M1 y M2, bandeja de salida y contador de peticiones; privilegios explícitos por tabla', E.it01.estado],
       ['IT-02', 'Bitácora de M9 con UPDATE, DELETE y TRUNCATE revocados; registro legal y consentimiento en la cuenta', E.it02.estado],
+      ['IT-02, tramo B (SYS-FN-07)', 'Contador de intentos fallidos y fin del bloqueo en las credenciales de M2', E.bloqueo.replace(/^./, (c) => c.toUpperCase())],
     ],
     [14, 56, 30],
   ),
@@ -57,8 +58,8 @@ const contenido = [
 
   h1('2. Desarrollo'),
   h2('2.1 Objeto de prueba: el esquema físico'),
-  p('La figura 1 es el diagrama físico de los esquemas, **generado desde las migraciones**. `herramientas/bd/diagrama-fisico.sh` levanta un PostgreSQL 18.6 efímero, crea los dos roles de ADR-05 con `herramientas/bd/provisionar.sh`, aplica en orden las siete migraciones de `apps/backend/migraciones/` con el rol propietario y dibuja el catálogo resultante (`pg_constraint`, `information_schema`). El diagrama refleja, por tanto, lo que la base es y no lo que se pretendía que fuera.'),
-  ...figura(path.join(process.env.FIGURAS ?? __dirname, 'esquema-fisico.png'), 2029, 3092, 'Figura 1. Esquema físico de AbasteceNi tras aplicar las migraciones 0000 a 0006. Cada tabla indica las claves (PK, UQ), las columnas NOT NULL, el número de restricciones CHECK y los privilegios del rol abasteceni_app.'),
+  p('La figura 1 es el diagrama físico de los esquemas, **generado desde las migraciones**. `herramientas/bd/diagrama-fisico.sh` levanta un PostgreSQL 18.6 efímero, crea los dos roles de ADR-05 con `herramientas/bd/provisionar.sh`, aplica en orden las ocho migraciones de `apps/backend/migraciones/` con el rol propietario y dibuja el catálogo resultante (`pg_constraint`, `information_schema`). El diagrama refleja, por tanto, lo que la base es y no lo que se pretendía que fuera.'),
+  ...figura(path.join(process.env.FIGURAS ?? __dirname, 'esquema-fisico.png'), 2029, 3092, 'Figura 1. Esquema físico de AbasteceNi tras aplicar las migraciones 0000 a 0007. Cada tabla indica las claves (PK, UQ), las columnas NOT NULL, el número de restricciones CHECK y los privilegios del rol abasteceni_app.'),
   tabla(
     ['Migración', 'Contenido', 'Iteración'],
     [
@@ -69,6 +70,7 @@ const contenido = [
       ['`0004_bitacora.sql`', 'Bitácora de M9', 'IT-02'],
       ['`0005_privilegios-bitacora.sql`', 'INSERT y SELECT; UPDATE, DELETE y TRUNCATE revocados para `abasteceni_app` y `PUBLIC`', 'IT-02'],
       ['`0006_registro-legal-consentimiento.sql`', 'Marca temporal del consentimiento y referencia al registro legal en la cuenta', 'IT-02'],
+      ['`0007_bloqueo-intentos.sql`', 'Intentos fallidos (NOT NULL, ≥ 0) y fin del bloqueo en las credenciales (SYS-FN-07)', 'IT-02, tramo B'],
     ],
     [34, 54, 12],
   ),
@@ -79,7 +81,7 @@ const contenido = [
     ['Elemento del plan', 'Contenido'],
     [
       ['Objetivo', 'Verificar que las propiedades de datos que exige la arquitectura las cumple el gestor, y no solo el código de la aplicación (ADR-05: «inmutabilidad verificable por inspección»).'],
-      ['Elementos de prueba', 'Migraciones `0000` a `0006`; roles `abasteceni_propietario` y `abasteceni_app`; adaptadores de persistencia de M1, M2 y M9, de la bandeja de salida y del contador.'],
+      ['Elementos de prueba', 'Migraciones `0000` a `0007`; roles `abasteceni_propietario` y `abasteceni_app`; adaptadores de persistencia de M1, M2 y M9, de la bandeja de salida y del contador.'],
       ['Entorno', 'PostgreSQL 18.6 (`postgres:18.6-alpine`) en un contenedor efímero por archivo de prueba, creado con Testcontainers 12.2.1. Roles con claves de un solo uso. Separado de la base de desarrollo (control 8.31).'],
       ['Enfoque', 'Pruebas de caja blanca sobre el catálogo (privilegios, propietarios, restricciones) y de comportamiento con el rol real de la aplicación (sentencias que deben fallar con 42501, 23505, 23502 o 23514).'],
       ['Criterios de entrada', 'Las migraciones aplican desde cero; el código compila (trabajo 2 de la CI).'],

@@ -23,6 +23,7 @@ function crearEscenario() {
   const seguridad = new ServicioSeguridad({
     repositorio: repositorioSeguridad,
     unidadTrabajo,
+    eventos: new BandejaSalidaMemoria(),
     derivacion: new DerivacionFalsa(),
     firma: new FirmaFalsa(),
     secretos: new SecretosSecuenciales(),

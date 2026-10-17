@@ -3,8 +3,16 @@
 // (SYS-FN-04 a 08). Interfaz pública del módulo (PA-02): otro módulo solo
 // puede importar este archivo.
 export { ROLES, type Rol } from './rol';
-export { VIDA_ACCESO_SEGUNDOS, VIDA_RENOVACION_SEGUNDOS, CONTRASENA_MINIMA, CONTRASENA_MAXIMA } from './politica';
-export type { Credencial, Habilitacion, SesionRenovacion } from './credencial';
+export {
+  BLOQUEO_SEGUNDOS,
+  CONTRASENA_MAXIMA,
+  CONTRASENA_MINIMA,
+  MAXIMO_INTENTOS_FALLIDOS,
+  VIDA_ACCESO_SEGUNDOS,
+  VIDA_RENOVACION_SEGUNDOS,
+} from './politica';
+export { CUENTA_BLOQUEADA, type CuentaBloqueada } from './eventos';
+export { credencialBloqueada, type Credencial, type Habilitacion, type SesionRenovacion } from './credencial';
 export type {
   PuertoDerivacionClave,
   PuertoFirmaAcceso,

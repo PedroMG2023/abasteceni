@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { check, integer, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Esquema de M2 Seguridad y sesiones (PA-02). Sin claves foráneas hacia otros
 // esquemas: cuenta_id referencia a M1 solo por valor.
@@ -15,10 +15,14 @@ export const credenciales = esquema.table(
     rol: text('rol').notNull(),
     habilitacion: text('habilitacion').notNull(),
     creadaEn: timestamp('creada_en', { withTimezone: true }).notNull(),
+    // SYS-FN-07: intentos fallidos consecutivos y fin del bloqueo temporal.
+    intentosFallidos: integer('intentos_fallidos').notNull().default(0),
+    bloqueadaHasta: timestamp('bloqueada_hasta', { withTimezone: true }),
   },
   (t) => [
     check('credenciales_rol', sql`${t.rol} IN ('Comprador', 'Proveedor', 'Productor', 'Administrador')`),
     check('credenciales_habilitacion', sql`${t.habilitacion} IN ('habilitada', 'pendiente', 'rechazada')`),
+    check('credenciales_intentos', sql`${t.intentosFallidos} >= 0`),
   ],
 );
 
