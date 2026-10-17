@@ -11,7 +11,7 @@ describe('useSalud con la implementación de prueba del puerto ClienteApi (AS-11
 
     expect(result.current).toBe('consultando');
     await waitFor(() => expect(result.current).toBe('operativo'));
-    expect(cliente.llamadas).toEqual(['consultarSalud']);
+    expect(cliente.llamadas.map((l) => l.operacion)).toEqual(['consultarSalud']);
   });
 
   it('informa sin respuesta cuando la API falla', async () => {

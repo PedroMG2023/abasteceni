@@ -1,0 +1,26 @@
+/* Estilos mínimos mobile-first: operación completa desde 320 px sin
+   desplazamiento horizontal (SYS-NFN-09) y foco visible para el teclado
+   (SYS-NFN-12, WCAG 2.1). */
+:root {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+nav { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 0.75rem 1rem; background: #0b4f6c; }
+nav a { color: #ffffff; }
+main { max-width: 36rem; margin: 0 auto; padding: 1rem; }
+.campo { display: flex; flex-direction: column; margin-bottom: 1rem; }
+label { font-weight: 600; }
+input, select, button { font: inherit; width: 100%; padding: 0.6rem; border: 1px solid #5c5c5c; border-radius: 4px; }
+button { background: #0b4f6c; color: #ffffff; border: none; margin-top: 0.5rem; cursor: pointer; }
+button:disabled { opacity: 0.7; }
+:focus-visible { outline: 3px solid #e09f00; outline-offset: 2px; }
+.ayuda { margin: 0.25rem 0 0; font-size: 0.9rem; color: #444444; }
+.error { margin: 0.25rem 0 0; color: #a4000f; }
+[aria-invalid='true'] { border-color: #a4000f; }
+.aviso { padding: 0.75rem; border-radius: 4px; }
+.aviso-error { background: #fde8ea; color: #a4000f; }
+.aviso-exito { background: #e3f4ea; color: #0f5a2c; }

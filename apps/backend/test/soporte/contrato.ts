@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import Ajv, { type ErrorObject } from 'ajv';
+import addFormats from 'ajv-formats';
 import { parse } from 'yaml';
 
 // Valida las respuestas HTTP contra packages/contrato/openapi.yaml (PA-07,
@@ -18,6 +19,7 @@ const contrato = parse(readFileSync(RUTA_CONTRATO, 'utf8')) as {
 };
 
 const ajv = new Ajv({ strict: false, allErrors: true });
+addFormats(ajv);
 ajv.addSchema(contrato, ID_CONTRATO);
 
 const escapar = (segmento: string) => segmento.replace(/~/g, '~0').replace(/\//g, '~1');

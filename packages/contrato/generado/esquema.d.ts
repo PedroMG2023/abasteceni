@@ -25,10 +25,169 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cuentas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Listar las cuentas comerciales
+         * @description Lista las cuentas comerciales, opcionalmente filtradas por estado, para
+         *     el panel del Administrador de la plataforma (SYS-FN-03). Contiene datos
+         *     personales (V-03): solo el Administrador accede.
+         */
+        get: operations["listarCuentas"];
+        put?: never;
+        /**
+         * Registrar una cuenta comercial
+         * @description Registra una cuenta comercial en estado «Pendiente de validación»
+         *     (SYS-FN-01, CT-REG-01). Además de los campos de SYS-FN-01 captura el
+         *     tipo de cuenta (DIS-17), el teléfono móvil (DIS-19), el correo y la
+         *     contraseña (DIS-16). El evento CuentaRegistrada se persiste en la misma
+         *     transacción (ADR-01).
+         */
+        post: operations["registrarCuenta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sesiones": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Iniciar sesión con correo y contraseña
+         * @description Concede acceso y asigna el rol al iniciar la sesión (SYS-FN-04). Emite
+         *     una credencial de acceso firmada de vida corta y una credencial de
+         *     renovación en una cookie HttpOnly (ADR-04, DIS-06).
+         */
+        post: operations["iniciarSesion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sesiones/renovacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Renovar la credencial de acceso
+         * @description Emite una credencial de acceso nueva a partir de la credencial de
+         *     renovación y rota esta última (ADR-04, DIS-06). La anterior queda
+         *     revocada.
+         */
+        post: operations["renovarSesion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sesiones/actual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Consultar la identidad de la sesión actual */
+        get: operations["consultarSesionActual"];
+        put?: never;
+        post?: never;
+        /**
+         * Cerrar la sesión actual
+         * @description Revoca la credencial de renovación de la sesión (ADR-04).
+         */
+        delete: operations["cerrarSesion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * @description Tipo de cuenta comercial (MD-01; DIS-17).
+         * @enum {string}
+         */
+        TipoCuenta: "Comprador" | "Proveedor" | "Productor";
+        /**
+         * @description Rol asignado al iniciar la sesión (SYS-FN-04).
+         * @enum {string}
+         */
+        Rol: "Comprador" | "Proveedor" | "Productor" | "Administrador";
+        /**
+         * @description Estado de la cuenta comercial (D2 SYS-FN-01 y 03; DIS-23).
+         * @enum {string}
+         */
+        EstadoCuenta: "Pendiente de validación" | "Activa" | "Rechazada";
+        SolicitudRegistroCuenta: {
+            tipo: components["schemas"]["TipoCuenta"];
+            razonSocial: string;
+            /** @description «J» y 13 dígitos, o 13 dígitos y una letra (DIS-21). */
+            ruc: string;
+            departamento: string;
+            municipio: string;
+            rubro: string;
+            /** @description Formato internacional UIT-T E.164 (DIS-19). */
+            telefonoMovil: string;
+            correo: string;
+            /** @description Entre 12 y 128 caracteres (DIS-22). */
+            contrasena: string;
+        };
+        CuentaRegistrada: {
+            /** Format: uuid */
+            id: string;
+            estado: components["schemas"]["EstadoCuenta"];
+        };
+        ResumenCuenta: {
+            /** Format: uuid */
+            id: string;
+            tipo: components["schemas"]["TipoCuenta"];
+            razonSocial: string;
+            ruc: string;
+            departamento: string;
+            municipio: string;
+            rubro: string;
+            estado: components["schemas"]["EstadoCuenta"];
+            /** Format: date-time */
+            registradaEn: string;
+        };
+        SolicitudInicioSesion: {
+            correo: string;
+            contrasena: string;
+        };
+        SesionIniciada: {
+            /** @description Credencial firmada de vida corta (15 minutos, DIS-06). */
+            credencialAcceso: string;
+            /** @enum {string} */
+            tipo: "Bearer";
+            expiraEnSegundos: number;
+            rol: components["schemas"]["Rol"];
+        };
+        Identidad: {
+            rol: components["schemas"]["Rol"];
+            /** Format: uuid */
+            cuentaId?: string | null;
+        };
         Salud: {
             /** @enum {string} */
             estado: "operativo";
@@ -48,6 +207,42 @@ export interface components {
         };
     };
     responses: {
+        /** @description La solicitud no cumple las validaciones (PA-05). */
+        SolicitudInvalida: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Ya existe una cuenta con ese RUC o con ese correo. */
+        Conflicto: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Falta la credencial, es inválida o ha expirado. */
+        NoAutenticado: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description El rol o el estado de la cuenta no autoriza la operación. */
+        Prohibido: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
         /** @description Se superó el límite de 120 peticiones por minuto por IP (SYS-NFN-03, ADR-08). */
         DemasiadasPeticiones: {
             headers: {
@@ -66,7 +261,10 @@ export interface components {
     };
     parameters: never;
     requestBodies: never;
-    headers: never;
+    headers: {
+        /** @description Cookie HttpOnly con la credencial de renovación, válida 7 días (DIS-06). */
+        CookieRenovacion: string;
+    };
     pathItems: never;
 }
 export type $defs = Record<string, never>;
@@ -94,6 +292,172 @@ export interface operations {
                     "application/json": components["schemas"]["Salud"];
                 };
             };
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    listarCuentas: {
+        parameters: {
+            query?: {
+                estado?: components["schemas"]["EstadoCuenta"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Cuentas comerciales. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumenCuenta"][];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutenticado"];
+            403: components["responses"]["Prohibido"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    registrarCuenta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "tipo": "Comprador",
+                 *       "razonSocial": "Farmacia San Benito",
+                 *       "ruc": "J0310000000001",
+                 *       "departamento": "Chinandega",
+                 *       "municipio": "El Viejo",
+                 *       "rubro": "Farmacia",
+                 *       "telefonoMovil": "+50588887777",
+                 *       "correo": "compras@farmaciasanbenito.com.ni",
+                 *       "contrasena": "una-clave-de-doce-o-mas"
+                 *     }
+                 */
+                "application/json": components["schemas"]["SolicitudRegistroCuenta"];
+            };
+        };
+        responses: {
+            /** @description Cuenta registrada, pendiente de validación. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "7f3c9a7e-2b1d-4c55-9a8e-2f1b6c0d9e11",
+                     *       "estado": "Pendiente de validación"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["CuentaRegistrada"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            409: components["responses"]["Conflicto"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    iniciarSesion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitudInicioSesion"];
+            };
+        };
+        responses: {
+            /** @description Sesión iniciada. */
+            201: {
+                headers: {
+                    "Set-Cookie": components["headers"]["CookieRenovacion"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SesionIniciada"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutenticado"];
+            403: components["responses"]["Prohibido"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    renovarSesion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Credenciales renovadas. */
+            201: {
+                headers: {
+                    "Set-Cookie": components["headers"]["CookieRenovacion"];
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SesionIniciada"];
+                };
+            };
+            401: components["responses"]["NoAutenticado"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    consultarSesionActual: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Identidad y rol de la sesión. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Identidad"];
+                };
+            };
+            401: components["responses"]["NoAutenticado"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    cerrarSesion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Sesión cerrada. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["NoAutenticado"];
             429: components["responses"]["DemasiadasPeticiones"];
         };
     };
