@@ -1,0 +1,9 @@
+{
+  "name": "abasteceni-informes",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Generador de los informes de la fase de desarrollo (docs/informes/). Fuera de los espacios de trabajo del monorepo.",
+  "dependencies": {
+    "docx": "9.12.0"
+  }
+}
