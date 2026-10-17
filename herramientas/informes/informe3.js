@@ -120,6 +120,7 @@ const contenido = [
     ['Alerta', 'Regla y gravedad', 'Ubicación', 'Análisis', 'Tratamiento'],
     [
       ['#1', '`js/clear-text-storage-of-sensitive-data`, alta', '`sesiones.controller.ts:63`', 'La credencial de renovación se envía al navegador en una cookie sin cifrar. Es una decisión deliberada (ADR-04): esa credencial debe residir en el cliente, y cifrarla no reduciría el riesgo porque seguiría siendo una credencial al portador. Está protegida con HttpOnly, Secure, SameSite=Strict, ruta restringida, vida de 7 días, rotación en cada uso y revocación; el servidor solo guarda su huella.', 'Descartada como «Won\'t fix» por el titular del repositorio, con la justificación registrada en DIS-33'],
+      ['#2', '`js/double-escaping`, alta', '`herramientas/informes/comun.js:153`', 'El generador de estos informes decodificaba las entidades de los reportes JUnit con reemplazos encadenados, de modo que «&amp;lt;» terminaba como «<». No forma parte del producto: lee reportes que produce la propia CI y no genera HTML.', 'Corregida con una decodificación de una sola pasada (commit `dfe8e42`); CodeQL la cerró en la ejecución siguiente'],
     ],
     [8, 20, 16, 38, 18],
   ),
@@ -178,7 +179,7 @@ const contenido = [
 
   h1('3. Conclusiones'),
   p('Los controles de ISO/IEC 27002:2022 de la tabla de CLAUDE.md §9 tienen, en el código construido, una práctica concreta y una prueba automatizada que la verifica en cada cambio. Las propiedades críticas no dependen solo del código de la aplicación: la inmutabilidad de la bitácora la hace cumplir PostgreSQL, el límite de peticiones se comparte entre instancias en la base de datos y la protección de `main` impide integrar sin la CI en verde.'),
-  p('El análisis estático encontró una alerta de gravedad alta. Se analizó y se descartó con justificación documentada, porque corresponde a una decisión de arquitectura cuyas protecciones están implementadas y probadas. La auditoría de dependencias no tiene hallazgos altos ni críticos. Del tramo B se construyó el bloqueo por intentos fallidos (SYS-FN-07). Los requisitos de seguridad pendientes están identificados: recuperación, segundo factor y límite de dispositivos, y los que dependen de la infraestructura de producción.'),
+  p('El análisis estático encontró dos alertas de gravedad alta. La del código del producto se analizó y se descartó con justificación documentada, porque corresponde a una decisión de arquitectura cuyas protecciones están implementadas y probadas; la del generador de informes se corrigió. La auditoría de dependencias no tiene hallazgos altos ni críticos. Del tramo B se construyó el bloqueo por intentos fallidos (SYS-FN-07). Los requisitos de seguridad pendientes están identificados: recuperación, segundo factor y límite de dispositivos, y los que dependen de la infraestructura de producción.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] ISO/IEC 27001:2022. _Information security, cybersecurity and privacy protection — Information security management systems — Requirements_, Anexo A.'),
@@ -198,6 +199,7 @@ const contenido = [
       ['39023391840', '`it-01/linea-base`', 'En verde', 'En verde'],
       ['39033238576', '`it-02/afiliacion`', 'En verde', 'En verde'],
       ['39036501600', '`it-02/informes`', 'En verde', 'En verde'],
+      ['39042977012', '`it-02/bloqueo`', 'En verde', 'En verde'],
     ],
     [22, 28, 25, 25],
   ),
