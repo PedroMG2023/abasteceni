@@ -40,6 +40,7 @@
     "cpu-features": false,
     "protobufjs": false,
     "ssh2": false,
-    "unrs-resolver": false
+    "unrs-resolver": false,
+    "argon2": false
   }
 }

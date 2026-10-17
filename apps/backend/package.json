@@ -11,13 +11,20 @@
     "inicio:trabajador": "node dist/src/main.trabajador.js",
     "migrar": "node dist/scripts/migrar.js",
     "test": "jest --coverage",
-    "test:bd": "jest --config jest.bd.config.js --runInBand"
+    "test:bd": "jest --config jest.bd.config.js --runInBand",
+    "sembrar:administrador": "node dist/scripts/sembrar-administrador.js"
   },
   "dependencies": {
     "@nestjs/common": "11.2.7",
     "@nestjs/core": "11.2.7",
     "@nestjs/platform-express": "11.2.7",
+    "argon2": "0.45.1",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.15.1",
     "drizzle-orm": "0.45.4",
+    "helmet": "8.3.0",
+    "jsonwebtoken": "9.0.3",
+    "opossum": "10.0.0",
     "pg": "8.23.1",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.2"
@@ -25,11 +32,15 @@
   "devDependencies": {
     "@nestjs/testing": "11.2.7",
     "@testcontainers/postgresql": "12.2.1",
+    "@types/express": "5.0.6",
     "@types/jest": "30.0.0",
+    "@types/jsonwebtoken": "9.0.10",
     "@types/node": "24.19.2",
+    "@types/opossum": "8.1.9",
     "@types/pg": "8.23.1",
     "@types/supertest": "7.2.1",
     "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
     "drizzle-kit": "0.31.11",
     "jest": "30.5.2",
     "jest-junit": "17.0.0",

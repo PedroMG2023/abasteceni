@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { Client } from 'pg';
 import { aplicarMigraciones } from '../../src/infraestructura/persistencia/migrador';
 import { CARPETA_MIGRACIONES, iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-datos';
@@ -39,7 +41,8 @@ describe('Migraciones y esquemas (PA-02, ADR-01, ADR-05)', () => {
     const cliente = await conectar(bd.urlPropietario);
     try {
       const { rows } = await cliente.query('SELECT count(*)::int AS aplicadas FROM plataforma.migraciones');
-      expect(rows[0].aplicadas).toBe(2);
+      const diario = JSON.parse(readFileSync(path.join(CARPETA_MIGRACIONES, 'meta/_journal.json'), 'utf8')) as { entries: unknown[] };
+      expect(rows[0].aplicadas).toBe(diario.entries.length);
     } finally {
       await cliente.end();
     }
