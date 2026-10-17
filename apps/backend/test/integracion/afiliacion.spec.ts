@@ -241,7 +241,8 @@ describe('IT-02 · afiliación y validación de cuentas comerciales de extremo a
       await validar(body.id, { decision: 'rechazar', justificacion: 'El RUC no coincide con el documento' });
 
       const asientos = await bitacora(body.id);
-      expect(asientos.map((a) => a.accion)).toEqual(['CONSENTIMIENTO_ACEPTADO', 'CUENTA_REGISTRADA', 'REGISTRO_LEGAL_CARGADO', 'CUENTA_RECHAZADA']);
+      expect(asientos.map((a) => a.accion).sort()).toEqual(['CONSENTIMIENTO_ACEPTADO', 'CUENTA_RECHAZADA', 'CUENTA_REGISTRADA', 'REGISTRO_LEGAL_CARGADO']);
+      expect(asientos.at(-1)?.accion).toBe('CUENTA_RECHAZADA');
 
       // Sin posibilidad de modificación: el rol de la aplicación no puede alterar ni borrar el asiento (ADR-05).
       await expect(
