@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="3" failures="0" errors="0" time="14.738">
+  <testsuite name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T09:18:30" time="3.34" tests="2">
+    <testcase classname="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) GET /api/v1/salud responde 200 con el cuerpo que declara el contrato" name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) GET /api/v1/salud responde 200 con el cuerpo que declara el contrato" time="0.015" file="test/integracion/salud.spec.ts">
+    </testcase>
+    <testcase classname="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) el validador rechaza una respuesta que no cumple el contrato" name="Sonda de vitalidad (D3 R-03) conforme al contrato (PA-07) el validador rechaza una respuesta que no cumple el contrato" time="0.003" file="test/integracion/salud.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Definiciones de esquema de la persistencia frente a las migraciones (PA-02)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T09:18:30" time="14.373" tests="1">
+    <testcase classname="Definiciones de esquema de la persistencia frente a las migraciones (PA-02) cada esquema declarado en el código existe en la base migrada y no hay esquemas no declarados" name="Definiciones de esquema de la persistencia frente a las migraciones (PA-02) cada esquema declarado en el código existe en la base migrada y no hay esquemas no declarados" time="0.009" file="test/integracion/esquemas-persistencia.spec.ts">
+    </testcase>
+  </testsuite>
+</testsuites>

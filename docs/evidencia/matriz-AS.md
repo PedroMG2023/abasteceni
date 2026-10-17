@@ -68,8 +68,8 @@ Estados posibles:
 | AS-12 | Pendiente | | | | |
 | AS-13 | Pendiente | | | | |
 | AS-14 | Pendiente | | | | |
-| AS-15 | Pendiente | | | | |
-| AS-16 | Pendiente | | | | |
+| AS-15 | Evidenciado | `.dependency-cruiser.cjs:12-20` (regla `pa-01-dominio-puro`); `apps/backend/src/dominio/` | `5d4a32b` | Trabajo 4, `pa-01-dominio-puro` (0 violaciones). Trabajo 5, fixture `pa-01-dominio-impuro` rechazado (importación de infraestructura y de `node:crypto`) | [CI 39020586251](https://github.com/PedroMG2023/abasteceni/actions/runs/39020586251): trabajos 4 y 5 en verde |
+| AS-16 | Evidenciado | `.dependency-cruiser.cjs:21-33` (regla `pa-02-fronteras-modulo`); `herramientas/dependencias/prueba-negativa.mjs:16-23` | `5d4a32b` | Trabajo 4, `pa-02-fronteras-modulo` (MT-03 = 0). Trabajo 5, fixtures `pa-02-acceso-cruzado` (m3 → `m4-ofertas/inventario-interno.ts`) y `pa-02-esquema-ajeno` (esquema de m1 → esquema de m2) rechazados; fixture `permitido` (m3 → `m4-ofertas/index.ts`) admitido | [CI 39020586251](https://github.com/PedroMG2023/abasteceni/actions/runs/39020586251): trabajos 4 y 5 en verde |
 | AS-17 | Pendiente | | | | |
 | AS-18 | Pendiente | | | | |
 | AS-19 | Diseño | D5 §2.12.4 (MD-04) | — | — | — |
