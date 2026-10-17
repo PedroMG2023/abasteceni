@@ -1,6 +1,6 @@
 import createClient from 'openapi-fetch';
 import type { paths } from '@abasteceni/contrato';
-import { ErrorApi, type ClienteApi, type ErrorRespuesta } from '../puertos/cliente-api';
+import { ErrorApi, type ClienteApi, type ErrorRespuesta, type Identidad } from '../puertos/cliente-api';
 
 const ERROR_SIN_CUERPO: ErrorRespuesta = {
   codigo: 'SIN_RESPUESTA',
@@ -9,14 +9,51 @@ const ERROR_SIN_CUERPO: ErrorRespuesta = {
 
 // Implementación HTTP del puerto ClienteApi, tipada con el contrato (PA-07).
 // Solo contexto/ la construye (regla web-cliente-abstracto).
-export function crearClienteApiHttp(baseUrl = '/api/v1', fetchImpl: typeof fetch = fetch): ClienteApi {
-  const http = createClient<paths>({ baseUrl, fetch: fetchImpl });
+export function crearClienteApiHttp(baseUrl = '/api/v1', fetchImpl: typeof fetch = (...a) => fetch(...a)): ClienteApi {
+  const http = createClient<paths>({ baseUrl, fetch: fetchImpl, credentials: 'same-origin' });
+  let credencialAcceso: string | null = null;
+
+  // Una respuesta de error sin cuerpo JSON llega como texto vacío.
+  const fallo = (estado: number, error: unknown) =>
+    new ErrorApi(estado, error && typeof error === 'object' ? (error as ErrorRespuesta) : ERROR_SIN_CUERPO);
+  const autorizacion = () => ({ Authorization: `Bearer ${credencialAcceso ?? ''}` });
+
+  async function identidadActual(): Promise<Identidad> {
+    const { data, error, response } = await http.GET('/sesiones/actual', { headers: autorizacion() });
+    if (!data) throw fallo(response.status, error);
+    return data;
+  }
 
   return {
     async consultarSalud() {
       const { data, error, response } = await http.GET('/salud');
-      if (!data) throw new ErrorApi(response.status, (error as ErrorRespuesta | undefined) ?? ERROR_SIN_CUERPO);
+      if (!data) throw fallo(response.status, error);
       return data;
+    },
+
+    async registrarCuenta(solicitud) {
+      const { data, error, response } = await http.POST('/cuentas', { body: solicitud });
+      if (!data) throw fallo(response.status, error);
+      return data;
+    },
+
+    async iniciarSesion(datos) {
+      const { data, error, response } = await http.POST('/sesiones', { body: datos });
+      if (!data) throw fallo(response.status, error);
+      credencialAcceso = data.credencialAcceso;
+      return identidadActual();
+    },
+
+    async renovarSesion() {
+      const { data, error, response } = await http.POST('/sesiones/renovacion');
+      if (!data) throw fallo(response.status, error);
+      credencialAcceso = data.credencialAcceso;
+      return identidadActual();
+    },
+
+    async cerrarSesion() {
+      await http.DELETE('/sesiones/actual', { headers: autorizacion() });
+      credencialAcceso = null;
     },
   };
 }
