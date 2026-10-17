@@ -1,0 +1,45 @@
+{
+  "name": "abasteceni",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Plataforma web B2B de emparejamiento comercial AbasteceNi (ADR-07: monorepo con npm workspaces)",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "packages/contrato",
+    "apps/backend",
+    "apps/web"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "tipos": "npm run tipos --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:bd": "npm run test:bd -w @abasteceni/backend",
+    "dependencias": "depcruise apps packages --config .dependency-cruiser.cjs",
+    "dependencias:negativa": "node herramientas/dependencias/prueba-negativa.mjs",
+    "contrato:lint": "redocly lint packages/contrato/openapi.yaml",
+    "contrato:tipos": "npm run generar -w @abasteceni/contrato",
+    "modelos": "bash herramientas/modelos/verificar-modelos.sh",
+    "grafo": "depcruise apps/backend/src --config .dependency-cruiser.cjs --output-type dot | dot -Tpng -Gdpi=150 -o docs/evidencia/dependencias.png"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@redocly/cli": "2.64.1",
+    "dependency-cruiser": "18.6.0",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "globals": "17.13.0",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.2"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "@parcel/watcher": false,
+    "cpu-features": false,
+    "protobufjs": false,
+    "ssh2": false,
+    "unrs-resolver": false
+  }
+}

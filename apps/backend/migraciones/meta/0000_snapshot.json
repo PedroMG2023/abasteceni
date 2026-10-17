@@ -1,0 +1,29 @@
+{
+  "id": "1c8ffc5f-02aa-4460-9308-5943e775ab55",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {},
+  "enums": {},
+  "schemas": {
+    "m1_usuarios": "m1_usuarios",
+    "m2_seguridad": "m2_seguridad",
+    "m3_demandas": "m3_demandas",
+    "m4_ofertas": "m4_ofertas",
+    "m5_busqueda": "m5_busqueda",
+    "m6_cotizaciones": "m6_cotizaciones",
+    "m7_chat": "m7_chat",
+    "m8_reputacion": "m8_reputacion",
+    "m9_administracion": "m9_administracion",
+    "plataforma": "plataforma"
+  },
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

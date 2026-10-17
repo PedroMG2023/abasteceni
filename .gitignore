@@ -10,3 +10,11 @@ docs/evidencia/dependencias.png
 .DS_Store
 ~$*.docx
 docs/red/*.png
+herramientas/modelos/.cache/
+test-results/
+playwright-report/
+*.tsbuildinfo
+docs/evidencia/pruebas/backend/
+docs/evidencia/pruebas/bd/
+docs/evidencia/pruebas/web/
+docs/evidencia/pruebas/sistema/

@@ -1,0 +1,9 @@
+# Lint del contrato OpenAPI (SYS-NFN-16, PA-07). Trabajo 6 de la CI.
+extends:
+  - recommended
+rules:
+  operation-4xx-response: error
+  operation-operationId: error
+  operation-summary: error
+  security-defined: error
+  no-unused-components: error

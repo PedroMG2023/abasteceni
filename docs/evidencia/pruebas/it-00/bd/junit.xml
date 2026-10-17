@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="4" failures="0" errors="0" time="4.313">
+  <testsuite name="Migraciones y esquemas (PA-02, ADR-01, ADR-05)" errors="0" failures="0" skipped="0" timestamp="2026-10-17T09:18:48" time="4.184" tests="4">
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) las migraciones aplican desde cero y una segunda ejecución no tiene efecto" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) las migraciones aplican desde cero y una segunda ejecución no tiene efecto" time="0.035" file="test/bd/esquemas.spec.ts">
+    </testcase>
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) existe un esquema por módulo y el esquema transversal plataforma, propiedad de abasteceni_propietario" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) existe un esquema por módulo y el esquema transversal plataforma, propiedad de abasteceni_propietario" time="0.009" file="test/bd/esquemas.spec.ts">
+    </testcase>
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app usa los esquemas pero no puede crear objetos en ninguno" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app usa los esquemas pero no puede crear objetos en ninguno" time="0.009" file="test/bd/esquemas.spec.ts">
+    </testcase>
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app no tiene privilegios de rol elevados" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app no tiene privilegios de rol elevados" time="0.007" file="test/bd/esquemas.spec.ts">
+    </testcase>
+  </testsuite>
+</testsuites>

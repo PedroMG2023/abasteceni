@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="6" failures="0" errors="0" time="0.238839243">
+    <testsuite name="test/hooks/useSalud.test.tsx" timestamp="2026-10-17T09:18:54.483Z" hostname="runnervm8k3b6" tests="3" failures="0" errors="0" skipped="0" time="0.13213103">
+        <testcase classname="test/hooks/useSalud.test.tsx" name="useSalud con la implementación de prueba del puerto ClienteApi (AS-11) &gt; pasa de consultando a operativo cuando la API responde" time="0.070314938">
+        </testcase>
+        <testcase classname="test/hooks/useSalud.test.tsx" name="useSalud con la implementación de prueba del puerto ClienteApi (AS-11) &gt; informa sin respuesta cuando la API falla" time="0.054276759">
+        </testcase>
+        <testcase classname="test/hooks/useSalud.test.tsx" name="useSalud con la implementación de prueba del puerto ClienteApi (AS-11) &gt; exige un proveedor del puerto" time="0.005741815">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/infraestructura/cliente-api-http.test.ts" timestamp="2026-10-17T09:18:54.483Z" hostname="runnervm8k3b6" tests="2" failures="0" errors="0" skipped="0" time="0.008864838">
+        <testcase classname="test/infraestructura/cliente-api-http.test.ts" name="Cliente HTTP generado del contrato (PA-07) &gt; consulta GET /api/v1/salud y devuelve el cuerpo tipado" time="0.006603417">
+        </testcase>
+        <testcase classname="test/infraestructura/cliente-api-http.test.ts" name="Cliente HTTP generado del contrato (PA-07) &gt; convierte una respuesta de error del contrato en ErrorApi" time="0.000733649">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/paginas/PaginaInicio.test.tsx" timestamp="2026-10-17T09:18:54.483Z" hostname="runnervm8k3b6" tests="1" failures="0" errors="0" skipped="0" time="0.097843375">
+        <testcase classname="test/paginas/PaginaInicio.test.tsx" name="PaginaInicio &gt; muestra el nombre de la plataforma y el estado del servicio" time="0.096659324">
+        </testcase>
+    </testsuite>
+</testsuites>

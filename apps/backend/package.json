@@ -1,0 +1,40 @@
+{
+  "name": "@abasteceni/backend",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Servicio de aplicación y trabajador asíncrono de AbasteceNi (MD-03, MD-05)",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "tipos": "tsc -p tsconfig.json --noEmit",
+    "inicio:api": "node dist/src/main.api.js",
+    "inicio:trabajador": "node dist/src/main.trabajador.js",
+    "migrar": "node dist/scripts/migrar.js",
+    "test": "jest --coverage",
+    "test:bd": "jest --config jest.bd.config.js --runInBand"
+  },
+  "dependencies": {
+    "@nestjs/common": "11.2.7",
+    "@nestjs/core": "11.2.7",
+    "@nestjs/platform-express": "11.2.7",
+    "drizzle-orm": "0.45.4",
+    "pg": "8.23.1",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "11.2.7",
+    "@testcontainers/postgresql": "12.2.1",
+    "@types/jest": "30.0.0",
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
+    "@types/supertest": "7.2.1",
+    "ajv": "8.20.0",
+    "drizzle-kit": "0.31.11",
+    "jest": "30.5.2",
+    "jest-junit": "17.0.0",
+    "supertest": "7.3.1",
+    "ts-jest": "29.4.15",
+    "yaml": "2.9.1"
+  }
+}

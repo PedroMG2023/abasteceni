@@ -1,0 +1,162 @@
+# Integración continua de AbasteceNi (DM-06, PR-08; CLAUDE.md §7).
+# Se ejecuta en cada cambio. Cualquier trabajo en rojo impide integrar en main
+# (condición 6 de la Definición de Terminado, DM-04).
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  instalacion:
+    name: 1 · Instalación desde el archivo de bloqueo
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+  lint-tipos:
+    name: 2 · Lint y verificación de tipos
+    needs: instalacion
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run tipos
+      - name: Los tipos del cliente están generados desde el contrato vigente (PA-07)
+        run: |
+          npm run contrato:tipos
+          git diff --exit-code -- packages/contrato/generado
+
+  pruebas:
+    name: 3 · Pruebas del backend (cobertura ≥ 80 %), de base de datos y del frontend
+    needs: instalacion
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Backend — unitarias, contrato e integración con umbral de cobertura (SYS-NFN-15)
+        run: npm test -w @abasteceni/backend
+      - name: Base de datos — suite propia (PostgreSQL real con Testcontainers)
+        run: npm run test:bd
+      - name: Frontend — Vitest y Testing Library
+        run: npm test -w @abasteceni/web
+      - name: Reportes de pruebas y cobertura
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reportes-pruebas
+          path: |
+            docs/evidencia/pruebas/
+            apps/backend/coverage/coverage-summary.json
+            apps/web/coverage/coverage-summary.json
+          if-no-files-found: warn
+
+  dependencias:
+    name: 4 · Verificación de dependencias entre capas y módulos (MT-03)
+    needs: instalacion
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run dependencias
+
+  prueba-negativa:
+    name: 5 · Prueba negativa — el acceso cruzado deliberado es rechazado
+    needs: instalacion
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run dependencias:negativa
+
+  contrato:
+    name: 6 · Lint del contrato OpenAPI
+    needs: instalacion
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run contrato:lint
+
+  modelos:
+    name: 7 · Verificación sintáctica de los modelos de D5 (AM-03)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Graphviz
+        run: sudo apt-get update -q && sudo apt-get install -y -q graphviz
+      - uses: actions/cache@v6
+        with:
+          path: herramientas/modelos/.cache
+          key: plantuml-1.2026.8
+      - run: bash herramientas/modelos/verificar-modelos.sh
+
+  auditoria:
+    name: 8 · Auditoría de dependencias (npm audit, nivel alto)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+      - run: npm audit --audit-level=high
+
+  codeql:
+    name: 9 · Análisis estático de seguridad (CodeQL)
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+          build-mode: none
+          config: |
+            paths-ignore:
+              - herramientas/dependencias/fixtures
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:javascript-typescript
