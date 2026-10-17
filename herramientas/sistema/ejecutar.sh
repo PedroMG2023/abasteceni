@@ -38,3 +38,8 @@ done
 curl -fs http://localhost:8080/api/v1/salud
 
 npm run test:sistema
+
+# Medición de la experiencia de usuario de la vista inicial (informe 2), opcional.
+if [[ "${MEDIR_EXPERIENCIA:-}" == "1" ]]; then
+  node herramientas/sistema/medir-experiencia.mjs
+fi

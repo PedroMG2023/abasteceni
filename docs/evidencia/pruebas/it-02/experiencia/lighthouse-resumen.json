@@ -1,0 +1,99 @@
+{
+  "url": "http://localhost:8080/",
+  "lighthouse": "13.5.0",
+  "fecha": "2026-10-17T13:20:28.910Z",
+  "perfiles": {
+    "4G": {
+      "rttMs": 150,
+      "throughputKbps": 1638.4,
+      "cpuSlowdownMultiplier": 4,
+      "umbralMs": 2500
+    },
+    "3G": {
+      "rttMs": 300,
+      "throughputKbps": 700,
+      "cpuSlowdownMultiplier": 4,
+      "umbralMs": 5000
+    }
+  },
+  "mediciones": [
+    {
+      "perfil": "4G",
+      "medicion": 1,
+      "fcpMs": 1414,
+      "lcpMs": 1414,
+      "speedIndexMs": 1414,
+      "pesoBytes": 78798,
+      "rendimiento": 100,
+      "accesibilidad": 100,
+      "buenasPracticas": 100,
+      "cumpleCarga": true,
+      "cumplePeso": true
+    },
+    {
+      "perfil": "4G",
+      "medicion": 2,
+      "fcpMs": 1414,
+      "lcpMs": 1414,
+      "speedIndexMs": 1414,
+      "pesoBytes": 78798,
+      "rendimiento": 100,
+      "accesibilidad": 100,
+      "buenasPracticas": 100,
+      "cumpleCarga": true,
+      "cumplePeso": true
+    },
+    {
+      "perfil": "4G",
+      "medicion": 3,
+      "fcpMs": 1429,
+      "lcpMs": 1429,
+      "speedIndexMs": 1429,
+      "pesoBytes": 78798,
+      "rendimiento": 100,
+      "accesibilidad": 100,
+      "buenasPracticas": 100,
+      "cumpleCarga": true,
+      "cumplePeso": true
+    },
+    {
+      "perfil": "3G",
+      "medicion": 1,
+      "fcpMs": 2780,
+      "lcpMs": 2780,
+      "speedIndexMs": 2780,
+      "pesoBytes": 78798,
+      "rendimiento": 91,
+      "accesibilidad": 100,
+      "buenasPracticas": 100,
+      "cumpleCarga": true,
+      "cumplePeso": true
+    },
+    {
+      "perfil": "3G",
+      "medicion": 2,
+      "fcpMs": 2781,
+      "lcpMs": 2781,
+      "speedIndexMs": 2781,
+      "pesoBytes": 78798,
+      "rendimiento": 91,
+      "accesibilidad": 100,
+      "buenasPracticas": 100,
+      "cumpleCarga": true,
+      "cumplePeso": true
+    },
+    {
+      "perfil": "3G",
+      "medicion": 3,
+      "fcpMs": 2792,
+      "lcpMs": 2792,
+      "speedIndexMs": 2792,
+      "pesoBytes": 78798,
+      "rendimiento": 91,
+      "accesibilidad": 100,
+      "buenasPracticas": 100,
+      "cumpleCarga": true,
+      "cumplePeso": true
+    }
+  ]
+}

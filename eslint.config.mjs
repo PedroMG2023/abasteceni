@@ -13,16 +13,17 @@ export default tseslint.config(
       'packages/contrato/generado/**',
       'herramientas/dependencias/fixtures/**',
       'apps/backend/migraciones/**',
+      'herramientas/informes/node_modules/**',
     ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    files: ['apps/backend/**/*.{ts,js}', 'herramientas/**/*.mjs', '*.{js,mjs,cjs}'],
+    files: ['apps/backend/**/*.{ts,js}', 'herramientas/**/*.{js,mjs}', '*.{js,mjs,cjs}'],
     languageOptions: { globals: globals.node },
   },
   {
-    files: ['apps/backend/**/*.js', '*.cjs'],
+    files: ['apps/backend/**/*.js', 'herramientas/informes/*.js', '*.cjs'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
   {
