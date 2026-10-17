@@ -1,0 +1,16 @@
+{
+  "name": "@abasteceni/contrato",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Contrato OpenAPI 3.0 de AbasteceNi y tipos generados desde él (PA-07)",
+  "types": "./generado/esquema.d.ts",
+  "exports": {
+    ".": {
+      "types": "./generado/esquema.d.ts"
+    },
+    "./openapi.yaml": "./openapi.yaml"
+  },
+  "scripts": {
+    "generar": "openapi-typescript openapi.yaml --output generado/esquema.d.ts"
+  }
+}
