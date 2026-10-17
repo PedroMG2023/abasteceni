@@ -32,10 +32,10 @@ export function crearClienteApiHttp(baseUrl = '/api/v1', fetchImpl: typeof fetch
     },
 
     async registrarCuenta(solicitud) {
+      const { registroLegal, ...campos } = solicitud;
       const formulario = new FormData();
-      for (const [campo, valor] of Object.entries(solicitud)) {
-        formulario.append(campo, valor instanceof Blob ? valor : String(valor));
-      }
+      for (const [campo, valor] of Object.entries(campos)) formulario.append(campo, String(valor));
+      formulario.append('registroLegal', registroLegal, (registroLegal as File).name ?? 'registro-legal');
       const { data, error, response } = await http.POST('/cuentas', {
         body: solicitud as never,
         bodySerializer: () => formulario,

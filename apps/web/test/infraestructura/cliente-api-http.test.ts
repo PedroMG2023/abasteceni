@@ -1,3 +1,6 @@
+// @vitest-environment node
+// El cliente HTTP no usa el DOM: con las clases nativas de Node, Blob, File y
+// FormData son coherentes entre sí, como en el navegador.
 import { describe, expect, it } from 'vitest';
 import { crearClienteApiHttp } from '../../src/infraestructura/cliente-api-http';
 import { ErrorApi } from '../../src/puertos/cliente-api';
@@ -16,8 +19,11 @@ function servidorFalso(respuestas: Record<string, [number, unknown?]>) {
     const peticion = entrada as Request;
     const ruta = new URL(peticion.url).pathname;
     const texto = await peticion.text();
-    recibidas.push({ metodo: peticion.method, ruta, autorizacion: peticion.headers.get('Authorization'), cuerpo: texto ? JSON.parse(texto) : undefined });
-    const [estado, cuerpo] = respuestas[`${peticion.method} ${ruta}`] ?? [404, { codigo: 'NO_ENCONTRADO', mensaje: 'x' }];
+    const esJson = (peticion.headers.get('Content-Type') ?? '').includes('json');
+    recibidas.push({ metodo: peticion.method, ruta, autorizacion: peticion.headers.get('Authorization'), cuerpo: texto && esJson ? JSON.parse(texto) : texto || undefined });
+    const consulta = [...new URL(peticion.url).searchParams].map(([clave, valor]) => `${clave}=${valor}`).join('&');
+    const [estado, cuerpo] = respuestas[`${peticion.method} ${ruta}${consulta ? `?${consulta}` : ''}`] ?? [404, { codigo: 'NO_ENCONTRADO', mensaje: 'x' }];
+    if (cuerpo instanceof Blob) return new Response(cuerpo, { status: estado, headers: { 'Content-Type': cuerpo.type } });
     return new Response(cuerpo === undefined ? null : JSON.stringify(cuerpo), { status: estado, headers: { 'Content-Type': 'application/json' } });
   };
   return { cliente: crearClienteApiHttp('http://localhost/api/v1', fetchFalso), recibidas };
@@ -34,12 +40,28 @@ describe('Cliente HTTP generado del contrato (PA-07, AS-11)', () => {
     await expect(caido.cliente.consultarSalud()).rejects.toEqual(new ErrorApi(429, { codigo: 'DEMASIADAS_PETICIONES', mensaje: 'límite' }));
   });
 
-  it('registra una cuenta con POST /api/v1/cuentas', async () => {
+  it('registra una cuenta con POST /api/v1/cuentas en multipart/form-data, con el documento', async () => {
     const { cliente, recibidas } = servidorFalso({ 'POST /api/v1/cuentas': [201, { id: 'x', estado: 'Pendiente de validación' }] });
-    const solicitud = { tipo: 'Comprador', razonSocial: 'F', ruc: 'J0310000000001', departamento: 'C', municipio: 'E', rubro: 'F', telefonoMovil: '+50588887777', correo: 'a@b.ni', contrasena: 'una-clave-de-doce' } as const;
+    const solicitud = {
+      tipo: 'Comprador',
+      razonSocial: 'F',
+      ruc: 'J0310000000001',
+      departamento: 'C',
+      municipio: 'E',
+      rubro: 'F',
+      telefonoMovil: '+50588887777',
+      correo: 'a@b.ni',
+      contrasena: 'una-clave-de-doce',
+      aceptaConsentimiento: true,
+      registroLegal: new File(['%PDF-1.4'], 'registro.pdf', { type: 'application/pdf' }),
+    } as const;
 
     await expect(cliente.registrarCuenta(solicitud)).resolves.toEqual({ id: 'x', estado: 'Pendiente de validación' });
-    expect(recibidas[0]).toMatchObject({ metodo: 'POST', ruta: '/api/v1/cuentas', cuerpo: solicitud });
+    expect(recibidas[0]).toMatchObject({ metodo: 'POST', ruta: '/api/v1/cuentas' });
+    const cuerpo = String(recibidas[0].cuerpo);
+    expect(cuerpo).toContain('name="aceptaConsentimiento"');
+    expect(cuerpo).toContain('filename="registro.pdf"');
+    expect(cuerpo).toContain('%PDF-1.4');
 
     const conflicto = servidorFalso({ 'POST /api/v1/cuentas': [409, { codigo: 'RUC_REGISTRADO', mensaje: 'm' }] });
     await expect(conflicto.cliente.registrarCuenta(solicitud)).rejects.toBeInstanceOf(ErrorApi);
@@ -77,5 +99,36 @@ describe('Cliente HTTP generado del contrato (PA-07, AS-11)', () => {
 
     const sinIdentidad = servidorFalso({ 'POST /api/v1/sesiones': [201, SESION], 'GET /api/v1/sesiones/actual': [401, undefined] });
     await expect(sinIdentidad.cliente.iniciarSesion({ correo: 'a@b.ni', contrasena: 'x' })).rejects.toMatchObject({ estado: 401, cuerpo: { codigo: 'SIN_RESPUESTA' } });
+  });
+});
+
+describe('Cliente HTTP — operaciones del Administrador (SYS-FN-03)', () => {
+  const RESUMEN = { id: 'c-1', estado: 'Activa' };
+
+  it('lista, valida y descarga el documento con la credencial de acceso', async () => {
+    const { cliente, recibidas } = servidorFalso({
+      'POST /api/v1/sesiones': [201, SESION],
+      'GET /api/v1/sesiones/actual': [200, { rol: 'Administrador', cuentaId: null }],
+      'GET /api/v1/cuentas?estado=Pendiente de validación': [200, [RESUMEN]],
+      'GET /api/v1/cuentas': [200, []],
+      'PATCH /api/v1/cuentas/c-1': [200, RESUMEN],
+      'GET /api/v1/cuentas/c-1/registro-legal': [200, new Blob(['%PDF-1.4'], { type: 'application/pdf' })],
+    });
+    await cliente.iniciarSesion({ correo: 'a@b.ni', contrasena: 'x' });
+
+    await expect(cliente.listarCuentas('Pendiente de validación')).resolves.toEqual([RESUMEN]);
+    await expect(cliente.listarCuentas()).resolves.toEqual([]);
+    await expect(cliente.validarCuenta('c-1', { decision: 'aprobar' })).resolves.toEqual(RESUMEN);
+    const documento = await cliente.obtenerRegistroLegal('c-1');
+    expect(await documento.text()).toBe('%PDF-1.4');
+    expect(recibidas.slice(2).every((r) => r.autorizacion === 'Bearer firmada')).toBe(true);
+    expect(recibidas.find((r) => r.metodo === 'PATCH')?.cuerpo).toEqual({ decision: 'aprobar' });
+  });
+
+  it('propaga los rechazos de esas operaciones como ErrorApi', async () => {
+    const { cliente } = servidorFalso({});
+    await expect(cliente.listarCuentas()).rejects.toMatchObject({ estado: 404 });
+    await expect(cliente.validarCuenta('c-1', { decision: 'aprobar' })).rejects.toMatchObject({ estado: 404 });
+    await expect(cliente.obtenerRegistroLegal('c-1')).rejects.toMatchObject({ estado: 404 });
   });
 });
