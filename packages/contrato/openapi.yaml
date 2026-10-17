@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: AbasteceNi — API REST
+  version: 0.1.0
+  description: |
+    Contrato de interfaz de la plataforma AbasteceNi. Es la fuente de verdad
+    entre la interfaz cliente y el servicio de aplicación (PA-07, ADR-06) y
+    documenta los servicios expuestos conforme a SYS-NFN-16. Los recursos y su
+    módulo responsable siguen el catálogo de D3 §2.9.2.
+  license:
+    name: Uso interno de AbasteceNi, S.A.
+    url: https://github.com/PedroMG2023/abasteceni
+servers:
+  - url: /api/v1
+    description: Servicio de aplicación (MD-03, MD-05)
+security:
+  - credencialAcceso: []
+tags:
+  - name: Plataforma
+    description: Operación de la plataforma (D3 R-03, sondas de vitalidad)
+paths:
+  /salud:
+    get:
+      tags: [Plataforma]
+      operationId: consultarSalud
+      summary: Consultar la vitalidad del servicio de aplicación
+      description: |
+        Sonda de vitalidad que consume el balanceador para el reinicio
+        automático de instancias (D3 R-03, MD-05). No requiere credencial.
+      security: []
+      responses:
+        '200':
+          description: El proceso de aplicación atiende peticiones.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Salud'
+              example:
+                estado: operativo
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+components:
+  securitySchemes:
+    credencialAcceso:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Credencial de acceso firmada de vida corta (ADR-04, PA-04).
+  responses:
+    DemasiadasPeticiones:
+      description: Se superó el límite de 120 peticiones por minuto por IP (SYS-NFN-03, ADR-08).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            codigo: DEMASIADAS_PETICIONES
+            mensaje: Se superó el límite de peticiones. Intente de nuevo en un minuto.
+  schemas:
+    Salud:
+      type: object
+      required: [estado]
+      additionalProperties: false
+      properties:
+        estado:
+          type: string
+          enum: [operativo]
+    Error:
+      type: object
+      description: Forma uniforme de los errores (D3 §2.9.1, manejo uniforme de errores).
+      required: [codigo, mensaje]
+      additionalProperties: false
+      properties:
+        codigo:
+          type: string
+          description: Código estable y legible por máquina.
+        mensaje:
+          type: string
+          description: Mensaje para la persona usuaria, en español.
+        detalles:
+          type: array
+          description: Errores de validación por campo, cuando proceda.
+          items:
+            $ref: '#/components/schemas/ErrorCampo'
+    ErrorCampo:
+      type: object
+      required: [campo, mensaje]
+      additionalProperties: false
+      properties:
+        campo:
+          type: string
+        mensaje:
+          type: string
