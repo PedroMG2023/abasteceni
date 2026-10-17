@@ -15,6 +15,20 @@
       "when": 1792228075793,
       "tag": "0001_privilegios-esquemas",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792229140210,
+      "tag": "0002_linea-base",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792229141245,
+      "tag": "0003_privilegios-linea-base",
+      "breakpoints": true
     }
   ]
 }
