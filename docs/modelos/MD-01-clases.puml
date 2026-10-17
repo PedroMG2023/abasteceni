@@ -9,6 +9,8 @@
 ' no a la clase (D5 §2.12.1, INC-16).
 ' Trazabilidad: M1, M3, M4, M6, M8; SYS-FN-01, 02, 09, 11, 14, 16, 17, 18,
 ' 19, 20, 27 y 30. Dieciséis clases en cinco paquetes de módulo.
+' DIS-32 (aprobada): «registroLegal» realiza SYS-FN-02 (clave en el almacén de
+' documentos y tipo de contenido). Pendiente de reflejarse en D5 v1.2.
 
 skinparam shadowing false
 skinparam classAttributeIconSize 0
@@ -31,6 +33,7 @@ package "M1 Usuarios" {
   class CuentaComercial <<entidadRaiz>> {
     - razonSocial : String <<datoPersonal>>
     - ruc : RUC <<datoPersonal>>
+    - registroLegal : RegistroLegal <<datoPersonal>>
     - ubicacion : Ubicacion
     - estado : EstadoCuenta
     - consentimiento : Consentimiento

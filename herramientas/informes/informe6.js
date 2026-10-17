@@ -117,7 +117,7 @@ const contenido = [
     '**Revisión cruzada (DM-05):** ' + (REVISION_REGISTRADA
       ? 'consta en las solicitudes de integración con resultado favorable.'
       : 'las solicitudes #1 y #2 se fusionaron sin una revisión humana registrada en GitHub; solo consta el análisis automático de CodeQL. La segunda persona del equipo todavía no es colaboradora del repositorio, por lo que no puede aprobar en la plataforma. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad del proceso de configuración a la fecha.'),
-    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 34 entradas (DIS-01 a DIS-34): 31 resueltas y 3 abiertas para la revisión (DIS-26, DIS-27 y DIS-32). Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
+    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 35 entradas (DIS-01 a DIS-35): 34 resueltas y 1 abierta para la revisión (DIS-35, firma de `validar` en MD-01). Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
     '**Decisiones (PR-11):** el registro contiene ADR-01 a ADR-09. Las elecciones técnicas de la construcción que no alteran la arquitectura (versiones, parámetros del interruptor) se registran en `iteraciones.md`, como prevé ADR-07.',
     '**Gobierno del cambio de requisitos (DM-09):** no se admitieron cambios al catálogo. Las precisiones aprobadas (DIS-16 a DIS-23, DIS-28 a DIS-31) se acumulan para la próxima versión menor de D2 y D5, como prevé D4 §2.16.',
   ]),
