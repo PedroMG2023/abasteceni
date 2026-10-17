@@ -34,7 +34,7 @@ export class ErrorAutenticacion extends Error {
   }
 }
 
-export type CodigoAccesoDenegado = 'CUENTA_PENDIENTE' | 'CUENTA_RECHAZADA';
+export type CodigoAccesoDenegado = 'CUENTA_PENDIENTE' | 'CUENTA_RECHAZADA' | 'CUENTA_BLOQUEADA';
 
 export class ErrorAccesoDenegado extends Error {
   constructor(readonly codigo: CodigoAccesoDenegado) {

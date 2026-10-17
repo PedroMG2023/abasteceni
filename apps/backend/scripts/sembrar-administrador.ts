@@ -1,4 +1,5 @@
 import { ServicioSeguridad } from '../src/dominio/m2-seguridad';
+import { BandejaSalidaPg } from '../src/infraestructura/bandeja-salida/bandeja-salida-pg';
 import { crearBaseDatos } from '../src/infraestructura/persistencia/base-datos';
 import { RepositorioSeguridadPg } from '../src/infraestructura/persistencia/m2-seguridad/repositorio-seguridad-pg';
 import { UnidadTrabajoPg } from '../src/infraestructura/persistencia/unidad-trabajo-pg';
@@ -20,6 +21,7 @@ async function sembrar(): Promise<void> {
     const seguridad = new ServicioSeguridad({
       repositorio: new RepositorioSeguridadPg(db),
       unidadTrabajo: new UnidadTrabajoPg(db),
+      eventos: new BandejaSalidaPg(db),
       derivacion: new DerivacionArgon2(),
       firma: new FirmaJwt(SECRETO_FIRMA_ACCESO),
       secretos: new SecretosRenovacionCripto(),

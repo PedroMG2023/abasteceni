@@ -65,6 +65,24 @@ export class RepositorioSeguridadMemoria implements PuertoRepositorioSeguridad {
     });
   }
 
+  async registrarIntentoFallido(credencialId: string): Promise<number> {
+    const c = this.credenciales.get(credencialId)!;
+    this.credenciales.set(credencialId, { ...c, intentosFallidos: c.intentosFallidos + 1 });
+    return c.intentosFallidos + 1;
+  }
+
+  async bloquear(credencialId: string, hasta: Date, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => {
+      const c = this.credenciales.get(credencialId)!;
+      this.credenciales.set(credencialId, { ...c, bloqueadaHasta: hasta, intentosFallidos: 0 });
+    });
+  }
+
+  async reiniciarIntentos(credencialId: string): Promise<void> {
+    const c = this.credenciales.get(credencialId)!;
+    this.credenciales.set(credencialId, { ...c, intentosFallidos: 0 });
+  }
+
   async guardarSesion(sesion: SesionRenovacion, tx?: Transaccion): Promise<void> {
     alConfirmar(tx, () => this.sesiones.set(sesion.id, sesion));
   }

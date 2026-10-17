@@ -82,9 +82,18 @@ export class ApiModule {
         { provide: A.secretosRenovacion, useClass: SecretosRenovacionCripto },
         {
           provide: SIMBOLOS.servicioSeguridad,
-          useFactory: (repositorio, unidadTrabajo, derivacion, firma, secretos, reloj, identificadores) =>
-            new ServicioSeguridad({ repositorio, unidadTrabajo, derivacion, firma, secretos, reloj, identificadores }),
-          inject: [A.repositorioSeguridad, UNIDAD_TRABAJO, A.derivacionClave, A.firmaAcceso, A.secretosRenovacion, SIMBOLOS.reloj, IDENTIFICADORES],
+          useFactory: (repositorio, unidadTrabajo, eventos, derivacion, firma, secretos, reloj, identificadores) =>
+            new ServicioSeguridad({ repositorio, unidadTrabajo, eventos, derivacion, firma, secretos, reloj, identificadores }),
+          inject: [
+            A.repositorioSeguridad,
+            UNIDAD_TRABAJO,
+            A.bandejaSalida,
+            A.derivacionClave,
+            A.firmaAcceso,
+            A.secretosRenovacion,
+            SIMBOLOS.reloj,
+            IDENTIFICADORES,
+          ],
         },
         {
           provide: SIMBOLOS.servicioUsuarios,

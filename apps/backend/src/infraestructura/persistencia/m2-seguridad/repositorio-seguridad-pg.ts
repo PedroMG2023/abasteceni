@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type {
   Credencial,
   Habilitacion,
@@ -49,6 +49,23 @@ export class RepositorioSeguridadPg implements PuertoRepositorioSeguridad {
 
   async cambiarHabilitacion(cuentaId: string, habilitacion: Habilitacion, tx: Transaccion): Promise<void> {
     await conexion(this.db, tx).update(credenciales).set({ habilitacion }).where(eq(credenciales.cuentaId, cuentaId));
+  }
+
+  async registrarIntentoFallido(credencialId: string, tx: Transaccion): Promise<number> {
+    const [fila] = await conexion(this.db, tx)
+      .update(credenciales)
+      .set({ intentosFallidos: sql`${credenciales.intentosFallidos} + 1` })
+      .where(eq(credenciales.id, credencialId))
+      .returning({ intentos: credenciales.intentosFallidos });
+    return fila?.intentos ?? 0;
+  }
+
+  async bloquear(credencialId: string, hasta: Date, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx).update(credenciales).set({ bloqueadaHasta: hasta, intentosFallidos: 0 }).where(eq(credenciales.id, credencialId));
+  }
+
+  async reiniciarIntentos(credencialId: string): Promise<void> {
+    await this.db.update(credenciales).set({ intentosFallidos: 0 }).where(eq(credenciales.id, credencialId));
   }
 
   async guardarSesion(sesion: SesionRenovacion, tx?: Transaccion): Promise<void> {

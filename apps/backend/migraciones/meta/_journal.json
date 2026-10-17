@@ -50,6 +50,13 @@
       "when": 1792231752770,
       "tag": "0006_registro-legal-consentimiento",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792248634408,
+      "tag": "0007_bloqueo-intentos",
+      "breakpoints": true
     }
   ]
 }

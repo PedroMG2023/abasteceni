@@ -4,6 +4,10 @@ import type { DetalleValidacion } from '../puertos';
 export const VIDA_ACCESO_SEGUNDOS = 15 * 60;
 export const VIDA_RENOVACION_SEGUNDOS = 7 * 24 * 60 * 60;
 
+// Bloqueo por intentos fallidos consecutivos (SYS-FN-07; DIS-34).
+export const MAXIMO_INTENTOS_FALLIDOS = 5;
+export const BLOQUEO_SEGUNDOS = 15 * 60;
+
 // Longitud de la contraseña (DIS-22; OWASP ASVS 4.0.3 V2.1.1 y V2.1.2).
 export const CONTRASENA_MINIMA = 12;
 export const CONTRASENA_MAXIMA = 128;

@@ -1,7 +1,9 @@
 import { Inject, Injectable, Logger, Module, type DynamicModule, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { DespachadorEventos } from '../aplicacion/despachador/despachador-eventos';
 import { NotificarCuentaRegistrada } from '../aplicacion/despachador/manejadores/notificar-cuenta-registrada';
+import { NotificarCuentaBloqueada } from '../aplicacion/despachador/manejadores/notificar-cuenta-bloqueada';
 import { NotificarCuentaAprobada, NotificarCuentaRechazada } from '../aplicacion/despachador/manejadores/notificar-decision-cuenta';
+import { CUENTA_BLOQUEADA } from '../dominio/m2-seguridad';
 import { SIMBOLOS } from '../aplicacion/simbolos';
 import { CUENTA_APROBADA, CUENTA_RECHAZADA, CUENTA_REGISTRADA } from '../dominio/m1-usuarios';
 import type { PuertoNotificacion, PuertoReloj } from '../dominio/puertos';
@@ -17,6 +19,8 @@ import { BASE_DATOS, CONFIGURACION, proveedoresComunes } from './infraestructura
 
 export const ADAPTADORES_TRABAJADOR = {
   notificador: Symbol('PuertoNotificacion'),
+  // Canal de correo para los avisos que SYS-FN-07 dirige al correo registrado.
+  notificadorCorreo: Symbol('PuertoNotificacionCorreo'),
   despachador: Symbol('PuertoDespachoEventos'),
   sondeo: Symbol('SondeoBandeja'),
   contador: Symbol('ContadorPeticionesPg'),
@@ -34,6 +38,7 @@ export class TareasTrabajador implements OnApplicationBootstrap, OnApplicationSh
     @Inject(A.sondeo) private readonly sondeo: SondeoBandeja,
     @Inject(A.contador) private readonly contador: ContadorPeticionesPg,
     @Inject(A.notificador) private readonly notificador: PuertoNotificacion,
+    @Inject(A.notificadorCorreo) private readonly notificadorCorreo: PuertoNotificacion,
     @Inject(SIMBOLOS.reloj) private readonly reloj: PuertoReloj,
   ) {}
 
@@ -48,7 +53,9 @@ export class TareasTrabajador implements OnApplicationBootstrap, OnApplicationSh
   async onApplicationShutdown(): Promise<void> {
     if (this.purga) clearInterval(this.purga);
     await this.sondeo.detener();
-    if (this.notificador instanceof NotificadorConInterruptor) this.notificador.apagar();
+    for (const notificador of [this.notificador, this.notificadorCorreo]) {
+      if (notificador instanceof NotificadorConInterruptor) notificador.apagar();
+    }
   }
 }
 
@@ -76,13 +83,21 @@ export class TrabajadorModule {
           inject: [CONFIGURACION],
         },
         {
+          provide: A.notificadorCorreo,
+          useFactory: () =>
+            new NotificadorConInterruptor(new NotificadorCorreo(new ProveedorCorreoSimulado()), NotificadorCorreo.CANAL, undefined, (estado) =>
+              registro.warn(`Circuito del canal ${NotificadorCorreo.CANAL}: ${estado}.`),
+            ),
+        },
+        {
           provide: A.despachador,
-          useFactory: (notificador: PuertoNotificacion) =>
+          useFactory: (notificador: PuertoNotificacion, correo: PuertoNotificacion) =>
             new DespachadorEventos()
               .registrar(CUENTA_REGISTRADA, new NotificarCuentaRegistrada(notificador))
               .registrar(CUENTA_APROBADA, new NotificarCuentaAprobada(notificador))
-              .registrar(CUENTA_RECHAZADA, new NotificarCuentaRechazada(notificador)),
-          inject: [A.notificador],
+              .registrar(CUENTA_RECHAZADA, new NotificarCuentaRechazada(notificador))
+              .registrar(CUENTA_BLOQUEADA, new NotificarCuentaBloqueada(correo)),
+          inject: [A.notificador, A.notificadorCorreo],
         },
         {
           provide: A.sondeo,

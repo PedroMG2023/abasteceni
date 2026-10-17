@@ -1,5 +1,6 @@
-import { ServicioSeguridad, VIDA_ACCESO_SEGUNDOS, VIDA_RENOVACION_SEGUNDOS } from '../../../src/dominio/m2-seguridad';
+import { BLOQUEO_SEGUNDOS, CUENTA_BLOQUEADA, ServicioSeguridad, VIDA_ACCESO_SEGUNDOS, VIDA_RENOVACION_SEGUNDOS } from '../../../src/dominio/m2-seguridad';
 import { ErrorAccesoDenegado, ErrorAutenticacion, ErrorConflicto, ErrorValidacion } from '../../../src/dominio/puertos';
+import { BandejaSalidaMemoria } from '../../../src/infraestructura/bandeja-salida/bandeja-salida-memoria';
 import { UnidadTrabajoMemoria } from '../../../src/infraestructura/persistencia/unidad-trabajo-memoria';
 import { DerivacionFalsa, FirmaFalsa, RepositorioSeguridadMemoria, SecretosSecuenciales } from '../../dobles/repositorios-memoria';
 import { IdentificadoresSecuenciales, RelojFijo } from '../../dobles/sistema';
@@ -11,9 +12,11 @@ function crearEscenario() {
   const repositorio = new RepositorioSeguridadMemoria();
   const derivacion = new DerivacionFalsa();
   const unidadTrabajo = new UnidadTrabajoMemoria();
+  const bandeja = new BandejaSalidaMemoria();
   const seguridad = new ServicioSeguridad({
     repositorio,
     unidadTrabajo,
+    eventos: bandeja,
     derivacion,
     firma: new FirmaFalsa(),
     secretos: new SecretosSecuenciales(),
@@ -22,7 +25,7 @@ function crearEscenario() {
   });
   const registrarCuenta = (cuentaId: string, correo: string) =>
     unidadTrabajo.ejecutar((tx) => seguridad.registrarCredencial({ cuentaId, correo, contrasena: 'una-clave-de-doce', rol: 'Proveedor' }, tx));
-  return { seguridad, repositorio, reloj, derivacion, unidadTrabajo, registrarCuenta };
+  return { seguridad, repositorio, reloj, derivacion, unidadTrabajo, registrarCuenta, bandeja };
 }
 
 describe('CT-SEG-04 · inicio de sesión con correo y contraseña y asignación del rol (SYS-FN-04, ADR-04)', () => {
@@ -142,5 +145,63 @@ describe('ADR-04 · renovación con rotación, revocación y verificación sin e
   it('una credencial de acceso que no verifica produce ACCESO_INVALIDO', () => {
     const { seguridad } = crearEscenario();
     expect(() => seguridad.verificarAcceso('falsificada')).toThrow(new ErrorAutenticacion('ACCESO_INVALIDO'));
+  });
+});
+
+describe('CT-SEG-07 · bloqueo temporal tras 5 intentos fallidos consecutivos (SYS-FN-07, DIS-34)', () => {
+  const MAL = { correo: ADMIN.correo, contrasena: 'no-es-la-clave' };
+
+  it('el quinto intento fallido bloquea 15 minutos y publica CuentaBloqueada con el correo registrado', async () => {
+    const { seguridad, bandeja, repositorio } = crearEscenario();
+    await seguridad.registrarAdministrador(ADMIN);
+
+    for (let i = 0; i < 4; i++) await expect(seguridad.iniciarSesion(MAL)).rejects.toEqual(new ErrorAutenticacion('CREDENCIALES_INVALIDAS'));
+    await expect(seguridad.iniciarSesion(MAL)).rejects.toEqual(new ErrorAccesoDenegado('CUENTA_BLOQUEADA'));
+
+    const [credencial] = repositorio.credenciales.values();
+    expect(credencial.bloqueadaHasta?.getTime()).toBe(new Date('2026-10-17T12:00:00.000Z').getTime() + BLOQUEO_SEGUNDOS * 1000);
+    expect(bandeja.entradas.map((e) => e.evento)).toEqual([
+      expect.objectContaining({ tipo: CUENTA_BLOQUEADA, datos: expect.objectContaining({ correo: ADMIN.correo }) }),
+    ]);
+  });
+
+  it('durante el bloqueo no se evalúa la contraseña, ni siquiera la correcta', async () => {
+    const { seguridad, derivacion } = crearEscenario();
+    await seguridad.registrarAdministrador(ADMIN);
+    for (let i = 0; i < 5; i++) await seguridad.iniciarSesion(MAL).catch(() => undefined);
+    const verificaciones = derivacion.verificaciones.length;
+
+    await expect(seguridad.iniciarSesion(ADMIN)).rejects.toEqual(new ErrorAccesoDenegado('CUENTA_BLOQUEADA'));
+    expect(derivacion.verificaciones).toHaveLength(verificaciones);
+  });
+
+  it('pasados los 15 minutos la contraseña correcta vuelve a dar acceso', async () => {
+    const { seguridad, reloj } = crearEscenario();
+    await seguridad.registrarAdministrador(ADMIN);
+    for (let i = 0; i < 5; i++) await seguridad.iniciarSesion(MAL).catch(() => undefined);
+
+    reloj.avanzar(BLOQUEO_SEGUNDOS * 1000 - 1);
+    await expect(seguridad.iniciarSesion(ADMIN)).rejects.toEqual(new ErrorAccesoDenegado('CUENTA_BLOQUEADA'));
+    reloj.avanzar(1);
+    expect((await seguridad.iniciarSesion(ADMIN)).rol).toBe('Administrador');
+  });
+
+  it('un inicio exitoso reinicia el contador: los fallos deben ser consecutivos', async () => {
+    const { seguridad, bandeja } = crearEscenario();
+    await seguridad.registrarAdministrador(ADMIN);
+
+    for (let i = 0; i < 4; i++) await seguridad.iniciarSesion(MAL).catch(() => undefined);
+    await seguridad.iniciarSesion(ADMIN);
+    for (let i = 0; i < 4; i++) await expect(seguridad.iniciarSesion(MAL)).rejects.toEqual(new ErrorAutenticacion('CREDENCIALES_INVALIDAS'));
+
+    expect(bandeja.entradas).toHaveLength(0);
+  });
+
+  it('un correo inexistente no bloquea nada', async () => {
+    const { seguridad, bandeja } = crearEscenario();
+    for (let i = 0; i < 6; i++) {
+      await expect(seguridad.iniciarSesion({ correo: 'nadie@empresa.ni', contrasena: 'x' })).rejects.toEqual(new ErrorAutenticacion('CREDENCIALES_INVALIDAS'));
+    }
+    expect(bandeja.entradas).toHaveLength(0);
   });
 });

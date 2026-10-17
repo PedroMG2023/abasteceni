@@ -83,8 +83,10 @@ export const MENSAJES_AUTENTICACION: Record<CodigoAutenticacion, string> = {
   ACCESO_INVALIDO: 'Inicie sesión para continuar.',
 };
 
-// DIS-25, aprobados por el equipo.
+// DIS-25 y DIS-34, aprobados por el equipo.
 export const MENSAJES_ACCESO_DENEGADO: Record<CodigoAccesoDenegado, string> = {
   CUENTA_PENDIENTE: 'Su cuenta está pendiente de validación.',
   CUENTA_RECHAZADA: 'Su solicitud de cuenta fue rechazada.',
+  // DIS-34, aprobado por el equipo.
+  CUENTA_BLOQUEADA: 'Su cuenta está bloqueada temporalmente por intentos fallidos. Intente de nuevo en 15 minutos.',
 };

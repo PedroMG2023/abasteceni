@@ -12,6 +12,13 @@ export interface Credencial {
   readonly rol: Rol;
   readonly habilitacion: Habilitacion;
   readonly creadaEn: Date;
+  // SYS-FN-07: intentos fallidos consecutivos y fin del bloqueo temporal.
+  readonly intentosFallidos: number;
+  readonly bloqueadaHasta: Date | null;
+}
+
+export function credencialBloqueada(credencial: Credencial, ahora: Date): boolean {
+  return credencial.bloqueadaHasta !== null && credencial.bloqueadaHasta.getTime() > ahora.getTime();
 }
 
 // Sesión de renovación: solo se guarda la huella de la credencial (ADR-04).
