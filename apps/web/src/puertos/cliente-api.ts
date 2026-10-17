@@ -5,7 +5,11 @@ import type { components } from '@abasteceni/contrato';
 type Esquemas = components['schemas'];
 export type Salud = Esquemas['Salud'];
 export type ErrorRespuesta = Esquemas['Error'];
-export type SolicitudRegistroCuenta = Esquemas['SolicitudRegistroCuenta'];
+// En la interfaz el documento es un archivo; el cliente lo envía en multipart.
+export type SolicitudRegistroCuenta = Omit<Esquemas['SolicitudRegistroCuenta'], 'registroLegal'> & { registroLegal: Blob };
+export type ResumenCuenta = Esquemas['ResumenCuenta'];
+export type EstadoCuenta = Esquemas['EstadoCuenta'];
+export type ValidacionCuenta = Esquemas['ValidacionCuenta'];
 export type CuentaRegistrada = Esquemas['CuentaRegistrada'];
 export type TipoCuenta = Esquemas['TipoCuenta'];
 export type SolicitudInicioSesion = Esquemas['SolicitudInicioSesion'];
@@ -20,6 +24,10 @@ export interface ClienteApi {
   iniciarSesion(datos: SolicitudInicioSesion): Promise<Identidad>;
   renovarSesion(): Promise<Identidad>;
   cerrarSesion(): Promise<void>;
+  // Panel del Administrador de la plataforma (SYS-FN-03).
+  listarCuentas(estado?: EstadoCuenta): Promise<ResumenCuenta[]>;
+  validarCuenta(id: string, validacion: ValidacionCuenta): Promise<ResumenCuenta>;
+  obtenerRegistroLegal(id: string): Promise<Blob>;
 }
 
 // Error de la API con la forma uniforme del contrato.

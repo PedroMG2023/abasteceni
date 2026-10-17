@@ -1,9 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { AvisoFormulario } from '../componentes/AvisoFormulario';
 import { useSesion } from '../hooks/useSesion';
+import { PanelAdministrador } from './PanelAdministrador';
+import { PanelCuenta } from './PanelCuenta';
 
 // Inicio de sesión con correo y contraseña (SYS-FN-04). Tras iniciar, muestra el
-// rol asignado; los paneles por rol se construyen en IT-02 (CT-SEG-04).
+// panel que corresponde al rol asignado (CT-SEG-04; DIS-31).
 export function PaginaInicioSesion() {
   const { identidad, aviso, ocupado, iniciar, cerrar } = useSesion();
   const [correo, setCorreo] = useState('');
@@ -14,6 +16,7 @@ export function PaginaInicioSesion() {
       <main>
         <h1>Sesión iniciada</h1>
         <p role="status">Rol: {identidad.rol}</p>
+        {identidad.rol === 'Administrador' ? <PanelAdministrador /> : <PanelCuenta rol={identidad.rol} />}
         <button type="button" onClick={() => void cerrar()}>
           Cerrar sesión
         </button>

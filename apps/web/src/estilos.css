@@ -24,3 +24,10 @@ button:disabled { opacity: 0.7; }
 .aviso { padding: 0.75rem; border-radius: 4px; }
 .aviso-error { background: #fde8ea; color: #a4000f; }
 .aviso-exito { background: #e3f4ea; color: #0f5a2c; }
+.consentimiento label { font-weight: normal; }
+.consentimiento input[type='checkbox'] { width: auto; margin-right: 0.5rem; }
+.cuentas { list-style: none; padding: 0; }
+.cuentas li { border: 1px solid #c8c8c8; border-radius: 4px; padding: 0.75rem; margin-bottom: 0.75rem; }
+.acciones { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.acciones button { width: auto; }
+textarea { font: inherit; width: 100%; padding: 0.6rem; border: 1px solid #5c5c5c; border-radius: 4px; }
