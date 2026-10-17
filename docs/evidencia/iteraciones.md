@@ -58,3 +58,67 @@ Los reportes de cada cierre se toman del artefacto `reportes-pruebas` de la ejec
 - **Segunda persona del equipo**: invitarla como colaboradora en GitHub para la revisión cruzada de DM-05.
 - **Revisión cruzada de esta rama** (DM-05) e integración en `main`: condiciones 5 y 6 de la Definición de Terminado.
 - **Etiqueta `it-00`**: se crea solo tras la revisión.
+
+## IT-01 — Línea base arquitectónica ejecutable
+
+**Objetivo (D4 §2.13; DM-08).** Una rebanada vertical que atraviese las cuatro capas y ejercite la bandeja de salida transaccional, el interruptor de circuito, la autenticación sin estado y la interfaz cliente desacoplada.
+
+**Vehículo funcional.** Lo fijó la instrucción de la iteración: el registro de una cuenta comercial (SYS-FN-01), con el inicio de sesión sin estado (`/api/v1/sesiones`) y la interfaz web.
+
+**Criterio de salida.** Un evento de dominio se persiste en la misma transacción que su cambio de estado, se publica de forma asíncrona y alcanza un adaptador de notificación; el circuito abre ante un fallo simulado del proveedor. **Cumplido.** Lo verifica `apps/backend/test/integracion/linea-base.spec.ts` (`describe` «IT-01 · criterio de salida…»), en cuatro pasos y contra PostgreSQL real con la composición real del trabajador:
+
+1. La cuenta y su evento `CuentaRegistrada` se confirman juntos. Si la transacción falla, no queda ninguno de los dos.
+2. El sondeo publica el evento y el adaptador de WhatsApp (proveedor simulado) recibe la notificación con el texto de DIS-20.
+3. Con el proveedor caído, el circuito abre: dos fallos de tres llamadas en la ventana. Las notificaciones restantes fallan rápido (`ErrorCircuitoAbierto`) y quedan pendientes en la bandeja.
+4. Recuperado el proveedor, el circuito pasa a semiabierto, se cierra y entrega las notificaciones acumuladas.
+
+En el sistema completo (Playwright sobre Docker Compose), el evento de un registro hecho desde la interfaz se publicó con un retardo de **0,98 s** (MT-04; umbral de alerta 30 s, umbral comprometido 60 s, R-02).
+
+| Campo | Valor |
+|---|---|
+| Fecha | 2026-10-17 |
+| Rama | `it-01/linea-base`, sacada de `it-00/entorno` |
+| Commits | `1bc3e7c` contrato · `c620ab1` dominio · `aff76c7` infraestructura · `148f5ec` aplicación · `8334161` composición · `794fe51` adaptador de correo (AS-05) · `ca9d385` web · `27d1d63` pruebas de sistema · cierre (este registro) |
+| MT-03 | **0** violaciones (trabajo 4) |
+| MT-04 | 0,98 s en el entorno de sistema local y 0,51 s en la CI |
+| Cobertura del backend, global | Sentencias 98,20 % · ramas 92,66 % · funciones 94,36 % · líneas 98,76 % |
+| Cobertura de `dominio/` | Sentencias 99,51 % (205/206) · ramas 98,51 % (66/67) · funciones 97,01 % (65/67) · líneas 100 % (167/167). Desde esta iteración la CI exige también el 80 % sobre `./src/dominio/` |
+| Cobertura del frontend | Sentencias 97,22 % · ramas 96,62 % · funciones 93,75 % · líneas 98,14 % |
+| Pruebas | Backend (unitarias, contrato e integración): 110. Base de datos: 19. Frontend: 27. Sistema (Playwright): 8. Todas pasan |
+| CI | [Ejecución 39023391840](https://github.com/PedroMG2023/abasteceni/actions/runs/39023391840) sobre `27d1d63`: **10 de 10 trabajos en verde** (incluido el 10, pruebas de sistema) |
+| Auditoría (`npm audit`) | 0 críticas · 0 altas. Las moderadas son las mismas de IT-00, en herramientas de desarrollo |
+
+### Versiones exactas añadidas en IT-01 (`package-lock.json` e imágenes)
+
+| Componente | Versión | Uso |
+|---|---|---|
+| opossum | 10.0.0 | Interruptor de circuito en el trabajador (ADR-02) |
+| argon2 | 0.45.1 | argon2id para contraseñas (V-03) |
+| jsonwebtoken | 9.0.3 | Credencial de acceso HS256 (ADR-04) |
+| helmet | 8.3.0 | Cabeceras de seguridad HTTP |
+| class-validator y class-transformer | 0.15.1 y 0.5.1 | Validación declarativa en la frontera (PA-05) |
+| ajv-formats | 3.0.1 | Formatos `uuid` y `date-time` en el validador del contrato |
+| @playwright/test | 1.64.1 | Pruebas de sistema (Chromium sin interfaz 156) |
+| Imagen del artefacto | `node:24-slim` | API y trabajador (MD-05) |
+| Imagen web local | `nginx:1.29-alpine` | Activos y proxy de `/api` en el entorno de sistema |
+
+### Parámetros técnicos (no son reglas de negocio)
+
+- **Interruptor (ADR-02, `apps/backend/src/infraestructura/notificacion/interruptor.ts`):** tiempo máximo de 10 s; abre con ≥ 50 % de errores y un volumen mínimo de 3 llamadas en una ventana de 60 s; prueba la reapertura a los 30 s.
+- **Reintentos de la bandeja:** espera exponencial de 1 s, 2 s, 4 s… acotada a 60 s, coherente con el umbral de R-02.
+- **Sondeo:** cada 1 s, en lotes de 20 eventos (configurable por entorno).
+- **Límite de peticiones:** 120 por minuto e IP (SYS-NFN-03), fijo y no configurable. El contador vive en `plataforma.contador_peticiones` y el trabajador purga cada minuto las ventanas vencidas.
+
+### Alcance y notas
+
+- **`GET /api/v1/cuentas` adelantado.** Es el listado para el panel del Administrador (SYS-FN-03, de IT-02) y se construyó en IT-01 porque la prueba 403 de AS-03 necesita un recurso restringido por rol.
+- **Notificaciones simuladas.** Los adaptadores de WhatsApp y de correo usan proveedores simulados: el alcance vigente no integra WhatsApp Business API ni un servicio de correo real. La composición elige el canal con `CANAL_NOTIFICACION`.
+- **Cookie de renovación.** Es `Secure` por defecto (`COOKIE_SEGURA`). Solo el entorno de sistema local, sin TLS, la desactiva.
+
+### Pendientes
+
+- Revisión cruzada (DM-05) de esta rama. Está sacada de `it-00/entorno`, que todavía no está en `main`.
+- Aprobación de los textos de DIS-26 y de la precisión de rutas de DIS-27.
+- Añadir el trabajo 10 a los checks obligatorios de la protección de `main`.
+- Etiqueta `it-01`: tras la revisión.
+

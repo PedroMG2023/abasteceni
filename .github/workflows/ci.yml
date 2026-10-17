@@ -69,7 +69,9 @@ jobs:
         with:
           name: reportes-pruebas
           path: |
-            docs/evidencia/pruebas/
+            docs/evidencia/pruebas/backend/
+            docs/evidencia/pruebas/bd/
+            docs/evidencia/pruebas/web/
             apps/backend/coverage/coverage-summary.json
             apps/web/coverage/coverage-summary.json
           if-no-files-found: warn

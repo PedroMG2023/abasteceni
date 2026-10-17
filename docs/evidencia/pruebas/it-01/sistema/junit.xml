@@ -1,0 +1,26 @@
+<testsuites id="" name="" tests="8" failures="0" skipped="0" errors="0" time="5.348238">
+<testsuite name="registro.spec.ts" timestamp="2026-10-17T10:04:35.961Z" hostname="chromium" tests="5" failures="0" skipped="0" time="3.015" errors="0">
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › con todos los campos válidos la cuenta queda «Pendiente de validación»" classname="registro.spec.ts" time="0.527">
+</testcase>
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › con el RUC vacío rechaza el envío y muestra el mensaje de error del campo" classname="registro.spec.ts" time="0.335">
+</testcase>
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › un RUC ya registrado muestra el aviso devuelto por la API" classname="registro.spec.ts" time="0.594">
+</testcase>
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › SYS-NFN-09 · el formulario se opera a 320 px sin desplazamiento horizontal" classname="registro.spec.ts" time="0.243">
+</testcase>
+<testcase name="IT-01 · el evento CuentaRegistrada se publica de forma asíncrona (ADR-01, R-02) › el trabajador publica el evento del registro dentro del umbral de 60 s" classname="registro.spec.ts" time="1.316">
+<system-out>
+<![CDATA[MT-04 · retardo de publicación: 0.508 s
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="sesion.spec.ts" timestamp="2026-10-17T10:04:35.961Z" hostname="chromium" tests="3" failures="0" skipped="0" time="1.377" errors="0">
+<testcase name="CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04) › el Administrador inicia sesión, ve su rol, conserva la sesión al recargar y la cierra" classname="sesion.spec.ts" time="0.502">
+</testcase>
+<testcase name="CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04) › una cuenta «Pendiente de validación» no inicia sesión (DIS-25)" classname="sesion.spec.ts" time="0.556">
+</testcase>
+<testcase name="CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04) › una contraseña incorrecta recibe el mensaje genérico" classname="sesion.spec.ts" time="0.319">
+</testcase>
+</testsuite>
+</testsuites>

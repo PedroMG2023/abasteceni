@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="27" failures="0" errors="0" time="2.388362142">
+    <testsuite name="test/componentes/CampoFormulario.test.tsx" timestamp="2026-10-17T10:04:49.135Z" hostname="runnervm8k3b6" tests="4" failures="0" errors="0" skipped="0" time="0.340976638">
+        <testcase classname="test/componentes/CampoFormulario.test.tsx" name="AS-07 · campo de formulario con ayuda contextual y validadores por composición &gt; asocia la etiqueta, la ayuda y el error al control (WCAG 2.1, ISO 9241-110)" time="0.249478576">
+        </testcase>
+        <testcase classname="test/componentes/CampoFormulario.test.tsx" name="AS-07 · campo de formulario con ayuda contextual y validadores por composición &gt; sin error no marca el control como inválido" time="0.023939645">
+        </testcase>
+        <testcase classname="test/componentes/CampoFormulario.test.tsx" name="AS-07 · campo de formulario con ayuda contextual y validadores por composición &gt; con opciones muestra una lista y notifica la elección" time="0.06362588">
+        </testcase>
+        <testcase classname="test/componentes/CampoFormulario.test.tsx" name="AS-07 · campo de formulario con ayuda contextual y validadores por composición &gt; los validadores se componen y devuelven el primer mensaje que aplica" time="0.001088577">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/hooks/useRegistroCuenta.test.tsx" timestamp="2026-10-17T10:04:49.136Z" hostname="runnervm8k3b6" tests="5" failures="0" errors="0" skipped="0" time="0.126524317">
+        <testcase classname="test/hooks/useRegistroCuenta.test.tsx" name="AS-04 · hook del caso de uso «registrar cuenta» con el cliente de prueba (SYS-FN-01) &gt; CT-REG-01 · con el RUC vacío no envía y muestra el mensaje de error del campo" time="0.063827558">
+        </testcase>
+        <testcase classname="test/hooks/useRegistroCuenta.test.tsx" name="AS-04 · hook del caso de uso «registrar cuenta» con el cliente de prueba (SYS-FN-01) &gt; CT-REG-01 · con todos los campos válidos envía la solicitud y queda «Pendiente de validación»" time="0.014225335">
+        </testcase>
+        <testcase classname="test/hooks/useRegistroCuenta.test.tsx" name="AS-04 · hook del caso de uso «registrar cuenta» con el cliente de prueba (SYS-FN-01) &gt; valida el formato antes de enviar (DIS-19, DIS-21, DIS-22)" time="0.017002128">
+        </testcase>
+        <testcase classname="test/hooks/useRegistroCuenta.test.tsx" name="AS-04 · hook del caso de uso «registrar cuenta» con el cliente de prueba (SYS-FN-01) &gt; muestra los errores por campo y el mensaje general que devuelve la API" time="0.007112989">
+        </testcase>
+        <testcase classname="test/hooks/useRegistroCuenta.test.tsx" name="AS-04 · hook del caso de uso «registrar cuenta» con el cliente de prueba (SYS-FN-01) &gt; avisa si no hay conexión con el servicio" time="0.018933778">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/hooks/useSalud.test.tsx" timestamp="2026-10-17T10:04:49.138Z" hostname="runnervm8k3b6" tests="3" failures="0" errors="0" skipped="0" time="0.158114411">
+        <testcase classname="test/hooks/useSalud.test.tsx" name="useSalud con la implementación de prueba del puerto ClienteApi (AS-11) &gt; pasa de consultando a operativo cuando la API responde" time="0.083066572">
+        </testcase>
+        <testcase classname="test/hooks/useSalud.test.tsx" name="useSalud con la implementación de prueba del puerto ClienteApi (AS-11) &gt; informa sin respuesta cuando la API falla" time="0.055940864">
+        </testcase>
+        <testcase classname="test/hooks/useSalud.test.tsx" name="useSalud con la implementación de prueba del puerto ClienteApi (AS-11) &gt; exige un proveedor del puerto" time="0.015944929">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/hooks/useSesion.test.tsx" timestamp="2026-10-17T10:04:49.138Z" hostname="runnervm8k3b6" tests="3" failures="0" errors="0" skipped="0" time="0.089111921">
+        <testcase classname="test/hooks/useSesion.test.tsx" name="Hook de sesión con el cliente de prueba (SYS-FN-04, ADR-04) &gt; recupera la sesión con la credencial de renovación al montarse" time="0.074966336">
+        </testcase>
+        <testcase classname="test/hooks/useSesion.test.tsx" name="Hook de sesión con el cliente de prueba (SYS-FN-04, ADR-04) &gt; inicia sesión, expone el rol y la cierra" time="0.005977302">
+        </testcase>
+        <testcase classname="test/hooks/useSesion.test.tsx" name="Hook de sesión con el cliente de prueba (SYS-FN-04, ADR-04) &gt; muestra el mensaje de la API cuando la cuenta está pendiente (DIS-25) y uno genérico sin conexión" time="0.005779982">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/infraestructura/cliente-api-http.test.ts" timestamp="2026-10-17T10:04:49.139Z" hostname="runnervm8k3b6" tests="4" failures="0" errors="0" skipped="0" time="0.030713917">
+        <testcase classname="test/infraestructura/cliente-api-http.test.ts" name="Cliente HTTP generado del contrato (PA-07, AS-11) &gt; consulta GET /api/v1/salud y convierte una respuesta de error en ErrorApi" time="0.017324194">
+        </testcase>
+        <testcase classname="test/infraestructura/cliente-api-http.test.ts" name="Cliente HTTP generado del contrato (PA-07, AS-11) &gt; registra una cuenta con POST /api/v1/cuentas" time="0.003580875">
+        </testcase>
+        <testcase classname="test/infraestructura/cliente-api-http.test.ts" name="Cliente HTTP generado del contrato (PA-07, AS-11) &gt; guarda la credencial de acceso en memoria, la usa como Bearer y la descarta al cerrar sesión" time="0.003494242">
+        </testcase>
+        <testcase classname="test/infraestructura/cliente-api-http.test.ts" name="Cliente HTTP generado del contrato (PA-07, AS-11) &gt; renueva la sesión con la cookie y propaga los rechazos" time="0.003390667">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/paginas/Aplicacion.test.tsx" timestamp="2026-10-17T10:04:49.140Z" hostname="runnervm8k3b6" tests="1" failures="0" errors="0" skipped="0" time="0.267426803">
+        <testcase classname="test/paginas/Aplicacion.test.tsx" name="Navegación de la interfaz &gt; muestra la página que indica el fragmento de la dirección" time="0.265201437">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/paginas/PaginaInicio.test.tsx" timestamp="2026-10-17T10:04:49.141Z" hostname="runnervm8k3b6" tests="1" failures="0" errors="0" skipped="0" time="0.171070148">
+        <testcase classname="test/paginas/PaginaInicio.test.tsx" name="PaginaInicio &gt; muestra el nombre de la plataforma y el estado del servicio" time="0.169187807">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/paginas/PaginaInicioSesion.test.tsx" timestamp="2026-10-17T10:04:49.141Z" hostname="runnervm8k3b6" tests="2" failures="0" errors="0" skipped="0" time="0.725919698">
+        <testcase classname="test/paginas/PaginaInicioSesion.test.tsx" name="Página de inicio de sesión con el cliente de prueba (SYS-FN-04) &gt; inicia sesión, muestra el rol asignado y permite cerrarla" time="0.579468423">
+        </testcase>
+        <testcase classname="test/paginas/PaginaInicioSesion.test.tsx" name="Página de inicio de sesión con el cliente de prueba (SYS-FN-04) &gt; muestra el motivo del rechazo" time="0.141774659">
+        </testcase>
+    </testsuite>
+    <testsuite name="test/paginas/PaginaRegistro.test.tsx" timestamp="2026-10-17T10:04:49.142Z" hostname="runnervm8k3b6" tests="4" failures="0" errors="0" skipped="0" time="0.478504289">
+        <testcase classname="test/paginas/PaginaRegistro.test.tsx" name="AS-04 · página de registro con el hook simulado (SYS-FN-01) &gt; presenta los nueve campos con su ayuda contextual (SYS-NFN-11)" time="0.294111653">
+        </testcase>
+        <testcase classname="test/paginas/PaginaRegistro.test.tsx" name="AS-04 · página de registro con el hook simulado (SYS-FN-01) &gt; delega la escritura y el envío en el hook" time="0.142735837">
+        </testcase>
+        <testcase classname="test/paginas/PaginaRegistro.test.tsx" name="AS-04 · página de registro con el hook simulado (SYS-FN-01) &gt; muestra los errores del hook y el aviso general" time="0.027318781">
+        </testcase>
+        <testcase classname="test/paginas/PaginaRegistro.test.tsx" name="AS-04 · página de registro con el hook simulado (SYS-FN-01) &gt; confirma el registro con el estado de la cuenta" time="0.011196117">
+        </testcase>
+    </testsuite>
+</testsuites>
