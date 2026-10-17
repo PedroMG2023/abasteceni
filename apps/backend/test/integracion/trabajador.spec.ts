@@ -46,6 +46,18 @@ describe('Trabajador asíncrono: composición y ciclo de vida (MD-03, ADR-02)', 
     expect(fila).toEqual({ pendiente: true, intentos: 1, ultimo_error: 'ErrorEntregaNotificacion' });
   });
 
+  it('AS-05 · con CANAL_NOTIFICACION=correo la composición usa el adaptador de correo, también tras el interruptor', async () => {
+    trabajador = await Test.createTestingModule({
+      imports: [TrabajadorModule.registrar(configuracionPrueba(bd.urlApp, { canalNotificacion: 'correo' }))],
+    }).compile();
+    const notificador = trabajador.get<NotificadorConInterruptor>(ADAPTADORES_TRABAJADOR.notificador);
+
+    await notificador.notificar({ destinatario: { telefonoMovil: '+50588887777', correo: 'a@b.ni' }, mensaje: 'hola' });
+
+    expect(notificador.estado).toBe('cerrado');
+    await trabajador.close();
+  });
+
   it('purga las ventanas vencidas del contador de ADR-08', async () => {
     trabajador = await Test.createTestingModule({ imports: [TrabajadorModule.registrar(configuracionPrueba(bd.urlApp))] }).compile();
     const contador = trabajador.get<ContadorPeticionesPg>(ADAPTADORES_TRABAJADOR.contador);

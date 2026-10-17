@@ -11,6 +11,6 @@ export function configuracionPrueba(urlBdApp: string, cambios: Partial<Configura
     cookieSegura: false,
     proxiesConfiables: 0,
     limitePeticionesPorMinuto: 120,
-    trabajador: { intervaloSondeoMs: 1000, tamanoLote: 20, whatsappSimuladoDisponible: true, ...cambios },
+    trabajador: { intervaloSondeoMs: 1000, tamanoLote: 20, whatsappSimuladoDisponible: true, canalNotificacion: 'whatsapp', ...cambios },
   };
 }

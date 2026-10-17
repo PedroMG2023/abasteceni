@@ -6,6 +6,7 @@ import { CUENTA_REGISTRADA } from '../dominio/m1-usuarios';
 import type { PuertoNotificacion, PuertoReloj } from '../dominio/puertos';
 import { BandejaSalidaPg } from '../infraestructura/bandeja-salida/bandeja-salida-pg';
 import { ContadorPeticionesPg } from '../infraestructura/limite-peticiones/contador-peticiones-pg';
+import { NotificadorCorreo, ProveedorCorreoSimulado } from '../infraestructura/notificacion/correo';
 import { NotificadorConInterruptor } from '../infraestructura/notificacion/interruptor';
 import { NotificadorWhatsApp, ProveedorWhatsAppSimulado } from '../infraestructura/notificacion/whatsapp';
 import type { BaseDatos } from '../infraestructura/persistencia/base-datos';
@@ -63,11 +64,13 @@ export class TrabajadorModule {
         {
           provide: A.notificador,
           useFactory: (c: Configuracion) => {
-            const proveedor = new ProveedorWhatsAppSimulado();
-            proveedor.disponible = c.trabajador.whatsappSimuladoDisponible;
-            return new NotificadorConInterruptor(new NotificadorWhatsApp(proveedor), NotificadorWhatsApp.CANAL, undefined, (estado) =>
-              registro.warn(`Circuito del canal ${NotificadorWhatsApp.CANAL}: ${estado}.`),
-            );
+            const [adaptador, canal] = ((): [PuertoNotificacion, string] => {
+              if (c.trabajador.canalNotificacion === 'correo') return [new NotificadorCorreo(new ProveedorCorreoSimulado()), NotificadorCorreo.CANAL];
+              const proveedor = new ProveedorWhatsAppSimulado();
+              proveedor.disponible = c.trabajador.whatsappSimuladoDisponible;
+              return [new NotificadorWhatsApp(proveedor), NotificadorWhatsApp.CANAL];
+            })();
+            return new NotificadorConInterruptor(adaptador, canal, undefined, (estado) => registro.warn(`Circuito del canal ${canal}: ${estado}.`));
           },
           inject: [CONFIGURACION],
         },

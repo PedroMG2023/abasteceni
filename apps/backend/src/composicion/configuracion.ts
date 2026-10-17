@@ -12,6 +12,7 @@ export interface Configuracion {
     readonly intervaloSondeoMs: number;
     readonly tamanoLote: number;
     readonly whatsappSimuladoDisponible: boolean;
+    readonly canalNotificacion: 'whatsapp' | 'correo';
   };
 }
 
@@ -35,6 +36,7 @@ export function leerConfiguracion(entorno: NodeJS.ProcessEnv = process.env): Con
       intervaloSondeoMs: Number(entorno.INTERVALO_SONDEO_MS ?? 1000),
       tamanoLote: Number(entorno.TAMANO_LOTE_BANDEJA ?? 20),
       whatsappSimuladoDisponible: entorno.SIMULACION_WHATSAPP !== 'caido',
+      canalNotificacion: entorno.CANAL_NOTIFICACION === 'correo' ? 'correo' : 'whatsapp',
     },
   };
 }

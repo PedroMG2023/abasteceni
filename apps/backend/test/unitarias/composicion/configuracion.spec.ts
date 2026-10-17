@@ -17,7 +17,7 @@ describe('Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de
       cookieSegura: true,
       proxiesConfiables: 0,
       limitePeticionesPorMinuto: 120,
-      trabajador: { intervaloSondeoMs: 1000, tamanoLote: 20, whatsappSimuladoDisponible: true },
+      trabajador: { intervaloSondeoMs: 1000, tamanoLote: 20, whatsappSimuladoDisponible: true, canalNotificacion: 'whatsapp' },
     });
   });
 
@@ -31,8 +31,9 @@ describe('Configuración por variables de entorno (CLAUDE.md §9; control 8.9 de
       INTERVALO_SONDEO_MS: '500',
       TAMANO_LOTE_BANDEJA: '5',
       SIMULACION_WHATSAPP: 'caido',
+      CANAL_NOTIFICACION: 'correo',
     });
     expect(configuracion).toMatchObject({ puertoApi: 8080, cookieSegura: false, proxiesConfiables: 1, limitePeticionesPorMinuto: 120 });
-    expect(configuracion.trabajador).toEqual({ intervaloSondeoMs: 500, tamanoLote: 5, whatsappSimuladoDisponible: false });
+    expect(configuracion.trabajador).toEqual({ intervaloSondeoMs: 500, tamanoLote: 5, whatsappSimuladoDisponible: false, canalNotificacion: 'correo' });
   });
 });
