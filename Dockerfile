@@ -24,6 +24,9 @@ COPY --from=construccion /app/node_modules ./node_modules
 COPY --from=construccion /app/apps/backend/package.json ./apps/backend/package.json
 COPY --from=construccion /app/apps/backend/dist ./apps/backend/dist
 COPY --from=construccion /app/apps/backend/migraciones ./apps/backend/migraciones
+# Almacén de documentos local (SYS-FN-02); en producción, almacén de objetos (ADR-09).
+RUN mkdir -p /app/almacen-documentos && chown node:node /app/almacen-documentos
+ENV DIRECTORIO_DOCUMENTOS=/app/almacen-documentos
 WORKDIR /app/apps/backend
 USER node
 CMD ["node", "dist/src/main.api.js"]

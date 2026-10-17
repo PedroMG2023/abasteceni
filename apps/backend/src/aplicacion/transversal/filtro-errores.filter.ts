@@ -5,15 +5,20 @@ import {
   ErrorAccesoDenegado,
   ErrorAutenticacion,
   ErrorConflicto,
+  ErrorNoEncontrado,
+  ErrorTransicion,
   ErrorValidacion,
 } from '../../dominio/puertos';
 import { ErrorDemasiadasPeticiones, ErrorProhibido } from './errores-http';
 import {
+  MENSAJE_CUENTA_NO_ENCONTRADA,
   MENSAJE_DEMASIADAS_PETICIONES,
+  MENSAJE_DOCUMENTO_DEMASIADO_GRANDE,
   MENSAJE_ERROR_INTERNO,
   MENSAJE_NO_ENCONTRADO,
   MENSAJE_PROHIBIDO,
   MENSAJE_SOLICITUD_INVALIDA,
+  MENSAJE_TRANSICION_NO_PERMITIDA,
   MENSAJES_ACCESO_DENEGADO,
   MENSAJES_AUTENTICACION,
   MENSAJES_CONFLICTO,
@@ -53,6 +58,8 @@ export class FiltroErrores implements ExceptionFilter {
     if (error instanceof ErrorAccesoDenegado) {
       return [HttpStatus.FORBIDDEN, { codigo: error.codigo, mensaje: MENSAJES_ACCESO_DENEGADO[error.codigo] }];
     }
+    if (error instanceof ErrorNoEncontrado) return [HttpStatus.NOT_FOUND, { codigo: error.codigo, mensaje: MENSAJE_CUENTA_NO_ENCONTRADA }];
+    if (error instanceof ErrorTransicion) return [HttpStatus.CONFLICT, { codigo: error.codigo, mensaje: MENSAJE_TRANSICION_NO_PERMITIDA }];
     if (error instanceof ErrorProhibido) return [HttpStatus.FORBIDDEN, { codigo: 'PROHIBIDO', mensaje: MENSAJE_PROHIBIDO }];
     if (error instanceof ErrorDemasiadasPeticiones) {
       return [HttpStatus.TOO_MANY_REQUESTS, { codigo: 'DEMASIADAS_PETICIONES', mensaje: MENSAJE_DEMASIADAS_PETICIONES }];
@@ -60,6 +67,10 @@ export class FiltroErrores implements ExceptionFilter {
     if (error instanceof HttpException) {
       const estado = error.getStatus();
       if (estado === HttpStatus.NOT_FOUND) return [estado, { codigo: 'NO_ENCONTRADO', mensaje: MENSAJE_NO_ENCONTRADO }];
+      // El tope de 5 MB del registro legal lo aplica multer (SYS-FN-02, CT-REG-02).
+      if (estado === HttpStatus.PAYLOAD_TOO_LARGE) {
+        return [estado, { codigo: 'DOCUMENTO_DEMASIADO_GRANDE', mensaje: MENSAJE_DOCUMENTO_DEMASIADO_GRANDE }];
+      }
       if (estado < 500) return [estado, { codigo: 'SOLICITUD_INVALIDA', mensaje: MENSAJE_SOLICITUD_INVALIDA }];
     }
     // Solo el tipo del error: su mensaje podría contener datos personales.

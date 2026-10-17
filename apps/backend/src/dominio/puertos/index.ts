@@ -6,14 +6,21 @@ export { ErrorEntregaNotificacion, type Notificacion, type PuertoNotificacion } 
 export type { PuertoReloj } from './reloj';
 export type { PuertoIdentificadores } from './identificadores';
 export type { PuertoContadorPeticiones } from './contador-peticiones';
+export type { AsientoBitacora, PuertoBitacora } from './bitacora';
+export type { ContextoSolicitud } from './contexto';
+export type { DocumentoAlmacenado, PuertoAlmacenDocumentos } from './almacen-documentos';
 export {
   ErrorAccesoDenegado,
   ErrorAutenticacion,
   ErrorConflicto,
+  ErrorNoEncontrado,
+  ErrorTransicion,
   ErrorValidacion,
   type CodigoAccesoDenegado,
   type CodigoAutenticacion,
   type CodigoConflicto,
+  type CodigoNoEncontrado,
+  type CodigoTransicion,
   type DetalleValidacion,
   type MotivoValidacion,
 } from './errores';

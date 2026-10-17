@@ -29,6 +29,27 @@
       "when": 1792229141245,
       "tag": "0003_privilegios-linea-base",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792231548523,
+      "tag": "0004_bitacora",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792231549139,
+      "tag": "0005_privilegios-bitacora",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792231752770,
+      "tag": "0006_registro-legal-consentimiento",
+      "breakpoints": true
     }
   ]
 }

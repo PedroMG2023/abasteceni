@@ -32,7 +32,14 @@ export function crearClienteApiHttp(baseUrl = '/api/v1', fetchImpl: typeof fetch
     },
 
     async registrarCuenta(solicitud) {
-      const { data, error, response } = await http.POST('/cuentas', { body: solicitud });
+      const { registroLegal, ...campos } = solicitud;
+      const formulario = new FormData();
+      for (const [campo, valor] of Object.entries(campos)) formulario.append(campo, String(valor));
+      formulario.append('registroLegal', registroLegal, (registroLegal as File).name ?? 'registro-legal');
+      const { data, error, response } = await http.POST('/cuentas', {
+        body: solicitud as never,
+        bodySerializer: () => formulario,
+      });
       if (!data) throw fallo(response.status, error);
       return data;
     },
@@ -54,6 +61,28 @@ export function crearClienteApiHttp(baseUrl = '/api/v1', fetchImpl: typeof fetch
     async cerrarSesion() {
       await http.DELETE('/sesiones/actual', { headers: autorizacion() });
       credencialAcceso = null;
+    },
+
+    async listarCuentas(estado) {
+      const { data, error, response } = await http.GET('/cuentas', { headers: autorizacion(), params: { query: estado ? { estado } : {} } });
+      if (!data) throw fallo(response.status, error);
+      return data;
+    },
+
+    async validarCuenta(id, validacion) {
+      const { data, error, response } = await http.PATCH('/cuentas/{id}', { headers: autorizacion(), params: { path: { id } }, body: validacion });
+      if (!data) throw fallo(response.status, error);
+      return data;
+    },
+
+    async obtenerRegistroLegal(id) {
+      const { data, error, response } = await http.GET('/cuentas/{id}/registro-legal', {
+        headers: autorizacion(),
+        params: { path: { id } },
+        parseAs: 'blob',
+      });
+      if (!data) throw fallo(response.status, error);
+      return data as Blob;
     },
   };
 }

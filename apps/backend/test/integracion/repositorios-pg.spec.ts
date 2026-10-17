@@ -5,7 +5,7 @@ import { RepositorioUsuariosPg } from '../../src/infraestructura/persistencia/m1
 import { RepositorioSeguridadPg } from '../../src/infraestructura/persistencia/m2-seguridad/repositorio-seguridad-pg';
 import { UnidadTrabajoPg } from '../../src/infraestructura/persistencia/unidad-trabajo-pg';
 import { iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-datos';
-import { solicitudValida } from '../unitarias/datos';
+import { REGISTRO_LEGAL, solicitudValida } from '../unitarias/datos';
 
 const ID = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`;
 
@@ -27,7 +27,7 @@ describe('Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado)', ()
 
   it('reconstruye la cuenta comercial desde la fila', async () => {
     const repositorio = new RepositorioUsuariosPg(conexion.db);
-    const original = CuentaComercial.registrar(solicitudValida(), { id: ID(1), ahora: new Date('2026-10-17T12:00:00.000Z') });
+    const original = CuentaComercial.registrar(solicitudValida(), { id: ID(1), ahora: new Date('2026-10-17T12:00:00.000Z'), registroLegal: REGISTRO_LEGAL });
     await unidad.ejecutar((tx) => repositorio.guardar(original, tx));
 
     const [leida] = await repositorio.listar({ estado: EstadoCuenta.PendienteDeValidacion });
@@ -37,7 +37,7 @@ describe('Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado)', ()
 
   it('traduce la violación de unicidad del RUC en ErrorConflicto aunque se salte la comprobación previa', async () => {
     const repositorio = new RepositorioUsuariosPg(conexion.db);
-    const repetida = CuentaComercial.registrar(solicitudValida(), { id: ID(2), ahora: new Date() });
+    const repetida = CuentaComercial.registrar(solicitudValida(), { id: ID(2), ahora: new Date(), registroLegal: REGISTRO_LEGAL });
 
     await expect(unidad.ejecutar((tx) => repositorio.guardar(repetida, tx))).rejects.toEqual(new ErrorConflicto('RUC_REGISTRADO'));
   });
@@ -68,6 +68,8 @@ describe('Repositorios de M1 y M2 sobre PostgreSQL (R-04, patrón graduado)', ()
       correo: 'f@farmacia.ni',
       estado: 'Borrada' as EstadoCuenta,
       registradaEn: new Date(),
+      consentimientoAceptadoEn: new Date(),
+      registroLegal: REGISTRO_LEGAL,
     });
 
     const error = await unidad.ejecutar((tx) => repositorio.guardar(invalida, tx)).catch((e: unknown) => e);

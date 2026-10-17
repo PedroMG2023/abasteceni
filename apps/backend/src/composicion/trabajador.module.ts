@@ -1,8 +1,9 @@
 import { Inject, Injectable, Logger, Module, type DynamicModule, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { DespachadorEventos } from '../aplicacion/despachador/despachador-eventos';
 import { NotificarCuentaRegistrada } from '../aplicacion/despachador/manejadores/notificar-cuenta-registrada';
+import { NotificarCuentaAprobada, NotificarCuentaRechazada } from '../aplicacion/despachador/manejadores/notificar-decision-cuenta';
 import { SIMBOLOS } from '../aplicacion/simbolos';
-import { CUENTA_REGISTRADA } from '../dominio/m1-usuarios';
+import { CUENTA_APROBADA, CUENTA_RECHAZADA, CUENTA_REGISTRADA } from '../dominio/m1-usuarios';
 import type { PuertoNotificacion, PuertoReloj } from '../dominio/puertos';
 import { BandejaSalidaPg } from '../infraestructura/bandeja-salida/bandeja-salida-pg';
 import { ContadorPeticionesPg } from '../infraestructura/limite-peticiones/contador-peticiones-pg';
@@ -77,7 +78,10 @@ export class TrabajadorModule {
         {
           provide: A.despachador,
           useFactory: (notificador: PuertoNotificacion) =>
-            new DespachadorEventos().registrar(CUENTA_REGISTRADA, new NotificarCuentaRegistrada(notificador)),
+            new DespachadorEventos()
+              .registrar(CUENTA_REGISTRADA, new NotificarCuentaRegistrada(notificador))
+              .registrar(CUENTA_APROBADA, new NotificarCuentaAprobada(notificador))
+              .registrar(CUENTA_RECHAZADA, new NotificarCuentaRechazada(notificador)),
           inject: [A.notificador],
         },
         {

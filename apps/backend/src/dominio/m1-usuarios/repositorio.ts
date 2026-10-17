@@ -6,5 +6,7 @@ import type { EstadoCuenta } from './tipos';
 export interface PuertoRepositorioUsuarios {
   existeRuc(ruc: string, tx: Transaccion): Promise<boolean>;
   guardar(cuenta: CuentaComercial, tx: Transaccion): Promise<void>;
+  // Dentro de una transacción, bloquea la cuenta hasta confirmarla.
+  buscarPorId(id: string, tx?: Transaccion): Promise<CuentaComercial | null>;
   listar(filtro: { estado?: EstadoCuenta }): Promise<CuentaComercial[]>;
 }

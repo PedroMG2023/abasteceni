@@ -7,9 +7,9 @@ import { RepositorioUsuariosPg } from '../../src/infraestructura/persistencia/m1
 import { UnidadTrabajoPg } from '../../src/infraestructura/persistencia/unidad-trabajo-pg';
 import { iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-datos';
 import { consultar } from '../soporte/consultas';
-import { solicitudValida } from '../unitarias/datos';
+import { REGISTRO_LEGAL, solicitudValida } from '../unitarias/datos';
 
-// Privilegios declarados en las migraciones 0001 y 0003 (ADR-05): ni más ni menos.
+// Privilegios declarados en las migraciones 0001, 0003 y 0005 (ADR-05): ni más ni menos.
 const PRIVILEGIOS_DECLARADOS = [
   'm1_usuarios.cuentas_comerciales:INSERT',
   'm1_usuarios.cuentas_comerciales:SELECT',
@@ -20,6 +20,8 @@ const PRIVILEGIOS_DECLARADOS = [
   'm2_seguridad.sesiones:INSERT',
   'm2_seguridad.sesiones:SELECT',
   'm2_seguridad.sesiones:UPDATE',
+  'm9_administracion.bitacora:INSERT',
+  'm9_administracion.bitacora:SELECT',
   'plataforma.bandeja_salida:INSERT',
   'plataforma.bandeja_salida:SELECT',
   'plataforma.bandeja_salida:UPDATE',
@@ -30,7 +32,7 @@ const PRIVILEGIOS_DECLARADOS = [
 ];
 
 function cuenta(id: string, ruc: string): CuentaComercial {
-  return CuentaComercial.registrar(solicitudValida({ ruc }), { id, ahora: new Date('2026-10-17T12:00:00Z') });
+  return CuentaComercial.registrar(solicitudValida({ ruc }), { id, ahora: new Date('2026-10-17T12:00:00Z'), registroLegal: REGISTRO_LEGAL });
 }
 
 describe('Base de datos de la línea base (IT-01)', () => {
@@ -105,6 +107,9 @@ describe('Base de datos de la línea base (IT-01)', () => {
         correo: 'a@b.ni',
         estado: 'Pendiente de validación',
         registrada_en: new Date().toISOString(),
+        consentimiento_aceptado_en: new Date().toISOString(),
+        registro_legal_clave: '00000000-0000-4000-8000-0000000000d0',
+        registro_legal_tipo: 'application/pdf',
         ...cambios,
       };
       try {
@@ -125,7 +130,7 @@ describe('Base de datos de la línea base (IT-01)', () => {
       });
     });
 
-    it.each(['razon_social', 'ruc', 'departamento', 'municipio', 'rubro'])('%s es NOT NULL (SYS-FN-01)', async (columna) => {
+    it.each(['razon_social', 'ruc', 'departamento', 'municipio', 'rubro', 'consentimiento_aceptado_en', 'registro_legal_clave'])('%s es NOT NULL (SYS-FN-01, 02 y 36)', async (columna) => {
       await expect(insertar({ [columna]: null })).rejects.toMatchObject({ code: '23502', column: columna });
     });
 

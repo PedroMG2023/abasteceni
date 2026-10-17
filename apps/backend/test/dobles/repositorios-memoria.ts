@@ -30,6 +30,10 @@ export class RepositorioUsuariosMemoria implements PuertoRepositorioUsuarios {
     alConfirmar(tx, () => this.cuentas.set(cuenta.id, cuenta));
   }
 
+  async buscarPorId(id: string): Promise<CuentaComercial | null> {
+    return this.cuentas.get(id) ?? null;
+  }
+
   async listar(filtro: { estado?: EstadoCuenta }): Promise<CuentaComercial[]> {
     return [...this.cuentas.values()].filter((c) => !filtro.estado || c.estado === filtro.estado);
   }

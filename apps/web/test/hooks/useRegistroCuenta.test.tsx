@@ -17,11 +17,15 @@ const VALIDOS = {
   contrasena: 'una-clave-de-doce',
 } as const;
 
+const PDF = new File(['%PDF-1.4'], 'registro.pdf', { type: 'application/pdf' });
+
 function montar(cliente = new ClienteApiPrueba()) {
   const hook = renderHook(() => useRegistroCuenta(), { wrapper: envolverCon(cliente) });
-  const llenar = (cambios: Partial<Record<keyof typeof VALIDOS, string>> = {}) =>
+  const llenar = (cambios: Partial<Record<keyof typeof VALIDOS, string>> = {}, adjuntos: { archivo?: File | null; consentimiento?: boolean } = {}) =>
     act(() => {
       for (const [campo, valor] of Object.entries({ ...VALIDOS, ...cambios })) hook.result.current.cambiar(campo as keyof typeof VALIDOS, valor);
+      hook.result.current.elegirArchivo(adjuntos.archivo === undefined ? PDF : adjuntos.archivo);
+      hook.result.current.aceptarConsentimiento(adjuntos.consentimiento ?? true);
     });
   return { ...hook, cliente, llenar };
 }
@@ -44,7 +48,7 @@ describe('AS-04 · hook del caso de uso «registrar cuenta» con el cliente de p
 
     await act(() => result.current.enviar());
 
-    expect(cliente.llamadas).toEqual([{ operacion: 'registrarCuenta', datos: VALIDOS }]);
+    expect(cliente.llamadas).toEqual([{ operacion: 'registrarCuenta', datos: { ...VALIDOS, aceptaConsentimiento: true, registroLegal: PDF } }]);
     expect(result.current.estado).toBe('registrada');
     expect(result.current.cuenta?.estado).toBe('Pendiente de validación');
   });
@@ -84,5 +88,50 @@ describe('AS-04 · hook del caso de uso «registrar cuenta» con el cliente de p
     await act(() => result.current.enviar());
 
     expect(result.current.aviso).toBe('No se pudo enviar la solicitud. Revise su conexión e intente de nuevo.');
+  });
+});
+
+describe('SYS-FN-02 y SYS-FN-36 · registro legal y consentimiento en el hook de registro', () => {
+  it('exige el documento y la aceptación del consentimiento antes de enviar', async () => {
+    const { result, cliente, llenar } = montar();
+    await llenar({}, { archivo: null, consentimiento: false });
+
+    await act(() => result.current.enviar());
+
+    expect(cliente.llamadas).toEqual([]);
+    expect(result.current.errores).toMatchObject({
+      registroLegal: 'Adjunte el documento de registro legal (Cédula RUC o patente municipal).',
+      aceptaConsentimiento: 'Debe aceptar la declaración de consentimiento para registrarse.',
+    });
+  });
+
+  it('orienta sobre el formato y el tamaño del archivo (CT-REG-02)', async () => {
+    const { result, llenar } = montar();
+    await llenar({}, { archivo: new File(['x'], 'foto.png') });
+    await act(() => result.current.enviar());
+    expect(result.current.errores.registroLegal).toBe('Cargue el documento en formato PDF o JPG.');
+
+    const grande = new File(['x'], 'registro.pdf');
+    Object.defineProperty(grande, 'size', { value: 8 * 1024 * 1024 });
+    await llenar({}, { archivo: grande });
+    await act(() => result.current.enviar());
+    expect(result.current.errores.registroLegal).toBe('El documento supera el tamaño máximo de 5 MB.');
+  });
+
+  it('muestra en el campo el rechazo del servidor por contenido o tamaño', async () => {
+    const cliente = new ClienteApiPrueba();
+    cliente.registro = new ErrorApi(413, { codigo: 'DOCUMENTO_DEMASIADO_GRANDE', mensaje: 'El documento supera el tamaño máximo de 5 MB.' });
+    const { result, llenar } = montar(cliente);
+    await llenar();
+    await act(() => result.current.enviar());
+    expect(result.current.errores.registroLegal).toBe('El documento supera el tamaño máximo de 5 MB.');
+
+    cliente.registro = new ErrorApi(400, {
+      codigo: 'SOLICITUD_INVALIDA',
+      mensaje: 'Revise los datos marcados.',
+      detalles: [{ campo: 'registroLegal', mensaje: 'Cargue el documento en formato PDF o JPG.' }],
+    });
+    await act(() => result.current.enviar());
+    expect(result.current.errores.registroLegal).toBe('Cargue el documento en formato PDF o JPG.');
   });
 });

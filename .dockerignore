@@ -8,3 +8,4 @@ test-results
 playwright-report
 .env
 .env.*
+apps/backend/almacen-documentos

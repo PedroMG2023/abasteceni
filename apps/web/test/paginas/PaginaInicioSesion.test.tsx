@@ -15,7 +15,8 @@ describe('Página de inicio de sesión con el cliente de prueba (SYS-FN-04)', ()
     await userEvent.type(screen.getByLabelText('Contraseña'), 'clave-de-administrador');
     await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent('Rol: Administrador');
+    expect(await screen.findByText('Rol: Administrador')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Panel del Administrador de la plataforma' })).toBeInTheDocument();
     expect(cliente.llamadas[1]).toEqual({ operacion: 'iniciarSesion', datos: { correo: 'admin@abasteceni.com.ni', contrasena: 'clave-de-administrador' } });
 
     await userEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
@@ -32,5 +33,20 @@ describe('Página de inicio de sesión con el cliente de prueba (SYS-FN-04)', ()
     await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Correo o contraseña incorrectos.');
+  });
+});
+
+describe('CT-SEG-04 · el panel mostrado corresponde al rol asignado', () => {
+  it.each(['Comprador', 'Proveedor', 'Productor'] as const)('una cuenta %s ve su panel', async (rol) => {
+    const cliente = new ClienteApiPrueba();
+    cliente.sesion = { rol, cuentaId: 'c-1' };
+    render(<PaginaInicioSesion />, { wrapper: envolverCon(cliente) });
+
+    await userEvent.type(screen.getByLabelText('Correo electrónico'), 'cuenta@empresa.ni');
+    await userEvent.type(screen.getByLabelText('Contraseña'), 'una-clave-de-doce');
+    await userEvent.click(screen.getByRole('button', { name: 'Iniciar sesión' }));
+
+    expect(await screen.findByRole('heading', { name: `Panel del ${rol}` })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Panel del Administrador de la plataforma' })).toBeNull();
   });
 });

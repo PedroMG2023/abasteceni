@@ -45,10 +45,56 @@ export interface paths {
          * @description Registra una cuenta comercial en estado «Pendiente de validación»
          *     (SYS-FN-01, CT-REG-01). Además de los campos de SYS-FN-01 captura el
          *     tipo de cuenta (DIS-17), el teléfono móvil (DIS-19), el correo y la
-         *     contraseña (DIS-16). El evento CuentaRegistrada se persiste en la misma
-         *     transacción (ADR-01).
+         *     contraseña (DIS-16), el documento de registro legal (SYS-FN-02,
+         *     CT-REG-02; DIS-29) y la aceptación del consentimiento (SYS-FN-36,
+         *     DIS-28). La cuenta, los asientos de bitácora y el evento CuentaRegistrada
+         *     se persisten en la misma transacción (ADR-01, SYS-FN-35).
          */
         post: operations["registrarCuenta"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cuentas/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Aprobar o rechazar una solicitud de cuenta comercial
+         * @description Decisión del Administrador de la plataforma (SYS-FN-03, CT-ADM-03). La
+         *     transición pertenece a la máquina de estados de M1 (D3 §2.9.2) y el
+         *     resultado, con la justificación, consta en la bitácora inmutable
+         *     (SYS-FN-35, ADR-05). El rechazo exige justificación (DIS-23).
+         */
+        patch: operations["validarCuenta"];
+        trace?: never;
+    };
+    "/cuentas/{id}/registro-legal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Descargar el documento de registro legal de una cuenta
+         * @description Documento cargado en el registro (SYS-FN-02) para la revisión del
+         *     Administrador (D1 PM-01, actividad 4). Dato personal (V-03).
+         */
+        get: operations["obtenerRegistroLegal"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -152,6 +198,19 @@ export interface components {
             correo: string;
             /** @description Entre 12 y 128 caracteres (DIS-22). */
             contrasena: string;
+            /** @description Aceptación de la declaración de consentimiento de DIS-28 (SYS-FN-36, Ley No. 787). Debe ser true. */
+            aceptaConsentimiento: boolean;
+            /**
+             * Format: binary
+             * @description Cédula RUC o patente municipal en PDF o JPG, máximo 5 MB; el tipo se comprueba por contenido (SYS-FN-02).
+             */
+            registroLegal: string;
+        };
+        ValidacionCuenta: {
+            /** @enum {string} */
+            decision: "aprobar" | "rechazar";
+            /** @description Obligatoria al rechazar (DIS-23). */
+            justificacion?: string;
         };
         CuentaRegistrada: {
             /** Format: uuid */
@@ -170,6 +229,10 @@ export interface components {
             estado: components["schemas"]["EstadoCuenta"];
             /** Format: date-time */
             registradaEn: string;
+            /** Format: date-time */
+            consentimientoAceptadoEn: string;
+            /** @enum {string} */
+            registroLegalTipo: "application/pdf" | "image/jpeg";
         };
         SolicitudInicioSesion: {
             correo: string;
@@ -216,8 +279,26 @@ export interface components {
                 "application/json": components["schemas"]["Error"];
             };
         };
-        /** @description Ya existe una cuenta con ese RUC o con ese correo. */
+        /** @description Ya existe una cuenta con ese RUC o con ese correo, o la cuenta ya fue validada. */
         Conflicto: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description El recurso indicado no existe. */
+        NoEncontrado: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description El documento de registro legal supera 5 MB (SYS-FN-02, CT-REG-02). */
+        DocumentoDemasiadoGrande: {
             headers: {
                 [name: string]: unknown;
             };
@@ -259,7 +340,9 @@ export interface components {
             };
         };
     };
-    parameters: never;
+    parameters: {
+        IdCuenta: string;
+    };
     requestBodies: never;
     headers: {
         /** @description Cookie HttpOnly con la credencial de renovación, válida 7 días (DIS-06). */
@@ -330,20 +413,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                /**
-                 * @example {
-                 *       "tipo": "Comprador",
-                 *       "razonSocial": "Farmacia San Benito",
-                 *       "ruc": "J0310000000001",
-                 *       "departamento": "Chinandega",
-                 *       "municipio": "El Viejo",
-                 *       "rubro": "Farmacia",
-                 *       "telefonoMovil": "+50588887777",
-                 *       "correo": "compras@farmaciasanbenito.com.ni",
-                 *       "contrasena": "una-clave-de-doce-o-mas"
-                 *     }
-                 */
-                "application/json": components["schemas"]["SolicitudRegistroCuenta"];
+                "multipart/form-data": components["schemas"]["SolicitudRegistroCuenta"];
             };
         };
         responses: {
@@ -364,6 +434,73 @@ export interface operations {
             };
             400: components["responses"]["SolicitudInvalida"];
             409: components["responses"]["Conflicto"];
+            413: components["responses"]["DocumentoDemasiadoGrande"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    validarCuenta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["IdCuenta"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "decision": "rechazar",
+                 *       "justificacion": "El documento cargado no corresponde al RUC indicado."
+                 *     }
+                 */
+                "application/json": components["schemas"]["ValidacionCuenta"];
+            };
+        };
+        responses: {
+            /** @description Cuenta validada. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResumenCuenta"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutenticado"];
+            403: components["responses"]["Prohibido"];
+            404: components["responses"]["NoEncontrado"];
+            409: components["responses"]["Conflicto"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    obtenerRegistroLegal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["IdCuenta"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Documento de registro legal. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "image/jpeg": string;
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            401: components["responses"]["NoAutenticado"];
+            403: components["responses"]["Prohibido"];
+            404: components["responses"]["NoEncontrado"];
             429: components["responses"]["DemasiadasPeticiones"];
         };
     };

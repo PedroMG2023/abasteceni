@@ -8,6 +8,8 @@ export interface Configuracion {
   readonly cookieSegura: boolean;
   readonly proxiesConfiables: number;
   readonly limitePeticionesPorMinuto: number;
+  // Directorio del almacén de documentos de desarrollo y pruebas (SYS-FN-02).
+  readonly directorioDocumentos: string;
   readonly trabajador: {
     readonly intervaloSondeoMs: number;
     readonly tamanoLote: number;
@@ -32,6 +34,7 @@ export function leerConfiguracion(entorno: NodeJS.ProcessEnv = process.env): Con
     proxiesConfiables: Number(entorno.PROXIES_CONFIABLES ?? 0),
     // SYS-NFN-03: 120 peticiones por minuto por IP. No es configurable a la baja ni al alza en producción.
     limitePeticionesPorMinuto: 120,
+    directorioDocumentos: entorno.DIRECTORIO_DOCUMENTOS ?? 'almacen-documentos',
     trabajador: {
       intervaloSondeoMs: Number(entorno.INTERVALO_SONDEO_MS ?? 1000),
       tamanoLote: Number(entorno.TAMANO_LOTE_BANDEJA ?? 20),

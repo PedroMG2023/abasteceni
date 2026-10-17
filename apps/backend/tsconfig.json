@@ -5,7 +5,7 @@
     "lib": ["ES2023"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "types": ["node", "jest"],
+    "types": ["node", "jest", "multer"],
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "isolatedModules": false,

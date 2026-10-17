@@ -1,6 +1,5 @@
 import type { INestApplication } from '@nestjs/common';
 import { Test, type TestingModule } from '@nestjs/testing';
-import request from 'supertest';
 import { MENSAJE_CUENTA_REGISTRADA } from '../../src/aplicacion/despachador/manejadores/notificar-cuenta-registrada';
 import { SIMBOLOS } from '../../src/aplicacion/simbolos';
 import { ADAPTADORES_TRABAJADOR, TrabajadorModule } from '../../src/composicion/trabajador.module';
@@ -12,6 +11,7 @@ import { crearApiPrueba } from '../soporte/aplicacion';
 import { iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-datos';
 import { configuracionPrueba } from '../soporte/configuracion';
 import { consultar } from '../soporte/consultas';
+import { registrarPorHttp } from '../soporte/registro-http';
 import { solicitudValida } from '../unitarias/datos';
 
 const REAPERTURA_MS = 300;
@@ -41,9 +41,7 @@ describe('IT-01 · criterio de salida de la línea base arquitectónica (ADR-01,
 
   const registrar = (telefono: string) => {
     siguienteRuc += 1;
-    return request(api.getHttpServer())
-      .post('/api/v1/cuentas')
-      .send(solicitudValida({ ruc: `J03100000000${siguienteRuc}`, correo: `cuenta${siguienteRuc}@empresa.ni`, telefonoMovil: telefono }));
+    return registrarPorHttp(api, solicitudValida({ ruc: `J03100000000${siguienteRuc}`, correo: `cuenta${siguienteRuc}@empresa.ni`, telefonoMovil: telefono }));
   };
 
   const bandeja = () =>
@@ -93,9 +91,7 @@ describe('IT-01 · criterio de salida de la línea base arquitectónica (ADR-01,
   });
 
   it('1b · si la transacción falla no queda ni la cuenta ni el evento', async () => {
-    const correoRepetido = await request(api.getHttpServer())
-      .post('/api/v1/cuentas')
-      .send(solicitudValida({ ruc: 'J0310000000099', correo: 'cuenta11@empresa.ni' }));
+    const correoRepetido = await registrarPorHttp(api, solicitudValida({ ruc: 'J0310000000099', correo: 'cuenta11@empresa.ni' }));
 
     expect(correoRepetido.status).toBe(409);
     expect(await consultar(bd.urlPropietario, "SELECT 1 FROM m1_usuarios.cuentas_comerciales WHERE ruc = 'J0310000000099'")).toEqual([]);

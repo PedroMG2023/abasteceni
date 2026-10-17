@@ -52,25 +52,20 @@ paths:
         Registra una cuenta comercial en estado «Pendiente de validación»
         (SYS-FN-01, CT-REG-01). Además de los campos de SYS-FN-01 captura el
         tipo de cuenta (DIS-17), el teléfono móvil (DIS-19), el correo y la
-        contraseña (DIS-16). El evento CuentaRegistrada se persiste en la misma
-        transacción (ADR-01).
+        contraseña (DIS-16), el documento de registro legal (SYS-FN-02,
+        CT-REG-02; DIS-29) y la aceptación del consentimiento (SYS-FN-36,
+        DIS-28). La cuenta, los asientos de bitácora y el evento CuentaRegistrada
+        se persisten en la misma transacción (ADR-01, SYS-FN-35).
       security: []
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '#/components/schemas/SolicitudRegistroCuenta'
-            example:
-              tipo: Comprador
-              razonSocial: Farmacia San Benito
-              ruc: J0310000000001
-              departamento: Chinandega
-              municipio: El Viejo
-              rubro: Farmacia
-              telefonoMovil: '+50588887777'
-              correo: compras@farmaciasanbenito.com.ni
-              contrasena: una-clave-de-doce-o-mas
+            encoding:
+              registroLegal:
+                contentType: application/pdf, image/jpeg
       responses:
         '201':
           description: Cuenta registrada, pendiente de validación.
@@ -85,6 +80,8 @@ paths:
           $ref: '#/components/responses/SolicitudInvalida'
         '409':
           $ref: '#/components/responses/Conflicto'
+        '413':
+          $ref: '#/components/responses/DocumentoDemasiadoGrande'
         '429':
           $ref: '#/components/responses/DemasiadasPeticiones'
     get:
@@ -116,6 +113,78 @@ paths:
           $ref: '#/components/responses/NoAutenticado'
         '403':
           $ref: '#/components/responses/Prohibido'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /cuentas/{id}:
+    patch:
+      tags: [Cuentas]
+      operationId: validarCuenta
+      summary: Aprobar o rechazar una solicitud de cuenta comercial
+      description: |
+        Decisión del Administrador de la plataforma (SYS-FN-03, CT-ADM-03). La
+        transición pertenece a la máquina de estados de M1 (D3 §2.9.2) y el
+        resultado, con la justificación, consta en la bitácora inmutable
+        (SYS-FN-35, ADR-05). El rechazo exige justificación (DIS-23).
+      parameters:
+        - $ref: '#/components/parameters/IdCuenta'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidacionCuenta'
+            example:
+              decision: rechazar
+              justificacion: El documento cargado no corresponde al RUC indicado.
+      responses:
+        '200':
+          description: Cuenta validada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumenCuenta'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
+        '409':
+          $ref: '#/components/responses/Conflicto'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /cuentas/{id}/registro-legal:
+    get:
+      tags: [Cuentas]
+      operationId: obtenerRegistroLegal
+      summary: Descargar el documento de registro legal de una cuenta
+      description: |
+        Documento cargado en el registro (SYS-FN-02) para la revisión del
+        Administrador (D1 PM-01, actividad 4). Dato personal (V-03).
+      parameters:
+        - $ref: '#/components/parameters/IdCuenta'
+      responses:
+        '200':
+          description: Documento de registro legal.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '401':
+          $ref: '#/components/responses/NoAutenticado'
+        '403':
+          $ref: '#/components/responses/Prohibido'
+        '404':
+          $ref: '#/components/responses/NoEncontrado'
         '429':
           $ref: '#/components/responses/DemasiadasPeticiones'
   /sesiones:
@@ -217,6 +286,14 @@ components:
       in: cookie
       name: abasteceni_renovacion
       description: Credencial de renovación en cookie HttpOnly, SameSite=Strict, ruta /api/v1/sesiones (ADR-04).
+  parameters:
+    IdCuenta:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   headers:
     CookieRenovacion:
       description: Cookie HttpOnly con la credencial de renovación, válida 7 días (DIS-06).
@@ -230,7 +307,19 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
     Conflicto:
-      description: Ya existe una cuenta con ese RUC o con ese correo.
+      description: Ya existe una cuenta con ese RUC o con ese correo, o la cuenta ya fue validada.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NoEncontrado:
+      description: El recurso indicado no existe.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    DocumentoDemasiadoGrande:
+      description: El documento de registro legal supera 5 MB (SYS-FN-02, CT-REG-02).
       content:
         application/json:
           schema:
@@ -272,7 +361,7 @@ components:
     SolicitudRegistroCuenta:
       type: object
       additionalProperties: false
-      required: [tipo, razonSocial, ruc, departamento, municipio, rubro, telefonoMovil, correo, contrasena]
+      required: [tipo, razonSocial, ruc, departamento, municipio, rubro, telefonoMovil, correo, contrasena, aceptaConsentimiento, registroLegal]
       properties:
         tipo:
           $ref: '#/components/schemas/TipoCuenta'
@@ -304,6 +393,25 @@ components:
           description: Entre 12 y 128 caracteres (DIS-22).
           minLength: 12
           maxLength: 128
+        aceptaConsentimiento:
+          type: boolean
+          description: Aceptación de la declaración de consentimiento de DIS-28 (SYS-FN-36, Ley No. 787). Debe ser true.
+        registroLegal:
+          type: string
+          format: binary
+          description: Cédula RUC o patente municipal en PDF o JPG, máximo 5 MB; el tipo se comprueba por contenido (SYS-FN-02).
+    ValidacionCuenta:
+      type: object
+      additionalProperties: false
+      required: [decision]
+      properties:
+        decision:
+          type: string
+          enum: [aprobar, rechazar]
+        justificacion:
+          type: string
+          maxLength: 500
+          description: Obligatoria al rechazar (DIS-23).
     CuentaRegistrada:
       type: object
       additionalProperties: false
@@ -317,7 +425,7 @@ components:
     ResumenCuenta:
       type: object
       additionalProperties: false
-      required: [id, tipo, razonSocial, ruc, departamento, municipio, rubro, estado, registradaEn]
+      required: [id, tipo, razonSocial, ruc, departamento, municipio, rubro, estado, registradaEn, consentimientoAceptadoEn, registroLegalTipo]
       properties:
         id:
           type: string
@@ -339,6 +447,12 @@ components:
         registradaEn:
           type: string
           format: date-time
+        consentimientoAceptadoEn:
+          type: string
+          format: date-time
+        registroLegalTipo:
+          type: string
+          enum: [application/pdf, image/jpeg]
     SolicitudInicioSesion:
       type: object
       additionalProperties: false

@@ -44,10 +44,12 @@ export interface DatosCredencialCuenta {
   readonly rol: Exclude<Rol, 'Administrador'>;
 }
 
-// Interfaz que M1 consume de M2 al registrar una cuenta (V-02: M1 → M2 identidad).
+// Interfaz que M1 consume de M2 (V-02: M1 → M2 identidad): crear la credencial
+// al registrar la cuenta y reflejar en ella la decisión del Administrador.
 export interface RegistroCredenciales {
   validarDatosCredencial(datos: { correo?: string; contrasena?: string }): ReturnType<typeof validarDatosCredencial>;
-  registrarCredencial(datos: DatosCredencialCuenta, tx: Transaccion): Promise<void>;
+  registrarCredencial(datos: DatosCredencialCuenta, tx: Transaccion): Promise<string>;
+  cambiarHabilitacion(cuentaId: string, habilitacion: Habilitacion, tx: Transaccion): Promise<void>;
 }
 
 // Servicio del módulo M2 (R-04: un servicio por módulo). Autenticación sin
@@ -64,8 +66,9 @@ export class ServicioSeguridad implements RegistroCredenciales {
     return validarDatosCredencial(datos);
   }
 
-  async registrarCredencial(datos: DatosCredencialCuenta, tx: Transaccion): Promise<void> {
-    await this.crearCredencial({ ...datos, habilitacion: 'pendiente' }, tx);
+  // Devuelve el identificador de la credencial, que es el usuario de la bitácora.
+  registrarCredencial(datos: DatosCredencialCuenta, tx: Transaccion): Promise<string> {
+    return this.crearCredencial({ ...datos, habilitacion: 'pendiente' }, tx);
   }
 
   // Siembra del Administrador de la plataforma (DIS-24). Idempotente.
@@ -123,14 +126,15 @@ export class ServicioSeguridad implements RegistroCredenciales {
   private async crearCredencial(
     datos: { cuentaId: string | null; correo: string; contrasena: string; rol: Rol; habilitacion: Habilitacion },
     tx: Transaccion,
-  ): Promise<void> {
+  ): Promise<string> {
     const detalles = validarDatosCredencial(datos);
     if (detalles.length > 0) throw new ErrorValidacion(detalles);
     const correo = normalizarCorreo(datos.correo);
     if (await this.d.repositorio.existeCorreo(correo, tx)) throw new ErrorConflicto('CORREO_REGISTRADO');
+    const id = this.d.identificadores.generar();
     await this.d.repositorio.guardarCredencial(
       {
-        id: this.d.identificadores.generar(),
+        id,
         cuentaId: datos.cuentaId,
         correo,
         hashContrasena: await this.d.derivacion.derivar(datos.contrasena),
@@ -140,6 +144,7 @@ export class ServicioSeguridad implements RegistroCredenciales {
       },
       tx,
     );
+    return id;
   }
 
   private async emitir(credencial: Credencial, tx?: Transaccion): Promise<SesionEmitida> {

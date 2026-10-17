@@ -12,7 +12,17 @@ import { SaludController } from '../aplicacion/transversal/salud.controller';
 import { crearTuberiaValidacion } from '../aplicacion/transversal/validacion';
 import { ServicioUsuarios } from '../dominio/m1-usuarios';
 import { ServicioSeguridad } from '../dominio/m2-seguridad';
-import type { PuertoIdentificadores, PuertoReloj, PuertoUnidadTrabajo } from '../dominio/puertos';
+import type {
+  PuertoAlmacenDocumentos,
+  PuertoBitacora,
+  PuertoIdentificadores,
+  PuertoPublicacionEventos,
+  PuertoReloj,
+  PuertoUnidadTrabajo,
+} from '../dominio/puertos';
+import type { PuertoRepositorioUsuarios } from '../dominio/m1-usuarios';
+import { AlmacenDocumentosArchivos } from '../infraestructura/almacen-documentos/almacen-archivos';
+import { BitacoraPg } from '../infraestructura/auditoria/bitacora-pg';
 import { BandejaSalidaPg } from '../infraestructura/bandeja-salida/bandeja-salida-pg';
 import { ContadorPeticionesPg } from '../infraestructura/limite-peticiones/contador-peticiones-pg';
 import type { BaseDatos } from '../infraestructura/persistencia/base-datos';
@@ -27,6 +37,8 @@ import { BASE_DATOS, CONFIGURACION, IDENTIFICADORES, UNIDAD_TRABAJO, proveedores
 // Símbolos de los adaptadores que solo enlaza la composición (AS-17).
 export const ADAPTADORES_API = {
   bandejaSalida: Symbol('PuertoPublicacionEventos'),
+  bitacora: Symbol('PuertoBitacora'),
+  almacenDocumentos: Symbol('PuertoAlmacenDocumentos'),
   repositorioUsuarios: Symbol('PuertoRepositorioUsuarios'),
   repositorioSeguridad: Symbol('PuertoRepositorioSeguridad'),
   derivacionClave: Symbol('PuertoDerivacionClave'),
@@ -56,6 +68,12 @@ export class ApiModule {
           inject: [CONFIGURACION],
         },
         { provide: A.bandejaSalida, useFactory: (db: BaseDatos) => new BandejaSalidaPg(db), inject: [BASE_DATOS] },
+        { provide: A.bitacora, useFactory: (db: BaseDatos) => new BitacoraPg(db), inject: [BASE_DATOS] },
+        {
+          provide: A.almacenDocumentos,
+          useFactory: (c: Configuracion) => new AlmacenDocumentosArchivos(c.directorioDocumentos),
+          inject: [CONFIGURACION],
+        },
         { provide: A.repositorioUsuarios, useFactory: (db: BaseDatos) => new RepositorioUsuariosPg(db), inject: [BASE_DATOS] },
         { provide: A.repositorioSeguridad, useFactory: (db: BaseDatos) => new RepositorioSeguridadPg(db), inject: [BASE_DATOS] },
         { provide: SIMBOLOS.contadorPeticiones, useFactory: (db: BaseDatos) => new ContadorPeticionesPg(db), inject: [BASE_DATOS] },
@@ -71,14 +89,25 @@ export class ApiModule {
         {
           provide: SIMBOLOS.servicioUsuarios,
           useFactory: (
-            repositorio: RepositorioUsuariosPg,
+            repositorio: PuertoRepositorioUsuarios,
             unidadTrabajo: PuertoUnidadTrabajo,
-            eventos: BandejaSalidaPg,
+            eventos: PuertoPublicacionEventos,
+            bitacora: PuertoBitacora,
+            almacen: PuertoAlmacenDocumentos,
             credenciales: ServicioSeguridad,
             reloj: PuertoReloj,
             identificadores: PuertoIdentificadores,
-          ) => new ServicioUsuarios({ repositorio, unidadTrabajo, eventos, credenciales, reloj, identificadores }),
-          inject: [A.repositorioUsuarios, UNIDAD_TRABAJO, A.bandejaSalida, SIMBOLOS.servicioSeguridad, SIMBOLOS.reloj, IDENTIFICADORES],
+          ) => new ServicioUsuarios({ repositorio, unidadTrabajo, eventos, bitacora, almacen, credenciales, reloj, identificadores }),
+          inject: [
+            A.repositorioUsuarios,
+            UNIDAD_TRABAJO,
+            A.bandejaSalida,
+            A.bitacora,
+            A.almacenDocumentos,
+            SIMBOLOS.servicioSeguridad,
+            SIMBOLOS.reloj,
+            IDENTIFICADORES,
+          ],
         },
         // Envolturas transversales de la capa 2 (AS-03), en este orden: límite
         // de peticiones, autenticación y rol.
