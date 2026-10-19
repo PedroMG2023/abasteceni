@@ -100,6 +100,16 @@ export class RepositorioSeguridadMemoria implements PuertoRepositorioSeguridad {
     });
   }
 
+  async listarSesionesVigentes(credencialId: string, ahora: Date): Promise<SesionRenovacion[]> {
+    return [...this.sesiones.values()]
+      .filter((s) => s.credencialId === credencialId && !s.revocadaEn && s.expiraEn.getTime() > ahora.getTime())
+      .sort((a, b) => a.iniciadaEn.getTime() - b.iniciadaEn.getTime());
+  }
+
+  async desplazarSesion(id: string, revocadaEn: Date, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => this.sesiones.set(id, { ...this.sesiones.get(id)!, revocadaEn, desplazada: true }));
+  }
+
   async revocarSesionesDe(credencialId: string, revocadaEn: Date, tx: Transaccion): Promise<void> {
     alConfirmar(tx, () => {
       for (const [id, s] of this.sesiones) if (s.credencialId === credencialId && !s.revocadaEn) this.sesiones.set(id, { ...s, revocadaEn });

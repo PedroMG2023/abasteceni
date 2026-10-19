@@ -1,6 +1,7 @@
 import {
   BLOQUEO_SEGUNDOS,
   CUENTA_BLOQUEADA,
+  MAXIMO_DISPOSITIVOS,
   RECUPERACION_SOLICITADA,
   ServicioSeguridad,
   VIDA_ACCESO_SEGUNDOS,
@@ -328,5 +329,83 @@ describe('CT-SEG-05 · recuperación de la cuenta con un enlace de 15 minutos al
     await unidadTrabajo.ejecutar((tx) => seguridad.cambiarHabilitacion('c-1', 'rechazada', tx));
 
     await expect(seguridad.restablecerContrasena({ secreto: ultimoSecreto(bandeja), contrasena: NUEVA }, CONTEXTO)).rejects.toEqual(VENCIDO);
+  });
+});
+
+describe('CT-SEG-08 · máximo dos dispositivos por cuenta comercial; el tercero invalida la sesión más antigua (SYS-FN-08, DIS-37)', () => {
+  const CUENTA = { correo: 'proveedor@empresa.ni', contrasena: 'una-clave-de-doce' };
+  const DESPLAZADA = new ErrorAutenticacion('SESION_DESPLAZADA');
+
+  async function cuentaHabilitada() {
+    const escenario = crearEscenario();
+    await escenario.registrarCuenta('c-1', CUENTA.correo);
+    await escenario.unidadTrabajo.ejecutar((tx) => escenario.seguridad.cambiarHabilitacion('c-1', 'habilitada', tx));
+    // Cada inicio ocurre un minuto después del anterior.
+    const iniciar = async () => {
+      escenario.reloj.avanzar(60_000);
+      return escenario.seguridad.iniciarSesion(CUENTA);
+    };
+    return { ...escenario, iniciar };
+  }
+
+  it('al iniciar sesión en un tercer dispositivo, la primera sesión queda invalidada y las otras dos siguen vigentes', async () => {
+    const { seguridad, iniciar } = await cuentaHabilitada();
+    expect(MAXIMO_DISPOSITIVOS).toBe(2);
+    const primera = await iniciar();
+    const segunda = await iniciar();
+
+    const tercera = await iniciar();
+
+    await expect(seguridad.renovar(primera.credencialRenovacion)).rejects.toEqual(DESPLAZADA);
+    expect((await seguridad.renovar(segunda.credencialRenovacion)).rol).toBe('Proveedor');
+    expect((await seguridad.renovar(tercera.credencialRenovacion)).rol).toBe('Proveedor');
+  });
+
+  it('la rotación de la renovación conserva la fecha de inicio: la más antigua sigue siéndolo aunque se haya renovado', async () => {
+    const { seguridad, iniciar, repositorio } = await cuentaHabilitada();
+    const primera = await iniciar();
+    const segunda = await iniciar();
+    const primeraRenovada = await seguridad.renovar(primera.credencialRenovacion);
+
+    await iniciar();
+
+    await expect(seguridad.renovar(primeraRenovada.credencialRenovacion)).rejects.toEqual(DESPLAZADA);
+    expect((await seguridad.renovar(segunda.credencialRenovacion)).rol).toBe('Proveedor');
+    const vigentes = [...repositorio.sesiones.values()].filter((s) => !s.revocadaEn);
+    expect(vigentes).toHaveLength(2);
+  });
+
+  it('cerrar una sesión libera su lugar: un nuevo inicio no desplaza a la otra', async () => {
+    const { seguridad, iniciar } = await cuentaHabilitada();
+    const primera = await iniciar();
+    const segunda = await iniciar();
+    await seguridad.cerrarSesion(seguridad.verificarAcceso(segunda.credencialAcceso).sesionId);
+
+    await iniciar();
+
+    expect((await seguridad.renovar(primera.credencialRenovacion)).rol).toBe('Proveedor');
+  });
+
+  it('una sesión vencida no cuenta como dispositivo activo', async () => {
+    const { seguridad, iniciar, reloj } = await cuentaHabilitada();
+    await iniciar();
+    reloj.avanzar(VIDA_RENOVACION_SEGUNDOS * 1000);
+    const segunda = await iniciar();
+    const tercera = await iniciar();
+
+    expect((await seguridad.renovar(segunda.credencialRenovacion)).rol).toBe('Proveedor');
+    expect((await seguridad.renovar(tercera.credencialRenovacion)).rol).toBe('Proveedor');
+  });
+
+  it('el Administrador de la plataforma no es una cuenta comercial y no tiene límite de dispositivos', async () => {
+    const { seguridad, reloj } = crearEscenario();
+    await seguridad.registrarAdministrador(ADMIN);
+    const sesiones = [];
+    for (let i = 0; i < 3; i++) {
+      reloj.avanzar(60_000);
+      sesiones.push(await seguridad.iniciarSesion(ADMIN));
+    }
+
+    for (const sesion of sesiones) expect((await seguridad.renovar(sesion.credencialRenovacion)).rol).toBe('Administrador');
   });
 });

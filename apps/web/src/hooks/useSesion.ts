@@ -5,7 +5,8 @@ import { ErrorApi, type Identidad, type SolicitudInicioSesion } from '../puertos
 const MENSAJE_SIN_CONEXION = 'No se pudo contactar con el servicio. Intente de nuevo.';
 
 // Caso de uso «iniciar y cerrar sesión» en la capa 1 (SYS-FN-04; ADR-04). Al
-// montarse intenta recuperar la sesión con la credencial de renovación.
+// montarse intenta recuperar la sesión con la credencial de renovación; si otro
+// dispositivo la desplazó, muestra el aviso de la API (SYS-FN-08, DIS-37).
 export function useSesion() {
   const cliente = useClienteApi();
   const [identidad, setIdentidad] = useState<Identidad | null>(null);
@@ -17,7 +18,9 @@ export function useSesion() {
     cliente
       .renovarSesion()
       .then((recuperada) => vigente && setIdentidad(recuperada))
-      .catch(() => undefined);
+      .catch((error: unknown) => {
+        if (vigente && error instanceof ErrorApi && error.cuerpo.codigo === 'SESION_DESPLAZADA') setAviso(error.cuerpo.mensaje);
+      });
     return () => {
       vigente = false;
     };

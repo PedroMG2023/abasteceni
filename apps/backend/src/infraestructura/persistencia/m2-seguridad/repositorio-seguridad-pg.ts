@@ -1,4 +1,4 @@
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, asc, eq, gt, isNull, sql } from 'drizzle-orm';
 import type {
   Credencial,
   Habilitacion,
@@ -85,6 +85,20 @@ export class RepositorioSeguridadPg implements PuertoRepositorioSeguridad {
 
   async revocarSesion(id: string, revocadaEn: Date, tx?: Transaccion): Promise<void> {
     await conexion(this.db, tx).update(sesiones).set({ revocadaEn }).where(eq(sesiones.id, id));
+  }
+
+  async listarSesionesVigentes(credencialId: string, ahora: Date, tx: Transaccion): Promise<SesionRenovacion[]> {
+    const db = conexion(this.db, tx);
+    await db.select({ id: credenciales.id }).from(credenciales).where(eq(credenciales.id, credencialId)).for('update');
+    return db
+      .select()
+      .from(sesiones)
+      .where(and(eq(sesiones.credencialId, credencialId), isNull(sesiones.revocadaEn), gt(sesiones.expiraEn, ahora)))
+      .orderBy(asc(sesiones.iniciadaEn));
+  }
+
+  async desplazarSesion(id: string, revocadaEn: Date, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx).update(sesiones).set({ revocadaEn, desplazada: true }).where(eq(sesiones.id, id));
   }
 
   async revocarSesionesDe(credencialId: string, revocadaEn: Date, tx: Transaccion): Promise<void> {

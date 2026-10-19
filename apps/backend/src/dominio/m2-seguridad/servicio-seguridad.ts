@@ -17,6 +17,7 @@ import { credencialBloqueada, recuperacionVigente, sesionVigente, type Credencia
 import { CUENTA_BLOQUEADA, RECUPERACION_SOLICITADA, type CuentaBloqueada, type RecuperacionSolicitada } from './eventos';
 import {
   BLOQUEO_SEGUNDOS,
+  MAXIMO_DISPOSITIVOS,
   MAXIMO_INTENTOS_FALLIDOS,
   normalizarCorreo,
   validarContrasena,
@@ -119,7 +120,21 @@ export class ServicioSeguridad implements RegistroCredenciales {
     }
     if (credencial.intentosFallidos > 0) await this.d.repositorio.reiniciarIntentos(credencial.id);
     this.exigirHabilitada(credencial);
-    return this.emitir(credencial);
+    return this.d.unidadTrabajo.ejecutar(async (tx) => {
+      await this.limitarDispositivos(credencial, tx);
+      return this.emitir(credencial, tx);
+    });
+  }
+
+  // SYS-FN-08 (DIS-37): una cuenta comercial mantiene como máximo dos sesiones;
+  // la nueva desplaza a la de inicio más antiguo. El Administrador de la
+  // plataforma no es una cuenta comercial y queda fuera del límite.
+  private async limitarDispositivos(credencial: Credencial, tx: Transaccion): Promise<void> {
+    if (credencial.rol === 'Administrador') return;
+    const ahora = this.d.reloj.ahora();
+    const vigentes = await this.d.repositorio.listarSesionesVigentes(credencial.id, ahora, tx);
+    const sobrantes = vigentes.length - (MAXIMO_DISPOSITIVOS - 1);
+    for (const sesion of vigentes.slice(0, Math.max(sobrantes, 0))) await this.d.repositorio.desplazarSesion(sesion.id, ahora, tx);
   }
 
   // Cuenta el fallo; al quinto consecutivo bloquea durante 15 minutos y publica
@@ -147,12 +162,14 @@ export class ServicioSeguridad implements RegistroCredenciales {
     const ahora = this.d.reloj.ahora();
     return this.d.unidadTrabajo.ejecutar(async (tx) => {
       const sesion = await this.d.repositorio.buscarSesionPorHuella(this.d.secretos.huella(secreto), tx);
+      if (sesion?.desplazada) throw new ErrorAutenticacion('SESION_DESPLAZADA');
       if (!sesion || !sesionVigente(sesion, ahora)) throw new ErrorAutenticacion('RENOVACION_INVALIDA');
       const credencial = await this.d.repositorio.buscarCredencialPorId(sesion.credencialId, tx);
       if (!credencial) throw new ErrorAutenticacion('RENOVACION_INVALIDA');
       this.exigirHabilitada(credencial);
       await this.d.repositorio.revocarSesion(sesion.id, ahora, tx);
-      return this.emitir(credencial, tx);
+      // El dispositivo conserva su fecha de inicio al rotar la credencial (DIS-37).
+      return this.emitir(credencial, tx, sesion.iniciadaEn);
     });
   }
 
@@ -264,7 +281,7 @@ export class ServicioSeguridad implements RegistroCredenciales {
     return id;
   }
 
-  private async emitir(credencial: Credencial, tx?: Transaccion): Promise<SesionEmitida> {
+  private async emitir(credencial: Credencial, tx: Transaccion, iniciadaEn?: Date): Promise<SesionEmitida> {
     const ahora = this.d.reloj.ahora();
     const secreto = this.d.secretos.generar();
     const sesionId = this.d.identificadores.generar();
@@ -276,6 +293,8 @@ export class ServicioSeguridad implements RegistroCredenciales {
         creadaEn: ahora,
         expiraEn: new Date(ahora.getTime() + VIDA_RENOVACION_SEGUNDOS * 1000),
         revocadaEn: null,
+        iniciadaEn: iniciadaEn ?? ahora,
+        desplazada: false,
       },
       tx,
     );

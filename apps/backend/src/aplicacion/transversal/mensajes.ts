@@ -81,6 +81,8 @@ export const MENSAJES_AUTENTICACION: Record<CodigoAutenticacion, string> = {
   CREDENCIALES_INVALIDAS: 'Correo o contraseña incorrectos.',
   RENOVACION_INVALIDA: 'Su sesión expiró. Inicie sesión de nuevo.',
   ACCESO_INVALIDO: 'Inicie sesión para continuar.',
+  // DIS-37, aprobado por el equipo (SYS-FN-08).
+  SESION_DESPLAZADA: 'Su sesión se cerró porque la cuenta inició sesión en otro dispositivo.',
 };
 
 // DIS-25 y DIS-34, aprobados por el equipo.

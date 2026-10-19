@@ -22,6 +22,9 @@ export function credencialBloqueada(credencial: Credencial, ahora: Date): boolea
 }
 
 // Sesión de renovación: solo se guarda la huella de la credencial (ADR-04).
+// SYS-FN-08 (DIS-37): cada inicio de sesión es un dispositivo; su fecha de
+// inicio se conserva al rotar la credencial, y «desplazada» indica que la revocó
+// el límite de dispositivos.
 export interface SesionRenovacion {
   readonly id: string;
   readonly credencialId: string;
@@ -29,6 +32,8 @@ export interface SesionRenovacion {
   readonly creadaEn: Date;
   readonly expiraEn: Date;
   readonly revocadaEn: Date | null;
+  readonly iniciadaEn: Date;
+  readonly desplazada: boolean;
 }
 
 export function sesionVigente(sesion: SesionRenovacion, ahora: Date): boolean {

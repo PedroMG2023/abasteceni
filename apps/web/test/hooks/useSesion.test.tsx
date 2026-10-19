@@ -38,4 +38,19 @@ describe('Hook de sesión con el cliente de prueba (SYS-FN-04, ADR-04)', () => {
     await act(() => result.current.iniciar({ correo: 'a@b.ni', contrasena: 'x' }));
     expect(result.current.aviso).toBe('No se pudo contactar con el servicio. Intente de nuevo.');
   });
+
+  it('CT-SEG-08 · si un tercer dispositivo desplazó la sesión, lo avisa al recuperar; otros fallos de renovación no muestran aviso', async () => {
+    const mensaje = 'Su sesión se cerró porque la cuenta inició sesión en otro dispositivo.';
+    const cliente = new ClienteApiPrueba();
+    cliente.renovacion = new ErrorApi(401, { codigo: 'SESION_DESPLAZADA', mensaje });
+    const { result } = renderHook(() => useSesion(), { wrapper: envolverCon(cliente) });
+    await waitFor(() => expect(result.current.aviso).toBe(mensaje));
+    expect(result.current.identidad).toBeNull();
+
+    const otro = new ClienteApiPrueba();
+    otro.renovacion = new ErrorApi(401, { codigo: 'RENOVACION_INVALIDA', mensaje: 'Su sesión expiró. Inicie sesión de nuevo.' });
+    const sinAviso = renderHook(() => useSesion(), { wrapper: envolverCon(otro) });
+    await waitFor(() => expect(otro.llamadas).toHaveLength(1));
+    expect(sinAviso.result.current.aviso).toBeNull();
+  });
 });

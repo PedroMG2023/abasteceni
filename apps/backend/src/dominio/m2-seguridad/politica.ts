@@ -8,6 +8,9 @@ export const VIDA_RENOVACION_SEGUNDOS = 7 * 24 * 60 * 60;
 export const MAXIMO_INTENTOS_FALLIDOS = 5;
 export const BLOQUEO_SEGUNDOS = 15 * 60;
 
+// Sesiones activas por cuenta comercial (SYS-FN-08; DIS-37).
+export const MAXIMO_DISPOSITIVOS = 2;
+
 // Validez del enlace de recuperación (SYS-FN-05: «máxima de 15 minutos»).
 export const VIDA_RECUPERACION_SEGUNDOS = 15 * 60;
 

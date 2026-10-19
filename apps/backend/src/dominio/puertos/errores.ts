@@ -25,7 +25,7 @@ export class ErrorConflicto extends Error {
   }
 }
 
-export type CodigoAutenticacion = 'CREDENCIALES_INVALIDAS' | 'RENOVACION_INVALIDA' | 'ACCESO_INVALIDO';
+export type CodigoAutenticacion = 'CREDENCIALES_INVALIDAS' | 'RENOVACION_INVALIDA' | 'ACCESO_INVALIDO' | 'SESION_DESPLAZADA';
 
 export class ErrorAutenticacion extends Error {
   constructor(readonly codigo: CodigoAutenticacion) {

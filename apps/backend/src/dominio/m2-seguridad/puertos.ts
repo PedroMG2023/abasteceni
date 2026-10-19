@@ -16,6 +16,10 @@ export interface PuertoRepositorioSeguridad {
   guardarSesion(sesion: SesionRenovacion, tx?: Transaccion): Promise<void>;
   buscarSesionPorHuella(huella: string, tx?: Transaccion): Promise<SesionRenovacion | null>;
   revocarSesion(id: string, revocadaEn: Date, tx?: Transaccion): Promise<void>;
+  // SYS-FN-08 (DIS-37): bloquea la credencial para serializar los inicios de
+  // sesión simultáneos y devuelve sus sesiones vigentes, de la más antigua a la más reciente.
+  listarSesionesVigentes(credencialId: string, ahora: Date, tx: Transaccion): Promise<SesionRenovacion[]>;
+  desplazarSesion(id: string, revocadaEn: Date, tx: Transaccion): Promise<void>;
   // SYS-FN-05 (DIS-36): recuperación de la contraseña.
   revocarSesionesDe(credencialId: string, revocadaEn: Date, tx: Transaccion): Promise<void>;
   anularRecuperaciones(credencialId: string, anuladaEn: Date, tx: Transaccion): Promise<void>;

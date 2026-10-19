@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, index, integer, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, check, index, integer, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Esquema de M2 Seguridad y sesiones (PA-02). Sin claves foráneas hacia otros
 // esquemas: cuenta_id referencia a M1 solo por valor.
@@ -26,17 +26,27 @@ export const credenciales = esquema.table(
   ],
 );
 
-// Sesiones de renovación: solo la huella SHA-256 del secreto (ADR-04).
-export const sesiones = esquema.table('sesiones', {
-  id: uuid('id').primaryKey(),
-  credencialId: uuid('credencial_id')
-    .notNull()
-    .references(() => credenciales.id),
-  huella: text('huella').notNull().unique('sesiones_huella_unica'),
-  creadaEn: timestamp('creada_en', { withTimezone: true }).notNull(),
-  expiraEn: timestamp('expira_en', { withTimezone: true }).notNull(),
-  revocadaEn: timestamp('revocada_en', { withTimezone: true }),
-});
+// Sesiones de renovación: solo la huella SHA-256 del secreto (ADR-04). SYS-FN-08
+// (DIS-37): fecha de inicio del dispositivo y marca de sesión desplazada.
+export const sesiones = esquema.table(
+  'sesiones',
+  {
+    id: uuid('id').primaryKey(),
+    credencialId: uuid('credencial_id')
+      .notNull()
+      .references(() => credenciales.id),
+    huella: text('huella').notNull().unique('sesiones_huella_unica'),
+    creadaEn: timestamp('creada_en', { withTimezone: true }).notNull(),
+    expiraEn: timestamp('expira_en', { withTimezone: true }).notNull(),
+    revocadaEn: timestamp('revocada_en', { withTimezone: true }),
+    iniciadaEn: timestamp('iniciada_en', { withTimezone: true }).notNull(),
+    desplazada: boolean('desplazada').notNull().default(false),
+  },
+  (t) => [
+    index('sesiones_vigentes').on(t.credencialId, t.iniciadaEn).where(sql`${t.revocadaEn} IS NULL`),
+    check('sesiones_inicio', sql`${t.iniciadaEn} <= ${t.creadaEn}`),
+  ],
+);
 
 // Solicitudes de recuperación de la contraseña (SYS-FN-05; DIS-36): solo la
 // huella SHA-256 del secreto del enlace, como en las sesiones.

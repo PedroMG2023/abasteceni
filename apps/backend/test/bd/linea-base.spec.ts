@@ -183,6 +183,25 @@ describe('Base de datos de la línea base (IT-01)', () => {
         consultar(bd.urlApp, `DELETE FROM m2_seguridad.recuperaciones WHERE id = '00000000-0000-4000-8000-0000000000e1'`),
       ).rejects.toMatchObject({ code: '42501' });
     });
+
+    it('SYS-FN-08 · la sesión exige su fecha de inicio, anterior o igual a su creación, y no nace desplazada (DIS-37)', async () => {
+      const sesion = (id: string, huella: string, iniciada: string | null) =>
+        consultar(
+          bd.urlApp,
+          `INSERT INTO m2_seguridad.sesiones (id, credencial_id, huella, creada_en, expira_en, iniciada_en)
+           VALUES ($1, '00000000-0000-4000-8000-0000000000c1', $2, now(), now() + interval '7 days', $3::timestamptz)
+           RETURNING desplazada`,
+          [id, huella, iniciada],
+        );
+      expect(await sesion('00000000-0000-4000-8000-0000000000f1', 'sesion-1', new Date(Date.now() - 60_000).toISOString())).toEqual([
+        { desplazada: false },
+      ]);
+      await expect(sesion('00000000-0000-4000-8000-0000000000f2', 'sesion-2', null)).rejects.toMatchObject({ code: '23502', column: 'iniciada_en' });
+      await expect(sesion('00000000-0000-4000-8000-0000000000f3', 'sesion-3', new Date(Date.now() + 3_600_000).toISOString())).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'sesiones_inicio',
+      });
+    });
   });
 
   it('ADR-08 · el contador de peticiones es compartido entre conexiones y atómico bajo concurrencia', async () => {
