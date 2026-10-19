@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { ADMINISTRADOR, cerrarSesion, consultar, cuentaNueva, decidir, expect, iniciarSesion, llenarRegistro, registrar, URL_BD_APP } from './soporte';
+import { ADMINISTRADOR, cerrarSesion, consultar, cuentaNueva, decidir, expect, iniciarSesion, llenarRegistro, registrar, test, URL_BD_APP } from './soporte';
 
 const bitacora = (ruc: string) =>
   consultar<{ accion: string; detalle: Record<string, unknown> }>(

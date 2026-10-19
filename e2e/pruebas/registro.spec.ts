@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { consultar, cuentaNueva, expect, llenarRegistro } from './soporte';
+import { consultar, cuentaNueva, expect, llenarRegistro, test } from './soporte';
 
 test.describe('CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01)', () => {
   test('con todos los campos válidos la cuenta queda «Pendiente de validación»', async ({ page }) => {

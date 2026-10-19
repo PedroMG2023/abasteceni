@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { test as base, expect, type Page } from '@playwright/test';
 import { Client } from 'pg';
 
 // Datos del entorno de sistema: los mismos que recibe docker-compose.sistema.yml.
@@ -103,5 +103,23 @@ export async function consultar<T extends Record<string, unknown>>(texto: string
     await cliente.end();
   }
 }
+
+
+// Cada escenario modela a un usuario distinto, pero toda la batería sale de una
+// sola IP y superaría las 120 peticiones por minuto de SYS-NFN-03. Para que los
+// escenarios sean independientes (ISO/IEC/IEEE 29119-3), el contador de ADR-08
+// se pone a cero antes de cada uno con el rol propietario. El límite no cambia:
+// el 429 lo verifica la prueba de integración de AS-03.
+export const test = base.extend<{ contadorPeticionesLimpio: void }>({
+  contadorPeticionesLimpio: [
+    // Playwright exige un patrón de objeto como primer argumento del fixture.
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await consultar('DELETE FROM plataforma.contador_peticiones');
+      await use();
+    },
+    { auto: true },
+  ],
+});
 
 export { expect };

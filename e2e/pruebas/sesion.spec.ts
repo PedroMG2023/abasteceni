@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { ADMINISTRADOR, consultar, cuentaNueva, expect, iniciarSesion, llenarRegistro, registrar } from './soporte';
+import { ADMINISTRADOR, consultar, cuentaNueva, expect, iniciarSesion, llenarRegistro, registrar, test } from './soporte';
 
 test.describe('CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04)', () => {
   test('el Administrador inicia sesión, ve su rol, conserva la sesión al recargar y la cierra', async ({ page, context }) => {

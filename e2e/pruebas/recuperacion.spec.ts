@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { consultar, cuentaActiva, expect, iniciarSesion } from './soporte';
+import { consultar, cuentaActiva, expect, iniciarSesion, test } from './soporte';
 
 // Secreto del enlace, una vez que el trabajador publicó el aviso. El entorno de
 // sistema usa el proveedor de correo simulado, así que se lee de la bandeja de
