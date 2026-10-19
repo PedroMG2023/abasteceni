@@ -7,6 +7,7 @@ import type {
   Salud,
   SolicitudInicioSesion,
   SolicitudRegistroCuenta,
+  SolicitudRestablecimiento,
   ValidacionCuenta,
 } from '../../src/puertos/cliente-api';
 
@@ -35,6 +36,8 @@ export class ClienteApiPrueba implements ClienteApi {
   cuentas: ResumenCuenta[] | Error = [CUENTA_PENDIENTE];
   validacion: ResumenCuenta | Error | null = null;
   documento: Blob | Error = new Blob(['%PDF-1.4'], { type: 'application/pdf' });
+  recuperacion: string | Error = 'Si el correo está registrado, recibirá un enlace para restablecer su contraseña. Vence en 15 minutos.';
+  restablecimiento: string | Error = 'Su contraseña fue restablecida. Inicie sesión con la nueva contraseña.';
   readonly llamadas: { operacion: string; datos?: unknown }[] = [];
 
   private responder<T>(operacion: string, respuesta: T | Error, datos?: unknown): Promise<T> {
@@ -60,6 +63,14 @@ export class ClienteApiPrueba implements ClienteApi {
 
   cerrarSesion(): Promise<void> {
     return this.responder('cerrarSesion', undefined);
+  }
+
+  solicitarRecuperacion(correo: string): Promise<string> {
+    return this.responder('solicitarRecuperacion', this.recuperacion, correo);
+  }
+
+  restablecerContrasena(datos: SolicitudRestablecimiento): Promise<string> {
+    return this.responder('restablecerContrasena', this.restablecimiento, datos);
   }
 
   listarCuentas(estado?: EstadoCuenta): Promise<ResumenCuenta[]> {

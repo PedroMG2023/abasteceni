@@ -15,6 +15,7 @@ export type TipoCuenta = Esquemas['TipoCuenta'];
 export type SolicitudInicioSesion = Esquemas['SolicitudInicioSesion'];
 export type Rol = Esquemas['Rol'];
 export type Identidad = Esquemas['Identidad'];
+export type SolicitudRestablecimiento = Esquemas['SolicitudRestablecimiento'];
 
 export interface ClienteApi {
   consultarSalud(): Promise<Salud>;
@@ -24,6 +25,9 @@ export interface ClienteApi {
   iniciarSesion(datos: SolicitudInicioSesion): Promise<Identidad>;
   renovarSesion(): Promise<Identidad>;
   cerrarSesion(): Promise<void>;
+  // Recuperación de la contraseña (SYS-FN-05). Devuelven el aviso de la API.
+  solicitarRecuperacion(correo: string): Promise<string>;
+  restablecerContrasena(datos: SolicitudRestablecimiento): Promise<string>;
   // Panel del Administrador de la plataforma (SYS-FN-03).
   listarCuentas(estado?: EstadoCuenta): Promise<ResumenCuenta[]>;
   validarCuenta(id: string, validacion: ValidacionCuenta): Promise<ResumenCuenta>;

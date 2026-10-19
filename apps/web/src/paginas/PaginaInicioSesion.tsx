@@ -53,6 +53,9 @@ export function PaginaInicioSesion() {
           {ocupado ? 'Verificando…' : 'Iniciar sesión'}
         </button>
       </form>
+      <p>
+        <a href="#/recuperacion">¿Olvidó su contraseña?</a>
+      </p>
     </main>
   );
 }

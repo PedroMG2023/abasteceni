@@ -63,6 +63,18 @@ export function crearClienteApiHttp(baseUrl = '/api/v1', fetchImpl: typeof fetch
       credencialAcceso = null;
     },
 
+    async solicitarRecuperacion(correo) {
+      const { data, error, response } = await http.POST('/sesiones/recuperacion', { body: { correo } });
+      if (!data) throw fallo(response.status, error);
+      return data.mensaje;
+    },
+
+    async restablecerContrasena(datos) {
+      const { data, error, response } = await http.POST('/sesiones/recuperacion/restablecimiento', { body: datos });
+      if (!data) throw fallo(response.status, error);
+      return data.mensaje;
+    },
+
     async listarCuentas(estado) {
       const { data, error, response } = await http.GET('/cuentas', { headers: autorizacion(), params: { query: estado ? { estado } : {} } });
       if (!data) throw fallo(response.status, error);

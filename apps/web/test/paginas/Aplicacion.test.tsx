@@ -25,4 +25,21 @@ describe('Navegación de la interfaz', () => {
     });
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Iniciar sesión');
   });
+
+  it('SYS-FN-05 · lleva a la recuperación y abre el restablecimiento con el secreto del enlace', async () => {
+    const cliente = new ClienteApiPrueba();
+    render(<Aplicacion />, { wrapper: envolverCon(cliente) });
+
+    await act(async () => {
+      window.location.hash = '#/recuperacion';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Recuperar la contraseña');
+
+    await act(async () => {
+      window.location.hash = '#/restablecer/secreto%2Fdel-enlace';
+      window.dispatchEvent(new HashChangeEvent('hashchange'));
+    });
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Restablecer la contraseña');
+  });
 });
