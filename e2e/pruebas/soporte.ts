@@ -67,6 +67,33 @@ export async function iniciarSesion(pagina: Page, datos: { correo: string; contr
   await pagina.getByRole('button', { name: 'Iniciar sesión' }).click();
 }
 
+export async function cerrarSesion(pagina: Page) {
+  await pagina.getByRole('button', { name: 'Cerrar sesión' }).click();
+  await expect(pagina.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+}
+
+// Decisión del Administrador desde su panel (SYS-FN-03).
+export async function decidir(pagina: Page, razonSocial: string, decision: 'Aprobar' | 'Rechazar', motivo?: string) {
+  await iniciarSesion(pagina, ADMINISTRADOR);
+  await expect(pagina.getByRole('heading', { name: 'Panel del Administrador de la plataforma' })).toBeVisible();
+  const solicitud = pagina.getByRole('listitem').filter({ has: pagina.getByRole('heading', { name: razonSocial }) });
+  await solicitud.getByRole('button', { name: decision }).click();
+  if (decision === 'Rechazar') {
+    await solicitud.getByLabel('Motivo del rechazo').fill(motivo ?? '');
+    await solicitud.getByRole('button', { name: 'Confirmar rechazo' }).click();
+  }
+  await expect(pagina.getByRole('status').filter({ hasText: `Cuenta ${decision === 'Aprobar' ? 'aprobada' : 'rechazada'}: ${razonSocial}.` })).toBeVisible();
+  await cerrarSesion(pagina);
+}
+
+// Cuenta comercial registrada y aprobada, lista para iniciar sesión.
+export async function cuentaActiva(pagina: Page, tipo: 'Comprador' | 'Proveedor' | 'Productor' = 'Comprador') {
+  const cuenta = cuentaNueva(tipo);
+  await registrar(pagina, cuenta);
+  await decidir(pagina, cuenta.razonSocial, 'Aprobar');
+  return cuenta;
+}
+
 export async function consultar<T extends Record<string, unknown>>(texto: string, valores: unknown[] = [], url = URL_BD): Promise<T[]> {
   const cliente = new Client({ connectionString: url });
   await cliente.connect();
