@@ -1,5 +1,5 @@
 import type { Transaccion } from '../puertos';
-import type { Credencial, Habilitacion, SesionRenovacion } from './credencial';
+import type { Credencial, Habilitacion, SesionRenovacion, SolicitudRecuperacion } from './credencial';
 import type { Rol } from './rol';
 
 // Puerto de persistencia de M2: uno por módulo (R-04, patrón graduado).
@@ -16,6 +16,14 @@ export interface PuertoRepositorioSeguridad {
   guardarSesion(sesion: SesionRenovacion, tx?: Transaccion): Promise<void>;
   buscarSesionPorHuella(huella: string, tx?: Transaccion): Promise<SesionRenovacion | null>;
   revocarSesion(id: string, revocadaEn: Date, tx?: Transaccion): Promise<void>;
+  // SYS-FN-05 (DIS-36): recuperación de la contraseña.
+  revocarSesionesDe(credencialId: string, revocadaEn: Date, tx: Transaccion): Promise<void>;
+  anularRecuperaciones(credencialId: string, anuladaEn: Date, tx: Transaccion): Promise<void>;
+  guardarRecuperacion(solicitud: SolicitudRecuperacion, tx: Transaccion): Promise<void>;
+  buscarRecuperacionPorHuella(huella: string, tx: Transaccion): Promise<SolicitudRecuperacion | null>;
+  marcarRecuperacionUsada(id: string, usadaEn: Date, tx: Transaccion): Promise<void>;
+  // Fija la contraseña nueva, reinicia los intentos y levanta el bloqueo.
+  restablecerContrasena(credencialId: string, hashContrasena: string, tx: Transaccion): Promise<void>;
 }
 
 // Derivación de clave con argon2id (V-03): la contraseña nunca se guarda.

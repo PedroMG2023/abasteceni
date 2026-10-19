@@ -9,10 +9,17 @@ export {
   CONTRASENA_MINIMA,
   MAXIMO_INTENTOS_FALLIDOS,
   VIDA_ACCESO_SEGUNDOS,
+  VIDA_RECUPERACION_SEGUNDOS,
   VIDA_RENOVACION_SEGUNDOS,
 } from './politica';
-export { CUENTA_BLOQUEADA, type CuentaBloqueada } from './eventos';
-export { credencialBloqueada, type Credencial, type Habilitacion, type SesionRenovacion } from './credencial';
+export { CUENTA_BLOQUEADA, RECUPERACION_SOLICITADA, type CuentaBloqueada, type RecuperacionSolicitada } from './eventos';
+export {
+  credencialBloqueada,
+  type Credencial,
+  type Habilitacion,
+  type SesionRenovacion,
+  type SolicitudRecuperacion,
+} from './credencial';
 export type {
   PuertoDerivacionClave,
   PuertoFirmaAcceso,

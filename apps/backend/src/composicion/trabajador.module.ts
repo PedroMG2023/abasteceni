@@ -3,7 +3,8 @@ import { DespachadorEventos } from '../aplicacion/despachador/despachador-evento
 import { NotificarCuentaRegistrada } from '../aplicacion/despachador/manejadores/notificar-cuenta-registrada';
 import { NotificarCuentaBloqueada } from '../aplicacion/despachador/manejadores/notificar-cuenta-bloqueada';
 import { NotificarCuentaAprobada, NotificarCuentaRechazada } from '../aplicacion/despachador/manejadores/notificar-decision-cuenta';
-import { CUENTA_BLOQUEADA } from '../dominio/m2-seguridad';
+import { NotificarRecuperacion } from '../aplicacion/despachador/manejadores/notificar-recuperacion';
+import { CUENTA_BLOQUEADA, RECUPERACION_SOLICITADA } from '../dominio/m2-seguridad';
 import { SIMBOLOS } from '../aplicacion/simbolos';
 import { CUENTA_APROBADA, CUENTA_RECHAZADA, CUENTA_REGISTRADA } from '../dominio/m1-usuarios';
 import type { PuertoNotificacion, PuertoReloj } from '../dominio/puertos';
@@ -19,7 +20,7 @@ import { BASE_DATOS, CONFIGURACION, proveedoresComunes } from './infraestructura
 
 export const ADAPTADORES_TRABAJADOR = {
   notificador: Symbol('PuertoNotificacion'),
-  // Canal de correo para los avisos que SYS-FN-07 dirige al correo registrado.
+  // Canal de correo para los avisos que SYS-FN-05 y SYS-FN-07 dirigen al correo registrado.
   notificadorCorreo: Symbol('PuertoNotificacionCorreo'),
   despachador: Symbol('PuertoDespachoEventos'),
   sondeo: Symbol('SondeoBandeja'),
@@ -91,13 +92,14 @@ export class TrabajadorModule {
         },
         {
           provide: A.despachador,
-          useFactory: (notificador: PuertoNotificacion, correo: PuertoNotificacion) =>
+          useFactory: (notificador: PuertoNotificacion, correo: PuertoNotificacion, c: Configuracion) =>
             new DespachadorEventos()
               .registrar(CUENTA_REGISTRADA, new NotificarCuentaRegistrada(notificador))
               .registrar(CUENTA_APROBADA, new NotificarCuentaAprobada(notificador))
               .registrar(CUENTA_RECHAZADA, new NotificarCuentaRechazada(notificador))
-              .registrar(CUENTA_BLOQUEADA, new NotificarCuentaBloqueada(correo)),
-          inject: [A.notificador, A.notificadorCorreo],
+              .registrar(CUENTA_BLOQUEADA, new NotificarCuentaBloqueada(correo))
+              .registrar(RECUPERACION_SOLICITADA, new NotificarRecuperacion(correo, c.origenWeb)),
+          inject: [A.notificador, A.notificadorCorreo, CONFIGURACION],
         },
         {
           provide: A.sondeo,

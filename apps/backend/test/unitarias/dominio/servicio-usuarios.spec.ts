@@ -20,10 +20,12 @@ function crearEscenario() {
   const identificadores = new IdentificadoresSecuenciales();
   const unidadTrabajo = new UnidadTrabajoMemoria();
   const repositorioSeguridad = new RepositorioSeguridadMemoria();
+  const bitacora = new BitacoraMemoria();
   const seguridad = new ServicioSeguridad({
     repositorio: repositorioSeguridad,
     unidadTrabajo,
     eventos: new BandejaSalidaMemoria(),
+    bitacora,
     derivacion: new DerivacionFalsa(),
     firma: new FirmaFalsa(),
     secretos: new SecretosSecuenciales(),
@@ -32,7 +34,6 @@ function crearEscenario() {
   });
   const repositorio = new RepositorioUsuariosMemoria();
   const bandeja = new BandejaSalidaMemoria();
-  const bitacora = new BitacoraMemoria();
   const almacen = new AlmacenDocumentosMemoria();
   const usuarios = new ServicioUsuarios({ repositorio, unidadTrabajo, eventos: bandeja, bitacora, almacen, credenciales: seguridad, reloj, identificadores });
   return { usuarios, repositorio, repositorioSeguridad, bandeja, bitacora, almacen, reloj };

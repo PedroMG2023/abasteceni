@@ -8,6 +8,7 @@ import type {
   PuertoSecretosRenovacion,
   ReclamosAcceso,
   SesionRenovacion,
+  SolicitudRecuperacion,
 } from '../../src/dominio/m2-seguridad';
 import type { Transaccion } from '../../src/dominio/puertos';
 import { comoTransaccionMemoria } from '../../src/infraestructura/persistencia/unidad-trabajo-memoria';
@@ -42,6 +43,7 @@ export class RepositorioUsuariosMemoria implements PuertoRepositorioUsuarios {
 export class RepositorioSeguridadMemoria implements PuertoRepositorioSeguridad {
   readonly credenciales = new Map<string, Credencial>();
   readonly sesiones = new Map<string, SesionRenovacion>();
+  readonly recuperaciones = new Map<string, SolicitudRecuperacion>();
 
   async existeCorreo(correo: string): Promise<boolean> {
     return [...this.credenciales.values()].some((c) => c.correo === correo);
@@ -95,6 +97,39 @@ export class RepositorioSeguridadMemoria implements PuertoRepositorioSeguridad {
     alConfirmar(tx, () => {
       const sesion = this.sesiones.get(id);
       if (sesion) this.sesiones.set(id, { ...sesion, revocadaEn });
+    });
+  }
+
+  async revocarSesionesDe(credencialId: string, revocadaEn: Date, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => {
+      for (const [id, s] of this.sesiones) if (s.credencialId === credencialId && !s.revocadaEn) this.sesiones.set(id, { ...s, revocadaEn });
+    });
+  }
+
+  async anularRecuperaciones(credencialId: string, anuladaEn: Date, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => {
+      for (const [id, r] of this.recuperaciones) {
+        if (r.credencialId === credencialId && !r.usadaEn && !r.anuladaEn) this.recuperaciones.set(id, { ...r, anuladaEn });
+      }
+    });
+  }
+
+  async guardarRecuperacion(solicitud: SolicitudRecuperacion, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => this.recuperaciones.set(solicitud.id, solicitud));
+  }
+
+  async buscarRecuperacionPorHuella(huella: string): Promise<SolicitudRecuperacion | null> {
+    return [...this.recuperaciones.values()].find((r) => r.huella === huella) ?? null;
+  }
+
+  async marcarRecuperacionUsada(id: string, usadaEn: Date, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => this.recuperaciones.set(id, { ...this.recuperaciones.get(id)!, usadaEn }));
+  }
+
+  async restablecerContrasena(credencialId: string, hashContrasena: string, tx: Transaccion): Promise<void> {
+    alConfirmar(tx, () => {
+      const c = this.credenciales.get(credencialId)!;
+      this.credenciales.set(credencialId, { ...c, hashContrasena, intentosFallidos: 0, bloqueadaHasta: null });
     });
   }
 }

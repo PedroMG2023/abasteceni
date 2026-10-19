@@ -34,3 +34,19 @@ export interface SesionRenovacion {
 export function sesionVigente(sesion: SesionRenovacion, ahora: Date): boolean {
   return sesion.revocadaEn === null && sesion.expiraEn.getTime() > ahora.getTime();
 }
+
+// Solicitud de recuperación de la contraseña (SYS-FN-05; DIS-36): enlace de un
+// solo uso del que solo se guarda la huella. Una solicitud nueva anula la anterior.
+export interface SolicitudRecuperacion {
+  readonly id: string;
+  readonly credencialId: string;
+  readonly huella: string;
+  readonly creadaEn: Date;
+  readonly expiraEn: Date;
+  readonly usadaEn: Date | null;
+  readonly anuladaEn: Date | null;
+}
+
+export function recuperacionVigente(solicitud: SolicitudRecuperacion, ahora: Date): boolean {
+  return solicitud.usadaEn === null && solicitud.anuladaEn === null && solicitud.expiraEn.getTime() > ahora.getTime();
+}

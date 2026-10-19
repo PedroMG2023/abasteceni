@@ -70,6 +70,8 @@ services:
     environment:
       <<: *entorno-app
       SIMULACION_WHATSAPP: disponible
+      # Origen de la interfaz para armar el enlace de recuperación (SYS-FN-05).
+      ORIGEN_WEB: http://localhost:8080
     depends_on:
       sembrar:
         condition: service_completed_successfully

@@ -43,6 +43,16 @@ export class ErrorAccesoDenegado extends Error {
   }
 }
 
+// El enlace de recuperación venció, ya se usó o fue anulado (SYS-FN-05; DIS-36).
+export type CodigoVencido = 'ENLACE_VENCIDO';
+
+export class ErrorVencido extends Error {
+  constructor(readonly codigo: CodigoVencido) {
+    super(codigo);
+    this.name = 'ErrorVencido';
+  }
+}
+
 export type CodigoNoEncontrado = 'CUENTA_NO_ENCONTRADA';
 
 export class ErrorNoEncontrado extends Error {

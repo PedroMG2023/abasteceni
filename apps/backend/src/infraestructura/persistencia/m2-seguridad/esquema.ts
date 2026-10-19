@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, integer, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { check, index, integer, pgSchema, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 // Esquema de M2 Seguridad y sesiones (PA-02). Sin claves foráneas hacia otros
 // esquemas: cuenta_id referencia a M1 solo por valor.
@@ -37,3 +37,24 @@ export const sesiones = esquema.table('sesiones', {
   expiraEn: timestamp('expira_en', { withTimezone: true }).notNull(),
   revocadaEn: timestamp('revocada_en', { withTimezone: true }),
 });
+
+// Solicitudes de recuperación de la contraseña (SYS-FN-05; DIS-36): solo la
+// huella SHA-256 del secreto del enlace, como en las sesiones.
+export const recuperaciones = esquema.table(
+  'recuperaciones',
+  {
+    id: uuid('id').primaryKey(),
+    credencialId: uuid('credencial_id')
+      .notNull()
+      .references(() => credenciales.id),
+    huella: text('huella').notNull().unique('recuperaciones_huella_unica'),
+    creadaEn: timestamp('creada_en', { withTimezone: true }).notNull(),
+    expiraEn: timestamp('expira_en', { withTimezone: true }).notNull(),
+    usadaEn: timestamp('usada_en', { withTimezone: true }),
+    anuladaEn: timestamp('anulada_en', { withTimezone: true }),
+  },
+  (t) => [
+    index('recuperaciones_credencial').on(t.credencialId),
+    check('recuperaciones_vigencia', sql`${t.expiraEn} > ${t.creadaEn}`),
+  ],
+);
