@@ -183,7 +183,7 @@ En el sistema completo (Playwright sobre Docker Compose), el evento de un regist
 
 | Campo | Valor |
 |---|---|
-| Rama | `it-02/bloqueo`, PR #6 (base `it-02/informes`) |
+| Rama | `it-02/bloqueo`, PR #6: integrada en `main` (commit de fusión `2bd1b3e`) sin revisión humana registrada en GitHub |
 | Commits | `5273441` formulario · `66957e3` SYS-FN-07 · `779cde9` prueba de sistema · `adf161c` evidencia |
 | MT-03 | **0** violaciones (182 módulos) |
 | Pruebas | Backend: 164. Base de datos: 27. Frontend: 45. Sistema: 22. Todas pasan, en local y en la CI |
@@ -200,4 +200,6 @@ En el sistema completo (Playwright sobre Docker Compose), el evento de un regist
 - El bloqueo y el evento `CuentaBloqueada` se confirman en la misma transacción (ADR-01).
 - El aviso usa un notificador de correo propio en el trabajador, con su interruptor (ADR-02), porque SYS-FN-07 dirige el aviso «al correo registrado» con independencia del canal general.
 
-**Pendientes.** SYS-FN-05, SYS-FN-06 y SYS-FN-08; revisión cruzada de la PR #6.
+**Decisiones.** El equipo aprobó DIS-26 (catálogo de mensajes), DIS-27 (subrecursos de `/sesiones`) y DIS-32 (`registroLegal` en MD-01, ya añadido a `docs/modelos/MD-01-clases.puml`). También aprobó DIS-35 (firma de `CuentaComercial.validar` en MD-01), ya reflejada en el modelo. Los dos cambios de MD-01 quedan pendientes de incorporarse a D5 v1.2.
+
+**Pendientes.** SYS-FN-05, SYS-FN-06 y SYS-FN-08; revisión cruzada registrada de las PR #1 a #6 (DM-05); D5 v1.2 con los cambios de MD-01; etiquetas `it-00`, `it-01` e `it-02` tras la revisión.

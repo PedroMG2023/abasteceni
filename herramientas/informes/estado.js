@@ -14,10 +14,11 @@ module.exports = {
   BLOQUEO_INTEGRADO: process.env.BLOQUEO_INTEGRADO === '1',
   bloqueo:
     process.env.BLOQUEO_INTEGRADO === '1'
-      ? 'integrado en `main` (PR #6)'
+      ? `integrado en \`main\` con la PR #6, fusión \`${process.env.COMMIT_BLOQUEO ?? ''}\``
       : 'construido y verificado en la rama `it-02/bloqueo`, pendiente de la revisión cruzada (PR #6)',
   // Frase de resumen para la introducción de cada informe.
   resumen: IT02_INTEGRADA
-    ? 'IT-00, IT-01 e IT-02 (tramo A) están integradas en `main` (PR #1, #2 y #3), con la batería en verde.'
+    ? 'IT-00, IT-01 e IT-02 (tramo A) están integradas en `main` (PR #1, #2 y #3), con la batería en verde.' +
+      (process.env.BLOQUEO_INTEGRADO === '1' ? ' Del tramo B, SYS-FN-07 también está integrado (PR #6).' : '')
     : 'IT-00 e IT-01 están integradas en `main` (PR #1 y #2). IT-02 (tramo A) está **construida y verificada, pendiente de la revisión cruzada** (PR #3) para integrarse (DM-04, condiciones 5 y 6), y por eso se presenta como construida en rama y no como parte del incremento integrado.',
 };

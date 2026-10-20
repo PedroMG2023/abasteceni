@@ -35,7 +35,7 @@ const contenido = [
     ['Control', 'Práctica en el repositorio', 'Evidencia', 'Estado'],
     [
       ['5.34 Privacidad y protección de datos personales', 'Consentimiento obligatorio con texto aprobado y asiento de bitácora (SYS-FN-36, DIS-28); datos de V-03 fuera de las trazas', '§2.5; `afiliacion.spec.ts`', 'Construido; cifrado en reposo y supresión pendientes'],
-      ['8.4 Acceso al código fuente', '`main` protegida: PR obligatorio, sin push directo ni forzado, también para administradores; 9 trabajos de CI obligatorios', 'Configuración de GitHub (DIS-11)', 'Activo'],
+      ['8.4 Acceso al código fuente', '`main` protegida: PR obligatorio, sin push directo ni forzado, también para administradores; los 10 trabajos de CI obligatorios', 'Configuración de GitHub (DIS-11)', 'Activo'],
       ['8.5 Autenticación segura', 'argon2id, credencial de acceso de 15 minutos, renovación rotada y revocable (ADR-04, DIS-06)', '§2.2', 'Construido, incluido el bloqueo por intentos (SYS-FN-07)'],
       ['8.8 Gestión de vulnerabilidades técnicas', 'Archivo de bloqueo, `npm audit --audit-level=high` en cada cambio, scripts de instalación de terceros denegados', '§2.8', 'Activo'],
       ['8.9 Gestión de la configuración', 'Secretos solo en variables de entorno; `.env.example` sin valores; el arranque falla si falta un secreto', '§2.9', 'Activo'],
