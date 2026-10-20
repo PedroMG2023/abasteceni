@@ -122,7 +122,7 @@ const contenido = [
     '**Revisión cruzada (DM-05):** ' + (REVISION_REGISTRADA
       ? 'consta en las solicitudes de integración con resultado favorable.'
       : 'las solicitudes #1, #2, #3, #5, #6 y #7 se fusionaron sin una revisión de la segunda persona del equipo registrada en GitHub. Solo constan el análisis automático de CodeQL y, en la #7, un comentario de aprobación escrito desde la cuenta del propio autor, que no es una revisión cruzada. La segunda persona ya es colaboradora del repositorio, de modo que puede revisar la PR #8 y dejar constancia sobre las ya fusionadas. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad con D4 a la fecha de corte.'),
-    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 39 entradas (DIS-01 a DIS-39), todas resueltas con aprobación del equipo; las cuatro últimas, del 19 de octubre, fijan las reglas de SYS-FN-05 y 08, el aplazamiento de SYS-FN-06 y las etiquetas de las pantallas de recuperación. Las de DIS-32 y DIS-35 modifican MD-01 y quedan pendientes de incorporarse a D5 v1.2. Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
+    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 40 entradas (DIS-01 a DIS-40). Las 39 primeras están resueltas con aprobación del equipo; DIS-36 a DIS-39, del 19 de octubre, fijan las reglas de SYS-FN-05 y 08, el aplazamiento de SYS-FN-06 y las etiquetas de las pantallas de recuperación. DIS-40, abierta, propone llevar la traza de peticiones a un middleware para registrar también los rechazos de los guards. Las de DIS-32 y DIS-35 modifican MD-01 y quedan pendientes de incorporarse a D5 v1.2. Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
     '**Decisiones (PR-11):** el registro contiene ADR-01 a ADR-09. Las elecciones técnicas de la construcción que no alteran la arquitectura (versiones, parámetros del interruptor) se registran en `iteraciones.md`, como prevé ADR-07.',
     '**Gobierno del cambio de requisitos (DM-09):** no se admitieron cambios al catálogo. Las precisiones aprobadas (DIS-16 a DIS-23, DIS-28 a DIS-31, DIS-36, DIS-37 y DIS-39) se acumulan para la próxima versión menor de D2 y D5, como prevé D4 §2.16.',
   ]),
@@ -170,7 +170,7 @@ const contenido = [
     [
       ['Matriz AS (`docs/evidencia/matriz-AS.md`)', '17 elementos Evidenciados, 1 en Discrepancia (AS-13, por nombres) y 2 de Diseño (AS-19 y AS-20)'],
       ['Iteraciones (`docs/evidencia/iteraciones.md`)', 'Entradas de cierre de IT-00, IT-01, IT-02 (tramo A), SYS-FN-07 y SYS-FN-05 y 08, con MT-03, cobertura, versiones, CI y pendientes'],
-      ['Discrepancias', '39 entradas, todas resueltas'],
+      ['Discrepancias', '40 entradas: 39 resueltas y 1 abierta (DIS-40)'],
       ['Reportes de pruebas', 'JUnit y cobertura por iteración y por tramo (`it-02/tramo-b/`, `it-02/tramo-bc/`); capturas y mediciones de experiencia de usuario de IT-02'],
       ['Ejecuciones de CI de cierre', 'IT-00: 39020586251 (9/9). IT-01: 39023391840 (10/10). IT-02: 39033238576 (10/10). Informes: 39036501600 (10/10). SYS-FN-07: 39042977012 (10/10). SYS-FN-05 y 08: 39339908565 (10/10)'],
     ],

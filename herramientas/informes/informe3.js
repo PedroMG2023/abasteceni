@@ -86,7 +86,7 @@ const contenido = [
   h2('2.5 Protección de datos personales (5.34; Ley No. 787; V-03)'),
   vinetas([
     '**Consentimiento informado** (SYS-FN-36): la declaración aprobada en DIS-28 informa la finalidad, los derechos de acceso, rectificación, cancelación y oposición, y la transferencia internacional a Microsoft Azure en México que exige ADR-09. Sin aceptarla no se registra la cuenta. La aceptación queda en la cuenta y como asiento de bitácora con su marca temporal y la versión del texto.',
-    `**Datos personales fuera de las trazas** (V-03; ASVS V7.1.1 y V7.1.2): el interceptor registra el método, la **ruta declarada** (no la URL concreta), el estado y la duración (\`${B}/aplicacion/transversal/registro-peticiones.interceptor.ts:17\`). El filtro de errores registra solo el tipo del error, nunca su mensaje (\`filtro-errores.filter.ts:80\`), y la bandeja de salida guarda como causa de fallo solo el nombre del error (\`bandeja-salida.ts:27\`). Una prueba unitaria verifica que un RUC presente en la URL no llega a la traza.`,
+    `**Datos personales fuera de las trazas** (V-03; ASVS V7.1.1 y V7.1.2): el interceptor registra el método, la **ruta declarada** (no la URL concreta), el estado y la duración (\`${B}/aplicacion/transversal/registro-peticiones.interceptor.ts:19\`). El estado se lee al terminar la respuesta: hasta el commit \`2d77994\` constaba el previo al filtro de errores, y una respuesta 410 aparecía como 200 (DIS-40). El filtro de errores registra solo el tipo del error, nunca su mensaje (\`filtro-errores.filter.ts:80\`), y la bandeja de salida guarda como causa de fallo solo el nombre del error (\`bandeja-salida.ts:27\`). Una prueba unitaria verifica que un RUC presente en la URL no llega a la traza.`,
     '**Minimización:** los eventos de la bandeja llevan solo los datos de contacto que necesita el aviso; el listado y el documento de identificación comercial solo los ve el Administrador (V-03).',
     '**Pendiente:** cifrado AES-256 en reposo (SYS-NFN-01), que aporta el servicio gestionado de producción y el almacén de objetos (ADR-09); y supresión a los 30 días de la cancelación (SYS-FN-37, IT-09).',
   ]),
@@ -160,7 +160,7 @@ const contenido = [
       ['V3 Gestión de sesiones', 'V3.4.1, V3.4.2, V3.4.3, V3.4.5 (atributos de la cookie); V3.5.3 (credencial firmada); revocación de la renovación al cerrar sesión; V3.3.3 (todas las sesiones se revocan al restablecer la contraseña); límite de dos sesiones por cuenta comercial (SYS-FN-08)', 'Revocación inmediata de la credencial de acceso: vive como máximo 15 minutos (ADR-04)'],
       ['V4 Control de acceso', 'V4.1.1, V4.1.3, V4.1.5 (denegación por defecto, mínimo privilegio, control en el servidor)', '—'],
       ['V5 Validación', 'V5.1.3 (validación positiva), V5.3.4 (consultas parametrizadas)', '—'],
-      ['V7 Registros', 'V7.1.1, V7.1.2 (sin credenciales ni datos sensibles en las trazas)', 'Retención y archivo de la bitácora (SYS-NFN-04)'],
+      ['V7 Registros', 'V7.1.1, V7.1.2 (sin credenciales ni datos sensibles en las trazas); estado definitivo de cada respuesta en la traza (`2d77994`)', 'V7.2.1: las peticiones rechazadas por los guards (401, 403, 429) no constan en la traza (DIS-40, abierta); retención y archivo de la bitácora (SYS-NFN-04)'],
       ['V12 Archivos', 'V12.1.1 (tamaño), V12.2.1 (tipo por contenido), V12.3.1 (sin nombre del usuario en la ruta), V12.4.1 (fuera de la raíz web)', 'Análisis antimalware de los documentos'],
       ['V14 Configuración', 'V14.2.1 (dependencias auditadas), V14.4 (cabeceras de helmet), V14.5.3 (CORS restringido)', 'TLS 1.3 y HSTS efectivo en el borde de producción (SYS-NFN-02)'],
     ],
@@ -193,7 +193,7 @@ const contenido = [
   p('[4] OWASP Foundation. _Password Storage Cheat Sheet_ y _Session Management Cheat Sheet_.'),
   p('[5] Ley No. 787, Ley de Protección de Datos Personales. Asamblea Nacional de Nicaragua, 2012.'),
   p('[6] GitHub. _CodeQL_ 2.27.2, conjunto de consultas `security-extended` para JavaScript y TypeScript.'),
-  p('[7] Serie AbasteceNi: D1 v2.1 (RO-04), D2 v1.1, D3 v1.1 (V-03, PA-05, PA-06, ADR-04, ADR-05), registro de decisiones (ADR-08, ADR-09), `docs/evidencia/discrepancias.md` (DIS-06, 22, 24, 25, 28, 33, 36, 37 y 38).'),
+  p('[7] Serie AbasteceNi: D1 v2.1 (RO-04), D2 v1.1, D3 v1.1 (V-03, PA-05, PA-06, ADR-04, ADR-05), registro de decisiones (ADR-08, ADR-09), `docs/evidencia/discrepancias.md` (DIS-06, 22, 24, 25, 28, 33, 36, 37, 38 y 40).'),
 
   h1('5. Anexos'),
   h2('Anexo A — Ejecuciones de CI con los trabajos de seguridad'),

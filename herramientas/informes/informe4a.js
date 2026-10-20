@@ -135,6 +135,7 @@ const contenido = [
       ['El cliente web propagaba como error el cuerpo vacío de una respuesta sin JSON', 'Prueba del cliente HTTP', 'Detección del cuerpo vacío en `cliente-api-http.ts`'],
       ['Los adaptadores del almacén de documentos no estaban versionados', 'Construcción de la imagen del entorno de sistema', 'Patrón de `.gitignore` anclado al directorio de datos (`a25c7da`)'],
       ['Activos de la interfaz servidos sin comprimir (SYS-NFN-10)', 'Medición con Lighthouse en el entorno de sistema', 'gzip en `nginx.conf`; la carga en 3G bajó de 4,88 s a 2,79 s'],
+      ['La traza de peticiones registraba el estado previo al filtro de errores: ninguna respuesta 4xx constaba como tal', 'Revisión del registro de servicios de la ejecución 39357713301, al preparar este informe', 'Estado leído al terminar la respuesta (`2d77994`), con prueba unitaria; los rechazos de los guards, que no llegan a la traza, quedan en DIS-40'],
     ],
     [36, 30, 34],
   ),
@@ -158,7 +159,7 @@ const contenido = [
 
   h1('3. Conclusiones'),
   p((E.BLOQUEO_INTEGRADO ? 'Los nueve criterios de aceptación de D2 del alcance construido se ejecutaron' : 'Los seis criterios de aceptación de D2 del alcance integrado en `main` se ejecutaron, y también CT-SEG-07, construido en la rama `it-02/bloqueo` y pendiente de la revisión cruzada (PR #6). Todos se ejecutaron') + ' con el método asignado y su resultado consta, como exige la condición 1 de la Definición de Terminado. También se ejecutaron, contra el sistema completo, los criterios de salida de IT-01 e IT-02. Las pruebas de sistema corren en cada cambio dentro de la CI, sobre la misma imagen que se desplegaría, con secretos de un solo uso y un entorno que se destruye al terminar.'),
-  p('Las pruebas cumplieron su función de control: detectaron y llevaron a corregir cinco defectos que no habrían aparecido en las pruebas unitarias. Entre ellos, una sonda de vitalidad inutilizable por el balanceador y activos sin comprimir que ponían la carga en 3G al borde del umbral. Al crecer, la propia batería puso a prueba el límite de peticiones y obligó a hacer independientes sus escenarios. Quedan pendientes las pruebas que dependen de la infraestructura de producción (carga, TLS y cifrado en reposo) y la de SYS-FN-06, que depende de M6.'),
+  p('Las pruebas cumplieron su función de control: detectaron y llevaron a corregir seis defectos que no habrían aparecido en las pruebas unitarias. Entre ellos, una sonda de vitalidad inutilizable por el balanceador y activos sin comprimir que ponían la carga en 3G al borde del umbral. Al crecer, la propia batería puso a prueba el límite de peticiones y obligó a hacer independientes sus escenarios. Quedan pendientes las pruebas que dependen de la infraestructura de producción (carga, TLS y cifrado en reposo) y la de SYS-FN-06, que depende de M6.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] ISO/IEC/IEEE 29119-1:2022, 29119-2:2021 y 29119-3:2021. _Software and systems engineering — Software testing_, partes 1, 2 y 3.'),
@@ -172,7 +173,7 @@ const contenido = [
   vinetas([
     'Escenarios de extremo a extremo: `docs/evidencia/pruebas/it-01/sistema/junit.xml` (8 casos), `docs/evidencia/pruebas/it-02/sistema/junit.xml` (13 casos), `docs/evidencia/pruebas/it-02/experiencia/sistema-junit.xml` (21 casos, con accesibilidad y capturas), `docs/evidencia/pruebas/it-02/tramo-b/sistema/junit.xml` (22) y `docs/evidencia/pruebas/it-02/tramo-bc/sistema/junit.xml` (' + sistema.length + ' casos, los de este informe).',
     'Integración HTTP: `docs/evidencia/pruebas/it-02/tramo-bc/backend/junit.xml` (' + backend.length + ' casos de la batería principal, de los cuales ' + http.length + ' son de integración).',
-    'Registro de los servicios durante la prueba: `docs/evidencia/pruebas/it-02/tramo-bc/sistema/servicios.log`. Contiene solo método, ruta declarada, estado y duración, sin datos personales (V-03).',
+    'Registro de los servicios durante la prueba: `docs/evidencia/pruebas/it-02/tramo-bc/sistema/servicios.log`, anterior a la corrección `2d77994` (sus estados de error constan como 200 o 201). Contiene solo método, ruta declarada, estado y duración, sin datos personales (V-03).',
   ]),
 ];
 
