@@ -52,12 +52,15 @@ test('capturas de la recuperación de la contraseña (informe 2; SYS-FN-05, DIS-
   // El aviso es el mismo exista o no el correo (DIS-36), así que basta un correo cualquiera.
   await page.goto('/#/sesion');
   await page.getByRole('link', { name: '¿Olvidó su contraseña?' }).click();
+  // El inicio de sesión también tiene «Correo electrónico»: se espera a la página nueva antes de escribir.
+  await expect(page.getByRole('heading', { name: 'Recuperar la contraseña' })).toBeVisible();
   await page.getByLabel('Correo electrónico', { exact: true }).fill('compras@farmacia-ejemplo.ni');
   await page.getByRole('button', { name: 'Enviar enlace' }).click();
   await expect(page.getByRole('status')).toBeVisible();
   await foto('10-recuperacion-aviso');
 
   await page.goto('/#/restablecer/enlace-de-ejemplo');
+  await expect(page.getByRole('heading', { name: 'Restablecer la contraseña' })).toBeVisible();
   await page.getByRole('button', { name: 'Guardar la contraseña' }).click();
   await expect(page.getByText('Indique la contraseña.')).toBeVisible();
   await foto('11-restablecimiento-errores');
