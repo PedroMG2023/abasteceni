@@ -246,8 +246,11 @@ En el sistema completo (Playwright sobre Docker Compose), el evento de un regist
 
 **Incidencia.** Al añadir los escenarios de CT-SEG-05, la batería de sistema, que sale entera de una sola IP, superó las 120 peticiones por minuto y el límite de SYS-NFN-03 respondió 429 en tres escenarios posteriores, como está diseñado. Se corrigió en `9b3ec5c` con un fixture automático que pone a cero el contador de ADR-08 antes de cada escenario (independencia de los casos, ISO/IEC/IEEE 29119-3). El límite no cambió, y el 429 sigue verificado en la integración (AS-03).
 
+**Defecto detectado al preparar los informes.** El registro de servicios de la ejecución 39357713301 no mostraba ninguna respuesta 4xx: la traza de peticiones leía el estado antes de que el filtro de errores lo fijara. Se corrigió en `2d77994`, que ahora lee el estado al terminar la respuesta, con prueba unitaria; una ejecución local posterior registró, entre otros, 401, 403 y 410. Las peticiones rechazadas por los guards siguen sin llegar a la traza, y la propuesta de llevarla a un middleware queda abierta en DIS-40.
+
 **Pendientes.**
 
+- DIS-40 (traza de los rechazos de los guards), abierta para la revisión.
 - SYS-FN-06 (DIS-38), con M6.
 - Revisión cruzada registrada de las PR #1 a #8 (DM-05). La PR #7 se fusionó con un comentario de aprobación de la cuenta del autor; la revisión de la segunda persona del equipo sigue pendiente.
 - Fusión de la PR #8.
