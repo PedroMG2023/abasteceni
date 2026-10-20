@@ -17,6 +17,8 @@ test.describe('WCAG 2.1 AA · análisis automático con axe-core de cada vista',
     ['inicio', '/#/'],
     ['registro', '/#/registro'],
     ['inicio de sesión', '/#/sesion'],
+    ['recuperación de la contraseña', '/#/recuperacion'],
+    ['restablecimiento de la contraseña', '/#/restablecer/secreto-de-prueba'],
   ] as const) {
     test(`la vista de ${vista} no tiene infracciones WCAG 2.1 A ni AA`, async ({ page }) => {
       await page.goto(ruta);
@@ -36,6 +38,14 @@ test.describe('WCAG 2.1 AA · análisis automático con axe-core de cada vista',
     await page.getByRole('button', { name: 'Registrar cuenta' }).click();
     await expect(page.getByText('Indique el RUC.')).toBeVisible();
     expect(await analizar(page, 'registro con errores')).toEqual([]);
+  });
+
+  test('SYS-FN-05 · el restablecimiento con un enlace vencido muestra el aviso y la salida sin infracciones', async ({ page }) => {
+    await page.goto('/#/restablecer/enlace-que-no-existe');
+    await page.getByLabel('Contraseña nueva', { exact: true }).fill('una-clave-nueva-y-larga');
+    await page.getByRole('button', { name: 'Guardar la contraseña' }).click();
+    await expect(page.getByRole('link', { name: 'Solicitar un enlace nuevo' })).toBeVisible();
+    expect(await analizar(page, 'restablecimiento con enlace vencido')).toEqual([]);
   });
 });
 

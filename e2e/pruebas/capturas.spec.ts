@@ -45,3 +45,25 @@ test('capturas del flujo de registro, validación y paneles (informe 2)', async 
   await expect(page.getByRole('heading', { name: 'Panel del Comprador' })).toBeVisible();
   await foto('09-panel-comprador');
 });
+
+test('capturas de la recuperación de la contraseña (informe 2; SYS-FN-05, DIS-39)', async ({ page }) => {
+  const foto = (nombre: string) => page.screenshot({ path: `${DIRECTORIO}/${nombre}.png`, fullPage: true });
+
+  // El aviso es el mismo exista o no el correo (DIS-36), así que basta un correo cualquiera.
+  await page.goto('/#/sesion');
+  await page.getByRole('link', { name: '¿Olvidó su contraseña?' }).click();
+  await page.getByLabel('Correo electrónico', { exact: true }).fill('compras@farmacia-ejemplo.ni');
+  await page.getByRole('button', { name: 'Enviar enlace' }).click();
+  await expect(page.getByRole('status')).toBeVisible();
+  await foto('10-recuperacion-aviso');
+
+  await page.goto('/#/restablecer/enlace-de-ejemplo');
+  await page.getByRole('button', { name: 'Guardar la contraseña' }).click();
+  await expect(page.getByText('Indique la contraseña.')).toBeVisible();
+  await foto('11-restablecimiento-errores');
+
+  await page.getByLabel('Contraseña nueva', { exact: true }).fill('una-clave-nueva-y-larga');
+  await page.getByRole('button', { name: 'Guardar la contraseña' }).click();
+  await expect(page.getByRole('link', { name: 'Solicitar un enlace nuevo' })).toBeVisible();
+  await foto('12-restablecimiento-enlace-vencido');
+});
