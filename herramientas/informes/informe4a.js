@@ -3,7 +3,7 @@ const { p, h1, h2, h3, vinetas, tabla, documento, escribir, leerJUnit } = requir
 const E = require('./estado');
 
 const REPO = path.resolve(__dirname, '../..');
-const RUN = process.env.RUN_SISTEMA; // ejecución de CI con los 21 escenarios
+const RUN = process.env.RUN_SISTEMA; // ejecución de CI cuyos escenarios se informan
 const sistema = leerJUnit(process.env.JUNIT_SISTEMA);
 const backend = leerJUnit(process.env.JUNIT_BACKEND ?? path.join(REPO, 'docs/evidencia/pruebas/it-02/backend/junit.xml'));
 const RUN_BACKEND = process.env.RUN_BACKEND ?? 'ejecución 39033238576';
@@ -23,12 +23,12 @@ const contenido = [
   h2('1.1 Propósito del documento'),
   p('Este informe documenta las pruebas de sistema de AbasteceNi con la estructura de ISO/IEC/IEEE 29119-3. Comprende dos niveles: las pruebas **de extremo a extremo** con Playwright, que recorren la interfaz real contra la API, el trabajador y PostgreSQL levantados con Docker Compose, y las pruebas **de integración HTTP**, que ejercitan la API completa contra PostgreSQL real y validan cada respuesta contra el contrato OpenAPI (PA-07). Cada escenario cita el criterio de aceptación (CT) o el requisito (SYS-FN, SYS-NFN) que verifica.'),
   h2('1.2 Alcance y estado de integración'),
-  p(`Las pruebas cubren lo construido en IT-00, IT-01 e IT-02 (tramo A). Las de extremo a extremo se ejecutan en el trabajo 10 de la CI (DIS-14); la ejecución citada es la ${RUN}, sobre la rama \`${process.env.RAMA_SISTEMA ?? 'it-02/informes'}\`, que contiene el código de IT-02, los escenarios de accesibilidad del informe 2 y los de CT-SEG-07. ${E.resumen}`),
+  p(`Las pruebas cubren lo construido en IT-00, IT-01 e IT-02: el tramo A, el tramo B (SYS-FN-07 y 05) y SYS-FN-08 del tramo C. Las de extremo a extremo se ejecutan en el trabajo 10 de la CI (DIS-14); la ejecución citada es la ${RUN}, sobre la rama \`${process.env.RAMA_SISTEMA ?? 'it-02/informes'}\`, que contiene todo ese código, los escenarios de accesibilidad del informe 2 y los de CT-SEG-05, 07 y 08. ${E.resumen}`),
   h2('1.3 Insumos heredados de la serie'),
   tabla(
     ['Insumo', 'Origen', 'Uso en las pruebas de sistema'],
     [
-      ['Criterios de aceptación CT-REG-01, CT-REG-02, CT-ADM-03 y CT-SEG-04', 'D2 §3', 'Escenarios de extremo a extremo y de integración HTTP con el nombre del CT'],
+      ['Criterios de aceptación CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04, CT-SEG-05, CT-SEG-07 y CT-SEG-08', 'D2 §3', 'Escenarios de extremo a extremo y de integración HTTP con el nombre del CT'],
       ['Criterios de salida de IT-01 e IT-02', 'D4 §2.13', 'Escenarios de la línea base y de la afiliación completa'],
       ['SYS-NFN-03, 08, 09, 10 y 12', 'D2 §3', 'Límite de 120 peticiones por minuto, carga, adaptación, peso y teclado'],
       ['MD-05: servicio de aplicación y trabajador como dos procesos del mismo artefacto', 'D5 §2.12.5', 'Entorno de sistema con una imagen para la API y el trabajador, y nginx como red de distribución'],
@@ -68,6 +68,8 @@ const contenido = [
       ['Aprobar pasa a «Activa»; rechazar registra el motivo en la bitácora', 'CT-ADM-03', 'Transiciones de estado válidas e inválidas', 'Sistema e integración HTTP'],
       ['Cada uno de los cuatro roles inicia sesión y ve su panel', 'CT-SEG-04', 'Partición por rol', 'Sistema e integración HTTP'],
       ['Cuatro intentos fallidos responden 401; el quinto bloquea; durante el bloqueo la clave correcta también falla; aviso al correo', 'CT-SEG-07', 'Valor límite 4/5 intentos; transición de estado', 'Sistema e integración HTTP'],
+      ['El enlace usado a los 14 minutos cambia la contraseña; a los 16 minutos, o reutilizado, responde 410; el aviso es idéntico para un correo inexistente', 'CT-SEG-05', 'Valores límite alrededor de 15 minutos con reloj controlado; clases válida e inválida del correo; un solo uso', 'Sistema e integración HTTP'],
+      ['La tercera sesión desplaza la primera, que recibe 401 al renovar; las otras dos siguen vigentes; inicios simultáneos', 'CT-SEG-08', 'Valor límite 2/3 dispositivos; concurrencia', 'Sistema e integración HTTP'],
       ['La decisión consta en la bitácora y no puede modificarse', 'Criterio de salida de IT-02; SYS-FN-35', 'Intento de UPDATE y DELETE con el rol de la aplicación', 'Sistema e integración'],
       ['Consentimiento obligatorio y registrado con marca temporal', 'SYS-FN-36', 'Clase inválida (sin aceptar) y verificación en la bitácora', 'Sistema e integración HTTP'],
       ['Evento persistido con su cambio de estado, publicado y entregado; el circuito abre ante el fallo', 'Criterio de salida de IT-01', 'Inyección de fallos en el proveedor simulado', 'Integración; sistema para la publicación'],
@@ -100,6 +102,8 @@ const contenido = [
       ['CT-ADM-03 (SYS-FN-03)', 'Prueba', '`afiliacion.spec.ts` (sistema e integración)', 'Pasa'],
       ['CT-SEG-04 (SYS-FN-04)', 'Prueba', '`sesion.spec.ts`; `afiliacion.spec.ts` (cuatro roles)', 'Pasa'],
       ['CT-SEG-07 (SYS-FN-07)', 'Prueba', '`sesion.spec.ts` (sistema); `bloqueo.spec.ts` (integración, con el aviso por correo)', 'Pasa'],
+      ['CT-SEG-05 (SYS-FN-05)', 'Prueba', '`recuperacion.spec.ts` (sistema, 2; integración, 6, con el enlace por correo y la expiración a los 16 minutos)', 'Pasa'],
+      ['CT-SEG-08 (SYS-FN-08)', 'Prueba', '`sesion.spec.ts` (sistema, tres contextos de navegador); `dispositivos.spec.ts` (integración, 3)', 'Pasa'],
       ['SYS-FN-35', 'Análisis de la tabla de auditoría', '`afiliacion.spec.ts`; suite `bd/` (informe 4b)', 'Pasa'],
       ['SYS-FN-36', 'Inspección del formulario y del registro', '`afiliacion.spec.ts` (consentimiento); captura de la pantalla 2 (informe 2)', 'Pasa'],
       ['SYS-NFN-03', 'Análisis con prueba de carga de 200 peticiones por minuto', '`api-cuentas-sesiones.spec.ts`: 120 peticiones pasan y la 121 recibe 429 con dos instancias. No se ejecutó la prueba de carga de 200', 'Pasa en el valor límite; carga pendiente'],
@@ -116,9 +120,9 @@ const contenido = [
     [
       ['Escenarios de extremo a extremo', `${sistema.length} ejecutados · ${sistema.filter((c) => !c.fallo).length} pasan · ${sistema.filter((c) => c.fallo).length} fallan`],
       ['Casos de integración HTTP', `${http.length} ejecutados · todos pasan`],
-      ['Criterios de aceptación de D2 del alcance ejecutados', 'CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04, CT-SEG-07, SYS-FN-35 y SYS-FN-36: 7 de 7'],
+      ['Criterios de aceptación de D2 del alcance ejecutados', 'CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04, CT-SEG-05, CT-SEG-07, CT-SEG-08, SYS-FN-35 y SYS-FN-36: 9 de 9'],
       ['Retardo de publicación de eventos (MT-04)', '0,51 s (IT-01) y 0,08 s (IT-02) en la CI; umbral comprometido de 60 s (R-02)'],
-      ['Ejecuciones de CI', `IT-01: 39023391840 (8 escenarios). IT-02: 39033238576 (13 escenarios). Con accesibilidad y CT-SEG-07: ${RUN} (${sistema.length} escenarios)`],
+      ['Ejecuciones de CI', `IT-01: 39023391840 (8 escenarios). IT-02: 39033238576 (13 escenarios). Con accesibilidad: 39036501600 (21 escenarios). Con CT-SEG-07: 39042977012 (22). Con CT-SEG-05 y CT-SEG-08: ${RUN} (${sistema.length} escenarios)`],
     ],
     [36, 64],
   ),
@@ -131,9 +135,12 @@ const contenido = [
       ['El cliente web propagaba como error el cuerpo vacío de una respuesta sin JSON', 'Prueba del cliente HTTP', 'Detección del cuerpo vacío en `cliente-api-http.ts`'],
       ['Los adaptadores del almacén de documentos no estaban versionados', 'Construcción de la imagen del entorno de sistema', 'Patrón de `.gitignore` anclado al directorio de datos (`a25c7da`)'],
       ['Activos de la interfaz servidos sin comprimir (SYS-NFN-10)', 'Medición con Lighthouse en el entorno de sistema', 'gzip en `nginx.conf`; la carga en 3G bajó de 4,88 s a 2,79 s'],
+      ['La traza de peticiones registraba el estado previo al filtro de errores: ninguna respuesta 4xx constaba como tal', 'Revisión del registro de servicios de la ejecución 39357713301, al preparar este informe', 'Estado leído al terminar la respuesta (`2d77994`), con prueba unitaria; los rechazos de los guards, que no llegan a la traza, quedan en DIS-40'],
     ],
     [36, 30, 34],
   ),
+  h3('Incidencia de la propia batería'),
+  p('Al añadir los escenarios de CT-SEG-05, la batería de sistema, que sale entera de una sola IP, superó las 120 peticiones por minuto, y el límite de SYS-NFN-03 respondió 429 en tres escenarios posteriores, tal como está diseñado. No era un defecto del producto, sino una dependencia entre casos: cada escenario modela a un usuario distinto, pero compartían el contador. Se corrigió en `9b3ec5c` con un fixture automático que pone a cero el contador de ADR-08 antes de cada escenario, con el rol propietario (independencia de los casos, ISO/IEC/IEEE 29119-3). El límite no cambió, y el 429 sigue verificado en la integración HTTP (AS-03).'),
 
   h2('2.7 Lo construido y verificado frente a lo pendiente'),
   tabla(
@@ -143,15 +150,16 @@ const contenido = [
       ['Prueba de carga de 200 peticiones por minuto (SYS-NFN-03) y de 500 usuarios concurrentes (SYS-NFN-06)', 'Pendientes: requieren el entorno de nube de ADR-09'],
       ['TLS 1.3 (SYS-NFN-02) y cifrado en reposo (SYS-NFN-01)', 'Pendientes: los aporta la infraestructura de producción (ADR-09); el entorno de sistema local no termina TLS'],
       ['CT-SEG-07 (SYS-FN-07)', 'Verificado; ' + E.bloqueo],
-      ['CT-SEG-05, CT-SEG-06 y CT-SEG-08', 'Pendientes: no construidos a la fecha de corte'],
+      ['CT-SEG-05 (SYS-FN-05) y CT-SEG-08 (SYS-FN-08)', E.recuperacion.replace(/^./, (c) => c.toUpperCase())],
+      ['CT-SEG-06 (SYS-FN-06)', 'Pendiente: su disparador pertenece a M6 (DM-07; DIS-38)'],
       ['Notificaciones reales por WhatsApp Business API y correo', 'Pendientes: en el alcance vigente se verifican con proveedores simulados'],
     ],
     [50, 50],
   ),
 
   h1('3. Conclusiones'),
-  p((E.BLOQUEO_INTEGRADO ? 'Los siete criterios de aceptación de D2 del alcance construido se ejecutaron' : 'Los seis criterios de aceptación de D2 del alcance integrado en `main` se ejecutaron, y también CT-SEG-07, construido en la rama `it-02/bloqueo` y pendiente de la revisión cruzada (PR #6). Todos se ejecutaron') + ' con el método asignado y su resultado consta, como exige la condición 1 de la Definición de Terminado. También se ejecutaron, contra el sistema completo, los criterios de salida de IT-01 e IT-02. Las pruebas de sistema corren en cada cambio dentro de la CI, sobre la misma imagen que se desplegaría, con secretos de un solo uso y un entorno que se destruye al terminar.'),
-  p('Las pruebas cumplieron su función de control: detectaron y llevaron a corregir cinco defectos que no habrían aparecido en las pruebas unitarias. Entre ellos, una sonda de vitalidad inutilizable por el balanceador y activos sin comprimir que ponían la carga en 3G al borde del umbral. Quedan pendientes las pruebas que dependen de la infraestructura de producción (carga, TLS y cifrado en reposo) y las de SYS-FN-05, 06 y 08.'),
+  p((E.BLOQUEO_INTEGRADO ? 'Los nueve criterios de aceptación de D2 del alcance construido se ejecutaron' : 'Los seis criterios de aceptación de D2 del alcance integrado en `main` se ejecutaron, y también CT-SEG-07, construido en la rama `it-02/bloqueo` y pendiente de la revisión cruzada (PR #6). Todos se ejecutaron') + ' con el método asignado y su resultado consta, como exige la condición 1 de la Definición de Terminado. También se ejecutaron, contra el sistema completo, los criterios de salida de IT-01 e IT-02. Las pruebas de sistema corren en cada cambio dentro de la CI, sobre la misma imagen que se desplegaría, con secretos de un solo uso y un entorno que se destruye al terminar.'),
+  p('Las pruebas cumplieron su función de control: detectaron y llevaron a corregir seis defectos que no habrían aparecido en las pruebas unitarias. Entre ellos, una sonda de vitalidad inutilizable por el balanceador y activos sin comprimir que ponían la carga en 3G al borde del umbral. Al crecer, la propia batería puso a prueba el límite de peticiones y obligó a hacer independientes sus escenarios. Quedan pendientes las pruebas que dependen de la infraestructura de producción (carga, TLS y cifrado en reposo) y la de SYS-FN-06, que depende de M6.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] ISO/IEC/IEEE 29119-1:2022, 29119-2:2021 y 29119-3:2021. _Software and systems engineering — Software testing_, partes 1, 2 y 3.'),
@@ -163,9 +171,9 @@ const contenido = [
   h1('5. Anexos'),
   h2('Anexo A — Reportes'),
   vinetas([
-    'Escenarios de extremo a extremo: `docs/evidencia/pruebas/it-01/sistema/junit.xml` (8 casos), `docs/evidencia/pruebas/it-02/sistema/junit.xml` (13 casos) y `docs/evidencia/pruebas/it-02/experiencia/sistema-junit.xml` (21 casos, con accesibilidad y capturas).',
-    'Integración HTTP: `docs/evidencia/pruebas/it-02/backend/junit.xml` (156 casos de la batería principal, de los cuales ' + http.length + ' son de integración).',
-    'Registro de los servicios durante la prueba: `docs/evidencia/pruebas/it-02/sistema/servicios.log`. Contiene solo método, ruta declarada, estado y duración, sin datos personales (V-03).',
+    'Escenarios de extremo a extremo: `docs/evidencia/pruebas/it-01/sistema/junit.xml` (8 casos), `docs/evidencia/pruebas/it-02/sistema/junit.xml` (13 casos), `docs/evidencia/pruebas/it-02/experiencia/sistema-junit.xml` (21 casos, con accesibilidad y capturas), `docs/evidencia/pruebas/it-02/tramo-b/sistema/junit.xml` (22) y `docs/evidencia/pruebas/it-02/tramo-bc/sistema/junit.xml` (' + sistema.length + ' casos, los de este informe).',
+    'Integración HTTP: `docs/evidencia/pruebas/it-02/tramo-bc/backend/junit.xml` (' + backend.length + ' casos de la batería principal, de los cuales ' + http.length + ' son de integración).',
+    'Registro de los servicios durante la prueba: `docs/evidencia/pruebas/it-02/tramo-bc/sistema/servicios.log`, anterior a la corrección `2d77994` (sus estados de error constan como 200 o 201). Contiene solo método, ruta declarada, estado y duración, sin datos personales (V-03).',
   ]),
 ];
 
@@ -179,7 +187,7 @@ escribir(
       normas: [
         'ISO/IEC/IEEE 29119-1, 29119-2 y 29119-3 — pruebas de software',
         'ISO/IEC/IEEE 29148:2011 — verificabilidad de los requisitos',
-        'Serie AbasteceNi: D2 (CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04), D4 (§2.13, DM-04), D5 (MD-05)',
+        'Serie AbasteceNi: D2 (CT-REG-01, CT-REG-02, CT-ADM-03, CT-SEG-04, 05, 07 y 08), D4 (§2.13, DM-04), D5 (MD-05)',
       ],
     },
     contenido,

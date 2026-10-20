@@ -1,10 +1,20 @@
 const fs = require('fs');
 const path = require('path');
-const { p, h1, h2, h3, vinetas, tabla, figura, documento, escribir } = require('./comun');
+const { p, h1, h2, h3, vinetas, tabla, figura, figuraPng, documento, escribir } = require('./comun');
 const E = require('./estado');
 
 const REPO = path.resolve(__dirname, '../..');
 const EXP = path.join(REPO, 'docs/evidencia/pruebas/it-02/experiencia');
+// Análisis con axe-core que incluye las pantallas de recuperación (SYS-FN-05).
+const AXE = path.join(REPO, 'docs/evidencia/pruebas/it-02/tramo-bc/experiencia/axe-resumen.txt');
+const vistasAxe = fs
+  .readFileSync(AXE, 'utf8')
+  .trim()
+  .split('\n')
+  .map((linea) => {
+    const m = linea.match(/axe · (.+): (\d+) infracciones, (\d+) reglas superadas/);
+    return [m[1].replace(/^./, (c) => c.toUpperCase()), m[2], m[3]];
+  });
 const conCompresion = JSON.parse(fs.readFileSync(path.join(EXP, 'lighthouse-resumen.json'), 'utf8'));
 const sinCompresion = JSON.parse(fs.readFileSync(path.join(EXP, 'lighthouse-resumen-sin-compresion.json'), 'utf8'));
 const s = (ms) => (ms / 1000).toFixed(2).replace('.', ',') + ' s';
@@ -19,7 +29,7 @@ const contenido = [
   h2('1.1 Propósito del documento'),
   p('Este informe evalúa la experiencia de usuario de la interfaz construida de AbasteceNi conforme a la serie ISO 9241. Contrasta, pantalla por pantalla, el flujo de afiliación de IT-02 con los siete principios de diálogo de ISO 9241-110:2020. Mide la vista inicial con Lighthouse y la accesibilidad de todas las vistas con axe-core, frente a los requisitos de rendimiento, adaptación, peso y accesibilidad del documento 2 (SYS-NFN-08, 09, 10 y 12). La presentación de los resultados sigue la estructura del formato común de la industria de ISO/IEC 25062:2006, con una salvedad: no se realizaron sesiones con participantes, y el informe lo declara en lugar de simularlo.'),
   h2('1.2 Alcance y estado de integración'),
-  p('La interfaz evaluada es la capa 1 (ADR-06) de la rama `it-02/afiliacion`. Su CI de cierre (ejecución 39033238576) terminó con 10 de 10 trabajos en verde. Las mediciones de este informe se tomaron después, sobre la rama `it-02/informes`, en el entorno de sistema de Docker Compose. ' + E.resumen),
+  p('La interfaz evaluada es la capa 1 (ADR-06) de la rama `it-02/afiliacion`. Su CI de cierre (ejecución 39033238576) terminó con 10 de 10 trabajos en verde. Las mediciones de este informe se tomaron después, sobre la rama `it-02/informes`, en el entorno de sistema de Docker Compose. Las pantallas de recuperación de la contraseña (SYS-FN-05), de la rama `it-02/recuperacion`, se evalúan en el §2.3 con el mismo método, y el análisis de accesibilidad del §2.5 se repitió el 19 de octubre para incluirlas. ' + E.resumen),
   h2('1.3 Insumos heredados de la serie'),
   tabla(
     ['Insumo', 'Origen', 'Consecuencia para la experiencia de usuario'],
@@ -70,10 +80,11 @@ const contenido = [
   ),
 
   h2('2.3 Contraste con los principios de ISO 9241-110, pantalla por pantalla'),
-  p('Las capturas de las figuras 1 a 3 se tomaron con una prueba de sistema (`e2e/pruebas/capturas.spec.ts`) a 360 × 740 píxeles, sobre la aplicación real levantada con Docker Compose.'),
+  p('Las capturas de las figuras 1 a 4 se tomaron con una prueba de sistema (`e2e/pruebas/capturas.spec.ts`) a 360 × 740 píxeles, sobre la aplicación real levantada con Docker Compose.'),
   ...figura(path.join(process.env.FIGURAS ?? __dirname, 'fig-ux-1.png'), 1303, 1100, 'Figura 1. Pantallas 1 a 3: vista inicial, formulario de registro vacío y formulario enviado sin datos.'),
   ...figura(path.join(process.env.FIGURAS ?? __dirname, 'fig-ux-2.png'), 1478, 1100, 'Figura 2. Pantallas 4 a 6: RUC escrito con guiones, registro confirmado e inicio de sesión de una cuenta pendiente.'),
   ...figura(path.join(process.env.FIGURAS ?? __dirname, 'fig-ux-3.png'), 1485, 1100, 'Figura 3. Pantallas 7 a 9: panel del Administrador con el rechazo en curso, solicitud aprobada y panel del Comprador.'),
+  ...figuraPng(path.join(process.env.FIGURAS ?? __dirname, 'fig-ux-4.png'), 'Figura 4. Pantallas 10 a 12: aviso tras solicitar el enlace de recuperación, contraseña nueva enviada sin datos y enlace vencido o ya usado (SYS-FN-05).'),
   h3('Pantalla 1 — Vista inicial'),
   tabla(
     ['Principio', 'Observación', 'Valoración'],
@@ -119,6 +130,21 @@ const contenido = [
     ],
     [24, 60, 16],
   ),
+  h3('Pantallas 10 a 12 — Recuperación de la contraseña (SYS-FN-05)'),
+  tabla(
+    ['Principio', 'Observación', 'Valoración'],
+    [
+      ['Conformidad con las expectativas', 'Se llega desde «¿Olvidó su contraseña?», debajo del formulario de inicio de sesión, donde el usuario lo busca; el aviso dice qué ocurrirá y que el enlace vence en 15 minutos', 'Cumple'],
+      ['Adecuación a la tarea', 'Solo se pide el correo y, después, la contraseña nueva; el secreto viaja en el enlace y el usuario no tiene que copiar ningún código', 'Cumple'],
+      ['Autodescripción', 'Las etiquetas y ayudas son las de DIS-39: «El correo con el que registró la cuenta.» y, para la contraseña nueva, la misma ayuda del registro (12 a 128 caracteres)', 'Cumple'],
+      ['Autodescripción frente a seguridad', 'El aviso no confirma si el correo está registrado (DIS-36), para no revelar qué cuentas existen. Quien escriba mal su correo no lo sabrá y esperará un enlace que no llega. Es un compromiso deliberado a favor de la seguridad', 'Compromiso aceptado'],
+      ['Robustez frente a errores de uso', 'La contraseña se valida en el navegador y en el servidor, con el foco en el campo (pantalla 11); un error de escritura no gasta el enlace (DIS-36). Un enlace vencido o usado explica qué pasó y ofrece «Solicitar un enlace nuevo» (pantalla 12)', 'Cumple'],
+      ['Controlabilidad', 'Tras restablecer, la interfaz ofrece «Iniciar sesión» en lugar de iniciarla sola: el usuario comprueba su contraseña nueva', 'Cumple'],
+      ['Facilidad de aprendizaje', 'Usa los mismos componentes, avisos y validadores que el registro (AS-07)', 'Cumple'],
+    ],
+    [24, 60, 16],
+  ),
+  p('Con SYS-FN-08, el dispositivo cuya sesión desplazó un tercer inicio de sesión no cierra la sesión en silencio. Al volver a la aplicación ve el aviso «Su sesión se cerró porque la cuenta inició sesión en otro dispositivo.» (DIS-37), que explica la causa y da la pista de un posible acceso ajeno (conformidad con las expectativas; lo verifica `e2e/pruebas/sesion.spec.ts`).'),
 
   h2('2.4 Rendimiento, adaptación y peso de la vista inicial (SYS-NFN-08, 09 y 10)'),
   p('Se midió la vista inicial con Lighthouse 13.5.0 (`herramientas/sistema/medir-experiencia.mjs`): perfil móvil, simulación de red y CPU ralentizada ×4. Hubo tres mediciones consecutivas por perfil, como pide el criterio de SYS-NFN-08. El perfil 4G usa la red «4G lento» de Lighthouse (150 ms de latencia y 1,6 Mb/s), más exigente que los 100 ms del requisito. El perfil 3G usa «3G regular» (300 ms y 700 kb/s). Como instante de «carga completada» se toma el despliegue del elemento de contenido más grande (LCP), la métrica de carga que percibe el usuario.'),
@@ -135,14 +161,7 @@ const contenido = [
   p('`e2e/pruebas/accesibilidad.spec.ts` analiza con axe-core cada vista con las reglas WCAG 2.0 y 2.1 de niveles A y AA, y comprueba la operación por teclado.'),
   tabla(
     ['Vista analizada', 'Infracciones WCAG A y AA', 'Reglas superadas'],
-    fs
-      .readFileSync(path.join(EXP, 'axe-resumen.txt'), 'utf8')
-      .trim()
-      .split('\n')
-      .map((linea) => {
-        const m = linea.match(/axe · (.+): (\d+) infracciones, (\d+) reglas superadas/);
-        return [m[1].replace(/^./, (c) => c.toUpperCase()), m[2], m[3]];
-      }),
+    vistasAxe,
     [50, 25, 25],
   ),
   vinetas([
@@ -158,10 +177,10 @@ const contenido = [
     ['Sección del CIF', 'Contenido para AbasteceNi'],
     [
       ['Resumen ejecutivo', 'La interfaz de afiliación cumple los umbrales medibles de rendimiento, peso, adaptación y accesibilidad automatizada (SYS-NFN-08 a 10 y 12). La inspección por principios de ISO 9241-110 identificó cuatro mejoras: una corregida durante la evaluación (el aviso de errores del formulario), una pendiente que depende de M3 y dos propuestas que requieren modificar reglas aprobadas. No se han realizado sesiones con participantes.'],
-      ['Introducción: producto', 'Capa 1 de AbasteceNi: registro de cuenta comercial, inicio de sesión y paneles por rol (IT-01 e IT-02).'],
+      ['Introducción: producto', 'Capa 1 de AbasteceNi: registro de cuenta comercial, inicio de sesión, paneles por rol y recuperación de la contraseña (IT-01 e IT-02).'],
       ['Introducción: objetivos', 'Verificar los umbrales de D2 y la conformidad con ISO 9241-110 del flujo de afiliación (PM-01).'],
       ['Método: participantes', '**No realizado.** No hubo participantes del público objetivo en esta fase. Diseño previsto: cinco comerciantes de Chinandega y El Viejo, al menos dos con alfabetización digital baja (RO-06), reclutados por U-03.'],
-      ['Método: tareas', 'T1: registrar la cuenta con su documento. T2: corregir un error señalado. T3: iniciar sesión tras la aprobación. T4 (Administrador): revisar y decidir una solicitud.'],
+      ['Método: tareas', 'T1: registrar la cuenta con su documento. T2: corregir un error señalado. T3: iniciar sesión tras la aprobación. T4 (Administrador): revisar y decidir una solicitud. T5: recuperar el acceso con el enlace recibido por correo.'],
       ['Método: entorno', 'Teléfono de gama media sobre red celular de la zona; en esta evaluación se simuló con Lighthouse (CPU ×4, 4G y 3G) y Playwright a 360 y 320 px.'],
       ['Métricas previstas', 'Eficacia: tasa de tareas completadas sin ayuda. Eficiencia: tiempo por tarea y número de errores. Satisfacción: cuestionario SUS.'],
       ['Resultados obtenidos', 'Los de los §2.3 a §2.5: inspección por principios, rendimiento, peso, adaptación y accesibilidad automatizada.'],
@@ -179,18 +198,19 @@ const contenido = [
       ['SYS-NFN-10: peso ≤ 2,5 MB, comprimido y minificado', 'Verificado; la compresión se corrigió durante la medición', 'Lighthouse; `nginx.conf` con gzip'],
       ['SYS-NFN-11: ayuda contextual en el registro', 'Construida', 'Ayuda en los campos críticos del registro'],
       ['SYS-NFN-11: tutoriales en video de hasta 3 minutos', 'Pendiente', 'No construidos en el alcance vigente'],
-      ['SYS-NFN-12: teclado y WCAG 2.1 AA (automatizado)', 'Verificado', '0 infracciones en cinco vistas; pruebas de teclado'],
+      ['SYS-NFN-12: teclado y WCAG 2.1 AA (automatizado)', 'Verificado', `${vistasAxe.filter((v) => v[1] === '0').length} de ${vistasAxe.length} vistas sin infracciones, incluidas las de recuperación; pruebas de teclado`],
+      ['Pantallas de recuperación (SYS-FN-05)', 'Evaluadas por principios y con axe-core; ' + E.pr8, '§2.3, pantallas 10 a 12; §2.5'],
       ['Resumen de errores al inicio del formulario y foco en el primer error', 'Corregida (`5273441`)', '§2.3, pantalla 3; `PaginaRegistro.test.tsx`'],
       ['RUC con guiones normalizado y confirmación al aprobar', 'Mejoras propuestas', '§2.3; exigen modificar DIS-21 y DIS-26'],
       ['Evaluación con participantes (ISO/IEC 25062)', 'Pendiente', 'Diseño en el §2.6'],
-      ['Integración en `main`', E.BLOQUEO_INTEGRADO ? 'IT-00, IT-01, IT-02 (tramo A) y la corrección del formulario integradas' : E.IT02_INTEGRADA ? 'IT-00, IT-01 e IT-02 integradas' : 'IT-00 e IT-01 integradas; IT-02 pendiente de la revisión cruzada', E.BLOQUEO_INTEGRADO ? 'PR #1, #2, #3 y #6' : 'PR #1, #2 y #3'],
+      ['Integración en `main`', E.RECUPERACION_INTEGRADA ? 'IT-00, IT-01, IT-02 (tramo A), la corrección del formulario y las pantallas de recuperación integradas' : 'IT-00, IT-01, IT-02 (tramo A) y la corrección del formulario integradas; las pantallas de recuperación, pendientes de la PR #8', E.RECUPERACION_INTEGRADA ? 'PR #1, #2, #3, #6 y #8' : 'PR #1, #2, #3 y #6'],
     ],
     [40, 26, 34],
   ),
 
   h1('3. Conclusiones'),
-  p(`La interfaz de afiliación cumple los umbrales cuantitativos de la serie en el contexto de uso más exigente que la serie declara: teléfono de gama media y red 3G. Con la compresión activada, la carga más lenta fue de ${s(maximo(conCompresion, '3G'))} en 3G y de ${s(maximo(conCompresion, '4G'))} en 4G, con un peso de ${kb(peso(conCompresion))}, una décima parte del presupuesto de 2,5 MB. El análisis con axe-core no encontró infracciones WCAG 2.1 A ni AA, y la operación por teclado se verificó de forma automática.`),
-  p('La medición cumplió también su función de control: reveló que los activos no se servían comprimidos, en contra de SYS-NFN-10, y la corrección redujo la carga en 3G de forma apreciable. La inspección por principios de ISO 9241-110 identificó mejoras concretas: el resumen de errores, la tolerancia a los guiones del RUC y la confirmación al aprobar. La primera se corrigió durante la propia evaluación. Las dos últimas requieren modificar reglas aprobadas por el equipo y no se implementan sin esa decisión.'),
+  p(`La interfaz de afiliación cumple los umbrales cuantitativos de la serie en el contexto de uso más exigente que la serie declara: teléfono de gama media y red 3G. Con la compresión activada, la carga más lenta fue de ${s(maximo(conCompresion, '3G'))} en 3G y de ${s(maximo(conCompresion, '4G'))} en 4G, con un peso de ${kb(peso(conCompresion))}, una décima parte del presupuesto de 2,5 MB. El análisis con axe-core no encontró infracciones WCAG 2.1 A ni AA en las ${vistasAxe.length} vistas analizadas, incluidas las de recuperación de la contraseña, y la operación por teclado se verificó de forma automática.`),
+  p('La medición cumplió también su función de control: reveló que los activos no se servían comprimidos, en contra de SYS-NFN-10, y la corrección redujo la carga en 3G de forma apreciable. La inspección por principios de ISO 9241-110 identificó mejoras concretas: el resumen de errores, la tolerancia a los guiones del RUC y la confirmación al aprobar. La primera se corrigió durante la propia evaluación. Las dos últimas requieren modificar reglas aprobadas por el equipo y no se implementan sin esa decisión. Las pantallas de recuperación cumplen los principios con un compromiso deliberado: el aviso no confirma si el correo existe, porque la seguridad lo exige (DIS-36).'),
   p('La evaluación con participantes del público objetivo sigue pendiente y es la que puede confirmar o refutar la adecuación de los textos para personas con alfabetización digital baja (RO-06). El formato CIF de ISO/IEC 25062 queda preparado para registrarla.'),
 
   h1('4. Referencias normativas y bibliográficas'),
@@ -212,7 +232,7 @@ const contenido = [
     [9, 9, 10, 12, 12, 11, 12, 13, 12],
   ),
   h2('Anexo B — Reproducción de las mediciones'),
-  p('Desde la raíz del repositorio, con Docker en marcha: `MEDIR_EXPERIENCIA=1 bash herramientas/sistema/ejecutar.sh`. El guion levanta el entorno de sistema con secretos de un solo uso, ejecuta los 21 escenarios de Playwright (incluidos los de accesibilidad y las capturas) y las seis mediciones de Lighthouse, y deja los resultados en `docs/evidencia/pruebas/experiencia/`. Las series citadas en este informe están versionadas en `docs/evidencia/pruebas/it-02/experiencia/`.'),
+  p('Desde la raíz del repositorio, con Docker en marcha: `MEDIR_EXPERIENCIA=1 bash herramientas/sistema/ejecutar.sh`. El guion levanta el entorno de sistema con secretos de un solo uso, ejecuta todos los escenarios de Playwright (29 al 19 de octubre, incluidos los de accesibilidad y las capturas) y las seis mediciones de Lighthouse, y deja los resultados en `docs/evidencia/pruebas/experiencia/`. Las series citadas en este informe están versionadas en `docs/evidencia/pruebas/it-02/experiencia/`; el análisis de axe que incluye las pantallas de recuperación, en `docs/evidencia/pruebas/it-02/tramo-bc/experiencia/`.'),
 ];
 
 escribir(
