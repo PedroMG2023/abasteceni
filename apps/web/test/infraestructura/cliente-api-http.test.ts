@@ -131,4 +131,22 @@ describe('Cliente HTTP — operaciones del Administrador (SYS-FN-03)', () => {
     await expect(cliente.validarCuenta('c-1', { decision: 'aprobar' })).rejects.toMatchObject({ estado: 404 });
     await expect(cliente.obtenerRegistroLegal('c-1')).rejects.toMatchObject({ estado: 404 });
   });
+
+  it('CT-SEG-05 · solicita el enlace y restablece la contraseña devolviendo el aviso de la API (SYS-FN-05)', async () => {
+    const { cliente, recibidas } = servidorFalso({
+      'POST /api/v1/sesiones/recuperacion': [202, { mensaje: 'aviso de solicitud' }],
+      'POST /api/v1/sesiones/recuperacion/restablecimiento': [200, { mensaje: 'aviso de restablecimiento' }],
+    });
+
+    await expect(cliente.solicitarRecuperacion('a@b.ni')).resolves.toBe('aviso de solicitud');
+    await expect(cliente.restablecerContrasena({ secreto: 's', contrasena: 'una-clave-nueva-y-larga' })).resolves.toBe('aviso de restablecimiento');
+    expect(recibidas.map((r) => r.cuerpo)).toEqual([{ correo: 'a@b.ni' }, { secreto: 's', contrasena: 'una-clave-nueva-y-larga' }]);
+
+    const vencido = servidorFalso({ 'POST /api/v1/sesiones/recuperacion/restablecimiento': [410, { codigo: 'ENLACE_VENCIDO', mensaje: 'venció' }] });
+    await expect(vencido.cliente.restablecerContrasena({ secreto: 's', contrasena: 'x' })).rejects.toEqual(
+      new ErrorApi(410, { codigo: 'ENLACE_VENCIDO', mensaje: 'venció' }),
+    );
+    const invalido = servidorFalso({ 'POST /api/v1/sesiones/recuperacion': [400, { codigo: 'SOLICITUD_INVALIDA', mensaje: 'revise' }] });
+    await expect(invalido.cliente.solicitarRecuperacion('x')).rejects.toBeInstanceOf(ErrorApi);
+  });
 });

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="29" failures="0" errors="0" time="15.315">
+  <testsuite name="Base de datos de la línea base (IT-01)" errors="0" failures="0" skipped="0" timestamp="2026-10-19T23:12:47" time="8.984" tests="19">
+    <testcase classname="Base de datos de la línea base (IT-01) ADR-05 · los privilegios de abasteceni_app sobre las tablas son exactamente los declarados" name="Base de datos de la línea base (IT-01) ADR-05 · los privilegios de abasteceni_app sobre las tablas son exactamente los declarados" time="0.029" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) ADR-01 · el cambio de estado y su evento se confirman juntos o se revierten juntos" name="Base de datos de la línea base (IT-01) ADR-01 · el cambio de estado y su evento se confirman juntos o se revierten juntos" time="0.052" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad el RUC es único (SYS-FN-01)" name="Base de datos de la línea base (IT-01) restricciones de integridad el RUC es único (SYS-FN-01)" time="0.013" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad razon_social es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad razon_social es NOT NULL (SYS-FN-01, 02 y 36)" time="0.01" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad ruc es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad ruc es NOT NULL (SYS-FN-01, 02 y 36)" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad departamento es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad departamento es NOT NULL (SYS-FN-01, 02 y 36)" time="0.01" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad municipio es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad municipio es NOT NULL (SYS-FN-01, 02 y 36)" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad rubro es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad rubro es NOT NULL (SYS-FN-01, 02 y 36)" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad consentimiento_aceptado_en es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad consentimiento_aceptado_en es NOT NULL (SYS-FN-01, 02 y 36)" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad registro_legal_clave es NOT NULL (SYS-FN-01, 02 y 36)" name="Base de datos de la línea base (IT-01) restricciones de integridad registro_legal_clave es NOT NULL (SYS-FN-01, 02 y 36)" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad razon_social no admite texto vacío" name="Base de datos de la línea base (IT-01) restricciones de integridad razon_social no admite texto vacío" time="0.01" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad departamento no admite texto vacío" name="Base de datos de la línea base (IT-01) restricciones de integridad departamento no admite texto vacío" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad municipio no admite texto vacío" name="Base de datos de la línea base (IT-01) restricciones de integridad municipio no admite texto vacío" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad rubro no admite texto vacío" name="Base de datos de la línea base (IT-01) restricciones de integridad rubro no admite texto vacío" time="0.009" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad el formato del RUC y los estados de la cuenta están restringidos (DIS-21, DIS-23)" name="Base de datos de la línea base (IT-01) restricciones de integridad el formato del RUC y los estados de la cuenta están restringidos (DIS-21, DIS-23)" time="0.018" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad el correo de la credencial es único (DIS-16)" name="Base de datos de la línea base (IT-01) restricciones de integridad el correo de la credencial es único (DIS-16)" time="0.02" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad SYS-FN-05 · la recuperación exige credencial existente, huella única y vigencia posterior a su creación (DIS-36)" name="Base de datos de la línea base (IT-01) restricciones de integridad SYS-FN-05 · la recuperación exige credencial existente, huella única y vigencia posterior a su creación (DIS-36)" time="0.05" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) restricciones de integridad SYS-FN-08 · la sesión exige su fecha de inicio, anterior o igual a su creación, y no nace desplazada (DIS-37)" name="Base de datos de la línea base (IT-01) restricciones de integridad SYS-FN-08 · la sesión exige su fecha de inicio, anterior o igual a su creación, y no nace desplazada (DIS-37)" time="0.03" file="test/bd/linea-base.spec.ts">
+    </testcase>
+    <testcase classname="Base de datos de la línea base (IT-01) ADR-08 · el contador de peticiones es compartido entre conexiones y atómico bajo concurrencia" name="Base de datos de la línea base (IT-01) ADR-08 · el contador de peticiones es compartido entre conexiones y atómico bajo concurrencia" time="0.079" file="test/bd/linea-base.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="Migraciones y esquemas (PA-02, ADR-01, ADR-05)" errors="0" failures="0" skipped="0" timestamp="2026-10-19T23:12:56" time="2.937" tests="4">
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) las migraciones aplican desde cero y una segunda ejecución no tiene efecto" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) las migraciones aplican desde cero y una segunda ejecución no tiene efecto" time="0.119" file="test/bd/esquemas.spec.ts">
+    </testcase>
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) existe un esquema por módulo y el esquema transversal plataforma, propiedad de abasteceni_propietario" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) existe un esquema por módulo y el esquema transversal plataforma, propiedad de abasteceni_propietario" time="0.012" file="test/bd/esquemas.spec.ts">
+    </testcase>
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app usa los esquemas pero no puede crear objetos en ninguno" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app usa los esquemas pero no puede crear objetos en ninguno" time="0.014" file="test/bd/esquemas.spec.ts">
+    </testcase>
+    <testcase classname="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app no tiene privilegios de rol elevados" name="Migraciones y esquemas (PA-02, ADR-01, ADR-05) abasteceni_app no tiene privilegios de rol elevados" time="0.012" file="test/bd/esquemas.spec.ts">
+    </testcase>
+  </testsuite>
+  <testsuite name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05)" errors="0" failures="0" skipped="0" timestamp="2026-10-19T23:12:59" time="3.135" tests="6">
+    <testcase classname="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) abasteceni_app puede insertar y leer asientos" name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) abasteceni_app puede insertar y leer asientos" time="0.01" file="test/bd/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) UPDATE sobre la bitácora falla con el rol de la aplicación" name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) UPDATE sobre la bitácora falla con el rol de la aplicación" time="0.019" file="test/bd/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) DELETE sobre la bitácora falla con el rol de la aplicación" name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) DELETE sobre la bitácora falla con el rol de la aplicación" time="0.021" file="test/bd/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) TRUNCATE sobre la bitácora falla con el rol de la aplicación" name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) TRUNCATE sobre la bitácora falla con el rol de la aplicación" time="0.022" file="test/bd/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) el gestor declara UPDATE, DELETE y TRUNCATE revocados para abasteceni_app" name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) el gestor declara UPDATE, DELETE y TRUNCATE revocados para abasteceni_app" time="0.011" file="test/bd/bitacora.spec.ts">
+    </testcase>
+    <testcase classname="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) una transacción que inserta un asiento y luego falla no deja el asiento (ADR-01)" name="SYS-FN-35 · bitácora de solo adición con el rol de la aplicación (ADR-05) una transacción que inserta un asiento y luego falla no deja el asiento (ADR-01)" time="0.021" file="test/bd/bitacora.spec.ts">
+    </testcase>
+  </testsuite>
+</testsuites>

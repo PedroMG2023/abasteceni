@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { ADMINISTRADOR, cuentaNueva, expect, iniciarSesion, llenarRegistro } from './soporte';
+import { ADMINISTRADOR, cuentaNueva, expect, iniciarSesion, llenarRegistro, test } from './soporte';
 
 // Capturas del flujo de afiliación en un teléfono de gama media (RO-06) para el
 // contraste con ISO 9241-110 del informe 2. Se guardan como evidencia derivada.

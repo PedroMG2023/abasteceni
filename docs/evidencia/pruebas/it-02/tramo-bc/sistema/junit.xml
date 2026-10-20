@@ -1,0 +1,88 @@
+<testsuites id="" name="" tests="25" failures="0" skipped="0" errors="0" time="24.756341">
+<testsuite name="accesibilidad.spec.ts" timestamp="2026-10-19T23:12:31.598Z" hostname="chromium" tests="7" failures="0" skipped="0" time="4.431" errors="0">
+<testcase name="WCAG 2.1 AA · análisis automático con axe-core de cada vista › la vista de inicio no tiene infracciones WCAG 2.1 A ni AA" classname="accesibilidad.spec.ts" time="0.733">
+<system-out>
+<![CDATA[axe · inicio: 0 infracciones, 16 reglas superadas
+]]>
+</system-out>
+</testcase>
+<testcase name="WCAG 2.1 AA · análisis automático con axe-core de cada vista › la vista de registro no tiene infracciones WCAG 2.1 A ni AA" classname="accesibilidad.spec.ts" time="0.729">
+<system-out>
+<![CDATA[axe · registro: 0 infracciones, 20 reglas superadas
+]]>
+</system-out>
+</testcase>
+<testcase name="WCAG 2.1 AA · análisis automático con axe-core de cada vista › la vista de inicio de sesión no tiene infracciones WCAG 2.1 A ni AA" classname="accesibilidad.spec.ts" time="0.641">
+<system-out>
+<![CDATA[axe · inicio de sesión: 0 infracciones, 19 reglas superadas
+]]>
+</system-out>
+</testcase>
+<testcase name="WCAG 2.1 AA · análisis automático con axe-core de cada vista › el panel del Administrador no tiene infracciones WCAG 2.1 A ni AA" classname="accesibilidad.spec.ts" time="0.815">
+<system-out>
+<![CDATA[axe · panel del Administrador: 0 infracciones, 20 reglas superadas
+]]>
+</system-out>
+</testcase>
+<testcase name="WCAG 2.1 AA · análisis automático con axe-core de cada vista › el formulario de registro muestra sus errores sin infracciones" classname="accesibilidad.spec.ts" time="0.833">
+<system-out>
+<![CDATA[axe · registro con errores: 0 infracciones, 23 reglas superadas
+]]>
+</system-out>
+</testcase>
+<testcase name="SYS-NFN-12 · operación completa por teclado (WCAG 2.1.1 y 2.1.2) › el registro se recorre con Tab hasta el botón de envío sin trampas de foco" classname="accesibilidad.spec.ts" time="0.266">
+</testcase>
+<testcase name="SYS-NFN-12 · operación completa por teclado (WCAG 2.1.1 y 2.1.2) › el inicio de sesión se completa solo con teclado" classname="accesibilidad.spec.ts" time="0.414">
+</testcase>
+</testsuite>
+<testsuite name="afiliacion.spec.ts" timestamp="2026-10-19T23:12:31.598Z" hostname="chromium" tests="5" failures="0" skipped="0" time="5.658" errors="0">
+<testcase name="CT-REG-02 · carga del registro legal desde la interfaz (SYS-FN-02) › rechaza un archivo de 8 MB y uno que no es PDF ni JPG, con mensajes explicativos" classname="afiliacion.spec.ts" time="1.406">
+</testcase>
+<testcase name="SYS-FN-36 · consentimiento en el registro › sin aceptar la declaración no se registra; al aceptarla, consta en la bitácora" classname="afiliacion.spec.ts" time="0.526">
+</testcase>
+<testcase name="CT-ADM-03 e IT-02 · afiliación de extremo a extremo (PM-01; SYS-FN-03, SYS-FN-35) › la cuenta se registra con su documento, el Administrador la aprueba y la cuenta inicia sesión en su panel" classname="afiliacion.spec.ts" time="0.908">
+</testcase>
+<testcase name="CT-ADM-03 e IT-02 · afiliación de extremo a extremo (PM-01; SYS-FN-03, SYS-FN-35) › el rechazo registra el motivo, la decisión no puede modificarse y la cuenta no inicia sesión" classname="afiliacion.spec.ts" time="0.973">
+</testcase>
+<testcase name="CT-SEG-04 · el panel mostrado corresponde al rol asignado (SYS-FN-04) › Productor y Proveedor aprobados ven el panel de su rol; el Administrador, el suyo" classname="afiliacion.spec.ts" time="1.845">
+</testcase>
+</testsuite>
+<testsuite name="capturas.spec.ts" timestamp="2026-10-19T23:12:31.598Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.522" errors="0">
+<testcase name="capturas del flujo de registro, validación y paneles (informe 2)" classname="capturas.spec.ts" time="1.522">
+</testcase>
+</testsuite>
+<testsuite name="recuperacion.spec.ts" timestamp="2026-10-19T23:12:31.598Z" hostname="chromium" tests="2" failures="0" skipped="0" time="4.309" errors="0">
+<testcase name="CT-SEG-05 · recuperación de la cuenta por enlace temporal (SYS-FN-05, DIS-36) › solicita el enlace desde el inicio de sesión, restablece la contraseña e inicia sesión con la nueva" classname="recuperacion.spec.ts" time="2.282">
+</testcase>
+<testcase name="CT-SEG-05 · recuperación de la cuenta por enlace temporal (SYS-FN-05, DIS-36) › el enlace ya usado se rechaza y la interfaz ofrece pedir uno nuevo" classname="recuperacion.spec.ts" time="2.027">
+</testcase>
+</testsuite>
+<testsuite name="registro.spec.ts" timestamp="2026-10-19T23:12:31.598Z" hostname="chromium" tests="5" failures="0" skipped="0" time="2.425" errors="0">
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › con todos los campos válidos la cuenta queda «Pendiente de validación»" classname="registro.spec.ts" time="0.471">
+</testcase>
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › con el RUC vacío rechaza el envío y muestra el mensaje de error del campo" classname="registro.spec.ts" time="0.399">
+</testcase>
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › un RUC ya registrado muestra el aviso devuelto por la API" classname="registro.spec.ts" time="0.671">
+</testcase>
+<testcase name="CT-REG-01 · registro de una cuenta comercial de extremo a extremo (SYS-FN-01) › SYS-NFN-09 · el formulario se opera a 320 px sin desplazamiento horizontal" classname="registro.spec.ts" time="0.264">
+</testcase>
+<testcase name="IT-01 · el evento CuentaRegistrada se publica de forma asíncrona (ADR-01, R-02) › el trabajador publica el evento del registro dentro del umbral de 60 s" classname="registro.spec.ts" time="0.62">
+<system-out>
+<![CDATA[MT-04 · retardo de publicación: 0.133 s
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="sesion.spec.ts" timestamp="2026-10-19T23:12:31.598Z" hostname="chromium" tests="5" failures="0" skipped="0" time="5.026" errors="0">
+<testcase name="CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04) › el Administrador inicia sesión, ve su rol, conserva la sesión al recargar y la cierra" classname="sesion.spec.ts" time="0.513">
+</testcase>
+<testcase name="CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04) › una cuenta «Pendiente de validación» no inicia sesión (DIS-25)" classname="sesion.spec.ts" time="0.619">
+</testcase>
+<testcase name="CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04) › una contraseña incorrecta recibe el mensaje genérico" classname="sesion.spec.ts" time="0.316">
+</testcase>
+<testcase name="CT-SEG-07 · bloqueo temporal tras 5 intentos fallidos (SYS-FN-07, DIS-34) › el quinto intento fallido bloquea la cuenta y el trabajador avisa al correo registrado" classname="sesion.spec.ts" time="1.61">
+</testcase>
+<testcase name="CT-SEG-08 · máximo dos dispositivos por cuenta comercial (SYS-FN-08, DIS-37) › al iniciar sesión en tres dispositivos, la primera sesión queda invalidada y las otras dos siguen activas" classname="sesion.spec.ts" time="1.968">
+</testcase>
+</testsuite>
+</testsuites>

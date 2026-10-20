@@ -9,7 +9,7 @@ import { iniciarBaseDatosPrueba, type BaseDatosPrueba } from '../soporte/base-da
 import { consultar } from '../soporte/consultas';
 import { REGISTRO_LEGAL, solicitudValida } from '../unitarias/datos';
 
-// Privilegios declarados en las migraciones 0001, 0003 y 0005 (ADR-05): ni más ni menos.
+// Privilegios declarados en las migraciones 0001, 0003, 0005 y 0009 (ADR-05): ni más ni menos.
 const PRIVILEGIOS_DECLARADOS = [
   'm1_usuarios.cuentas_comerciales:INSERT',
   'm1_usuarios.cuentas_comerciales:SELECT',
@@ -17,6 +17,9 @@ const PRIVILEGIOS_DECLARADOS = [
   'm2_seguridad.credenciales:INSERT',
   'm2_seguridad.credenciales:SELECT',
   'm2_seguridad.credenciales:UPDATE',
+  'm2_seguridad.recuperaciones:INSERT',
+  'm2_seguridad.recuperaciones:SELECT',
+  'm2_seguridad.recuperaciones:UPDATE',
   'm2_seguridad.sesiones:INSERT',
   'm2_seguridad.sesiones:SELECT',
   'm2_seguridad.sesiones:UPDATE',
@@ -153,6 +156,51 @@ describe('Base de datos de la línea base (IT-01)', () => {
         );
       await credencial('00000000-0000-4000-8000-0000000000c1');
       await expect(credencial('00000000-0000-4000-8000-0000000000c2')).rejects.toMatchObject({ code: '23505', constraint: 'credenciales_correo_unico' });
+    });
+
+    it('SYS-FN-05 · la recuperación exige credencial existente, huella única y vigencia posterior a su creación (DIS-36)', async () => {
+      const recuperacion = (id: string, credencialId: string, huella: string, minutos = 15) =>
+        consultar(
+          bd.urlApp,
+          `INSERT INTO m2_seguridad.recuperaciones (id, credencial_id, huella, creada_en, expira_en)
+           VALUES ($1, $2, $3, now(), now() + make_interval(mins => $4))`,
+          [id, credencialId, huella, minutos],
+        );
+      const credencialId = '00000000-0000-4000-8000-0000000000c1';
+      await recuperacion('00000000-0000-4000-8000-0000000000e1', credencialId, 'huella-1');
+      await expect(recuperacion('00000000-0000-4000-8000-0000000000e2', credencialId, 'huella-1')).rejects.toMatchObject({
+        code: '23505',
+        constraint: 'recuperaciones_huella_unica',
+      });
+      await expect(recuperacion('00000000-0000-4000-8000-0000000000e3', '00000000-0000-4000-8000-0000000000ff', 'huella-3')).rejects.toMatchObject({
+        code: '23503',
+      });
+      await expect(recuperacion('00000000-0000-4000-8000-0000000000e4', credencialId, 'huella-4', 0)).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'recuperaciones_vigencia',
+      });
+      await expect(
+        consultar(bd.urlApp, `DELETE FROM m2_seguridad.recuperaciones WHERE id = '00000000-0000-4000-8000-0000000000e1'`),
+      ).rejects.toMatchObject({ code: '42501' });
+    });
+
+    it('SYS-FN-08 · la sesión exige su fecha de inicio, anterior o igual a su creación, y no nace desplazada (DIS-37)', async () => {
+      const sesion = (id: string, huella: string, iniciada: string | null) =>
+        consultar(
+          bd.urlApp,
+          `INSERT INTO m2_seguridad.sesiones (id, credencial_id, huella, creada_en, expira_en, iniciada_en)
+           VALUES ($1, '00000000-0000-4000-8000-0000000000c1', $2, now(), now() + interval '7 days', $3::timestamptz)
+           RETURNING desplazada`,
+          [id, huella, iniciada],
+        );
+      expect(await sesion('00000000-0000-4000-8000-0000000000f1', 'sesion-1', new Date(Date.now() - 60_000).toISOString())).toEqual([
+        { desplazada: false },
+      ]);
+      await expect(sesion('00000000-0000-4000-8000-0000000000f2', 'sesion-2', null)).rejects.toMatchObject({ code: '23502', column: 'iniciada_en' });
+      await expect(sesion('00000000-0000-4000-8000-0000000000f3', 'sesion-3', new Date(Date.now() + 3_600_000).toISOString())).rejects.toMatchObject({
+        code: '23514',
+        constraint: 'sesiones_inicio',
+      });
     });
   });
 

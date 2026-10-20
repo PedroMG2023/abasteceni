@@ -25,7 +25,7 @@ export class ErrorConflicto extends Error {
   }
 }
 
-export type CodigoAutenticacion = 'CREDENCIALES_INVALIDAS' | 'RENOVACION_INVALIDA' | 'ACCESO_INVALIDO';
+export type CodigoAutenticacion = 'CREDENCIALES_INVALIDAS' | 'RENOVACION_INVALIDA' | 'ACCESO_INVALIDO' | 'SESION_DESPLAZADA';
 
 export class ErrorAutenticacion extends Error {
   constructor(readonly codigo: CodigoAutenticacion) {
@@ -40,6 +40,16 @@ export class ErrorAccesoDenegado extends Error {
   constructor(readonly codigo: CodigoAccesoDenegado) {
     super(codigo);
     this.name = 'ErrorAccesoDenegado';
+  }
+}
+
+// El enlace de recuperación venció, ya se usó o fue anulado (SYS-FN-05; DIS-36).
+export type CodigoVencido = 'ENLACE_VENCIDO';
+
+export class ErrorVencido extends Error {
+  constructor(readonly codigo: CodigoVencido) {
+    super(codigo);
+    this.name = 'ErrorVencido';
   }
 }
 

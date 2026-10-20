@@ -1,23 +1,4 @@
-import { test, type Page } from '@playwright/test';
-import { ADMINISTRADOR, consultar, cuentaNueva, expect, iniciarSesion, llenarRegistro, registrar, URL_BD_APP } from './soporte';
-
-async function cerrarSesion(pagina: Page) {
-  await pagina.getByRole('button', { name: 'Cerrar sesión' }).click();
-  await expect(pagina.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
-}
-
-async function decidir(pagina: Page, razonSocial: string, decision: 'Aprobar' | 'Rechazar', motivo?: string) {
-  await iniciarSesion(pagina, ADMINISTRADOR);
-  await expect(pagina.getByRole('heading', { name: 'Panel del Administrador de la plataforma' })).toBeVisible();
-  const solicitud = pagina.getByRole('listitem').filter({ has: pagina.getByRole('heading', { name: razonSocial }) });
-  await solicitud.getByRole('button', { name: decision }).click();
-  if (decision === 'Rechazar') {
-    await solicitud.getByLabel('Motivo del rechazo').fill(motivo ?? '');
-    await solicitud.getByRole('button', { name: 'Confirmar rechazo' }).click();
-  }
-  await expect(pagina.getByRole('status').filter({ hasText: `Cuenta ${decision === 'Aprobar' ? 'aprobada' : 'rechazada'}: ${razonSocial}.` })).toBeVisible();
-  await cerrarSesion(pagina);
-}
+import { ADMINISTRADOR, cerrarSesion, consultar, cuentaNueva, decidir, expect, iniciarSesion, llenarRegistro, registrar, test, URL_BD_APP } from './soporte';
 
 const bitacora = (ruc: string) =>
   consultar<{ accion: string; detalle: Record<string, unknown> }>(

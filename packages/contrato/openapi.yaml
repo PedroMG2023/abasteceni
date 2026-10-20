@@ -198,7 +198,9 @@ paths:
         renovación en una cookie HttpOnly (ADR-04, DIS-06). Tras 5 intentos
         fallidos consecutivos la cuenta se bloquea 15 minutos y se avisa al
         correo registrado (SYS-FN-07, DIS-34): responde 403 con el código
-        CUENTA_BLOQUEADA.
+        CUENTA_BLOQUEADA. Una cuenta comercial mantiene como máximo dos
+        sesiones; al abrir la tercera se revoca la renovación de la de inicio
+        más antiguo (SYS-FN-08, DIS-37).
       security: []
       requestBody:
         required: true
@@ -232,7 +234,8 @@ paths:
       description: |
         Emite una credencial de acceso nueva a partir de la credencial de
         renovación y rota esta última (ADR-04, DIS-06). La anterior queda
-        revocada.
+        revocada. Si la sesión fue desplazada por un tercer dispositivo
+        responde 401 con el código SESION_DESPLAZADA (SYS-FN-08, DIS-37).
       security:
         - credencialRenovacion: []
       responses:
@@ -247,6 +250,62 @@ paths:
                 $ref: '#/components/schemas/SesionIniciada'
         '401':
           $ref: '#/components/responses/NoAutenticado'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /sesiones/recuperacion:
+    post:
+      tags: [Sesiones]
+      operationId: solicitarRecuperacion
+      summary: Solicitar un enlace de restablecimiento de contraseña
+      description: |
+        Envía al correo registrado un enlace de un solo uso, válido 15 minutos
+        (SYS-FN-05, DIS-36). Responde 202 con el mismo aviso exista o no el
+        correo, para no revelar qué cuentas están registradas.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudRecuperacion'
+      responses:
+        '202':
+          description: Solicitud recibida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Aviso'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '429':
+          $ref: '#/components/responses/DemasiadasPeticiones'
+  /sesiones/recuperacion/restablecimiento:
+    post:
+      tags: [Sesiones]
+      operationId: restablecerContrasena
+      summary: Restablecer la contraseña con el secreto del enlace
+      description: |
+        Fija la contraseña nueva, revoca todas las sesiones de la cuenta y
+        levanta el bloqueo por intentos fallidos (SYS-FN-05, DIS-36). El
+        enlace queda usado. Si venció o ya se usó responde 410.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudRestablecimiento'
+      responses:
+        '200':
+          description: Contraseña restablecida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Aviso'
+        '400':
+          $ref: '#/components/responses/SolicitudInvalida'
+        '410':
+          $ref: '#/components/responses/EnlaceVencido'
         '429':
           $ref: '#/components/responses/DemasiadasPeticiones'
   /sesiones/actual:
@@ -339,6 +398,15 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    EnlaceVencido:
+      description: El enlace de restablecimiento venció o ya fue usado (SYS-FN-05, DIS-36).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            codigo: ENLACE_VENCIDO
+            mensaje: El enlace venció o ya fue usado. Solicite uno nuevo.
     DemasiadasPeticiones:
       description: Se superó el límite de 120 peticiones por minuto por IP (SYS-NFN-03, ADR-08).
       content:
@@ -482,6 +550,36 @@ components:
           type: integer
         rol:
           $ref: '#/components/schemas/Rol'
+    SolicitudRecuperacion:
+      type: object
+      additionalProperties: false
+      required: [correo]
+      properties:
+        correo:
+          type: string
+          maxLength: 254
+    SolicitudRestablecimiento:
+      type: object
+      additionalProperties: false
+      required: [secreto, contrasena]
+      properties:
+        secreto:
+          type: string
+          description: Secreto de un solo uso recibido en el enlace (SYS-FN-05).
+          maxLength: 256
+        contrasena:
+          type: string
+          description: Contraseña nueva, entre 12 y 128 caracteres (DIS-22).
+          minLength: 12
+          maxLength: 128
+    Aviso:
+      type: object
+      additionalProperties: false
+      required: [mensaje]
+      properties:
+        mensaje:
+          type: string
+          description: Mensaje para la persona usuaria, en español.
     Identidad:
       type: object
       additionalProperties: false

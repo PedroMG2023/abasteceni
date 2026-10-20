@@ -1,22 +1,30 @@
+import { ACCIONES_BITACORA } from '../m9-administracion';
 import {
   ErrorAccesoDenegado,
   ErrorAutenticacion,
   ErrorConflicto,
   ErrorValidacion,
+  ErrorVencido,
+  type ContextoSolicitud,
+  type PuertoBitacora,
   type PuertoIdentificadores,
   type PuertoPublicacionEventos,
   type PuertoReloj,
   type PuertoUnidadTrabajo,
   type Transaccion,
 } from '../puertos';
-import { credencialBloqueada, sesionVigente, type Credencial, type Habilitacion } from './credencial';
-import { CUENTA_BLOQUEADA, type CuentaBloqueada } from './eventos';
+import { credencialBloqueada, recuperacionVigente, sesionVigente, type Credencial, type Habilitacion } from './credencial';
+import { CUENTA_BLOQUEADA, RECUPERACION_SOLICITADA, type CuentaBloqueada, type RecuperacionSolicitada } from './eventos';
 import {
   BLOQUEO_SEGUNDOS,
+  MAXIMO_DISPOSITIVOS,
   MAXIMO_INTENTOS_FALLIDOS,
   normalizarCorreo,
+  validarContrasena,
+  validarCorreo,
   validarDatosCredencial,
   VIDA_ACCESO_SEGUNDOS,
+  VIDA_RECUPERACION_SEGUNDOS,
   VIDA_RENOVACION_SEGUNDOS,
 } from './politica';
 import type {
@@ -28,10 +36,14 @@ import type {
 } from './puertos';
 import type { Rol } from './rol';
 
+const RECURSO_CREDENCIAL = 'Credencial';
+
 export interface DependenciasSeguridad {
   repositorio: PuertoRepositorioSeguridad;
   unidadTrabajo: PuertoUnidadTrabajo;
   eventos: PuertoPublicacionEventos;
+  // SYS-FN-05: el restablecimiento de la contraseña se asienta en la bitácora de M9.
+  bitacora: PuertoBitacora;
   derivacion: PuertoDerivacionClave;
   firma: PuertoFirmaAcceso;
   secretos: PuertoSecretosRenovacion;
@@ -108,7 +120,21 @@ export class ServicioSeguridad implements RegistroCredenciales {
     }
     if (credencial.intentosFallidos > 0) await this.d.repositorio.reiniciarIntentos(credencial.id);
     this.exigirHabilitada(credencial);
-    return this.emitir(credencial);
+    return this.d.unidadTrabajo.ejecutar(async (tx) => {
+      await this.limitarDispositivos(credencial, tx);
+      return this.emitir(credencial, tx);
+    });
+  }
+
+  // SYS-FN-08 (DIS-37): una cuenta comercial mantiene como máximo dos sesiones;
+  // la nueva desplaza a la de inicio más antiguo. El Administrador de la
+  // plataforma no es una cuenta comercial y queda fuera del límite.
+  private async limitarDispositivos(credencial: Credencial, tx: Transaccion): Promise<void> {
+    if (credencial.rol === 'Administrador') return;
+    const ahora = this.d.reloj.ahora();
+    const vigentes = await this.d.repositorio.listarSesionesVigentes(credencial.id, ahora, tx);
+    const sobrantes = vigentes.length - (MAXIMO_DISPOSITIVOS - 1);
+    for (const sesion of vigentes.slice(0, Math.max(sobrantes, 0))) await this.d.repositorio.desplazarSesion(sesion.id, ahora, tx);
   }
 
   // Cuenta el fallo; al quinto consecutivo bloquea durante 15 minutos y publica
@@ -136,12 +162,81 @@ export class ServicioSeguridad implements RegistroCredenciales {
     const ahora = this.d.reloj.ahora();
     return this.d.unidadTrabajo.ejecutar(async (tx) => {
       const sesion = await this.d.repositorio.buscarSesionPorHuella(this.d.secretos.huella(secreto), tx);
+      if (sesion?.desplazada) throw new ErrorAutenticacion('SESION_DESPLAZADA');
       if (!sesion || !sesionVigente(sesion, ahora)) throw new ErrorAutenticacion('RENOVACION_INVALIDA');
       const credencial = await this.d.repositorio.buscarCredencialPorId(sesion.credencialId, tx);
       if (!credencial) throw new ErrorAutenticacion('RENOVACION_INVALIDA');
       this.exigirHabilitada(credencial);
       await this.d.repositorio.revocarSesion(sesion.id, ahora, tx);
-      return this.emitir(credencial, tx);
+      // El dispositivo conserva su fecha de inicio al rotar la credencial (DIS-37).
+      return this.emitir(credencial, tx, sesion.iniciadaEn);
+    });
+  }
+
+  // SYS-FN-05 (DIS-36). La respuesta es la misma exista o no el correo; solo las
+  // credenciales habilitadas (cuentas «Activa» y Administrador) reciben el enlace.
+  async solicitarRecuperacion(correo: string): Promise<void> {
+    const detalles = validarCorreo(correo);
+    if (detalles.length > 0) throw new ErrorValidacion(detalles);
+    const credencial = await this.d.repositorio.buscarCredencialPorCorreo(normalizarCorreo(correo));
+    if (!credencial || credencial.habilitacion !== 'habilitada') return;
+    const ahora = this.d.reloj.ahora();
+    const secreto = this.d.secretos.generar();
+    const expiraEn = new Date(ahora.getTime() + VIDA_RECUPERACION_SEGUNDOS * 1000);
+    await this.d.unidadTrabajo.ejecutar(async (tx) => {
+      await this.d.repositorio.anularRecuperaciones(credencial.id, ahora, tx);
+      await this.d.repositorio.guardarRecuperacion(
+        {
+          id: this.d.identificadores.generar(),
+          credencialId: credencial.id,
+          huella: this.d.secretos.huella(secreto),
+          creadaEn: ahora,
+          expiraEn,
+          usadaEn: null,
+          anuladaEn: null,
+        },
+        tx,
+      );
+      const evento: RecuperacionSolicitada = {
+        id: this.d.identificadores.generar(),
+        tipo: RECUPERACION_SOLICITADA,
+        ocurridoEn: ahora,
+        datos: { credencialId: credencial.id, correo: credencial.correo, secreto, expiraEn: expiraEn.toISOString() },
+      };
+      await this.d.eventos.publicar(evento, tx);
+    });
+  }
+
+  // SYS-FN-05 (DIS-36). La contraseña se valida antes de consumir el enlace, para
+  // que un error de escritura no lo gaste. En una sola transacción: contraseña
+  // nueva, intentos reiniciados y bloqueo levantado, enlace usado, sesiones
+  // revocadas (OWASP ASVS V3.3) y asiento en la bitácora.
+  async restablecerContrasena(datos: { secreto: string; contrasena: string }, contexto: ContextoSolicitud): Promise<void> {
+    const detalles = validarContrasena(datos.contrasena);
+    if (detalles.length > 0) throw new ErrorValidacion(detalles);
+    const hash = await this.d.derivacion.derivar(datos.contrasena);
+    await this.d.unidadTrabajo.ejecutar(async (tx) => {
+      const ahora = this.d.reloj.ahora();
+      const solicitud = await this.d.repositorio.buscarRecuperacionPorHuella(this.d.secretos.huella(datos.secreto), tx);
+      if (!solicitud || !recuperacionVigente(solicitud, ahora)) throw new ErrorVencido('ENLACE_VENCIDO');
+      const credencial = await this.d.repositorio.buscarCredencialPorId(solicitud.credencialId, tx);
+      if (!credencial || credencial.habilitacion !== 'habilitada') throw new ErrorVencido('ENLACE_VENCIDO');
+
+      await this.d.repositorio.restablecerContrasena(credencial.id, hash, tx);
+      await this.d.repositorio.marcarRecuperacionUsada(solicitud.id, ahora, tx);
+      await this.d.repositorio.revocarSesionesDe(credencial.id, ahora, tx);
+      await this.d.bitacora.registrar(
+        {
+          id: this.d.identificadores.generar(),
+          usuarioId: credencial.id,
+          accion: ACCIONES_BITACORA.contrasenaRestablecida,
+          recurso: { tipo: RECURSO_CREDENCIAL, id: credencial.id },
+          detalle: { recuperacionId: solicitud.id },
+          ip: contexto.ip,
+          registradoEn: ahora,
+        },
+        tx,
+      );
     });
   }
 
@@ -186,7 +281,7 @@ export class ServicioSeguridad implements RegistroCredenciales {
     return id;
   }
 
-  private async emitir(credencial: Credencial, tx?: Transaccion): Promise<SesionEmitida> {
+  private async emitir(credencial: Credencial, tx: Transaccion, iniciadaEn?: Date): Promise<SesionEmitida> {
     const ahora = this.d.reloj.ahora();
     const secreto = this.d.secretos.generar();
     const sesionId = this.d.identificadores.generar();
@@ -198,6 +293,8 @@ export class ServicioSeguridad implements RegistroCredenciales {
         creadaEn: ahora,
         expiraEn: new Date(ahora.getTime() + VIDA_RENOVACION_SEGUNDOS * 1000),
         revocadaEn: null,
+        iniciadaEn: iniciadaEn ?? ahora,
+        desplazada: false,
       },
       tx,
     );

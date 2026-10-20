@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, type Page } from '@playwright/test';
-import { ADMINISTRADOR, expect, iniciarSesion } from './soporte';
+import type { Page } from '@playwright/test';
+import { ADMINISTRADOR, expect, iniciarSesion, test } from './soporte';
 
 const ETIQUETAS_WCAG = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 

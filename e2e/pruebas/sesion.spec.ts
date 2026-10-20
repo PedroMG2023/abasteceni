@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { ADMINISTRADOR, consultar, cuentaNueva, expect, iniciarSesion, llenarRegistro, registrar } from './soporte';
+import { ADMINISTRADOR, consultar, cuentaActiva, cuentaNueva, expect, iniciarSesion, llenarRegistro, registrar, test } from './soporte';
 
 test.describe('CT-SEG-04 · inicio de sesión sin estado de extremo a extremo (SYS-FN-04, ADR-04)', () => {
   test('el Administrador inicia sesión, ve su rol, conserva la sesión al recargar y la cierra', async ({ page, context }) => {
@@ -58,5 +57,30 @@ test.describe('CT-SEG-07 · bloqueo temporal tras 5 intentos fallidos (SYS-FN-07
         return fila?.publicado ?? false;
       }, { timeout: 30_000 })
       .toBe(true);
+  });
+});
+
+test.describe('CT-SEG-08 · máximo dos dispositivos por cuenta comercial (SYS-FN-08, DIS-37)', () => {
+  test('al iniciar sesión en tres dispositivos, la primera sesión queda invalidada y las otras dos siguen activas', async ({ page, browser }, informacion) => {
+    const cuenta = await cuentaActiva(page, 'Productor');
+    // Cada contexto de navegador es un dispositivo, con su propia cookie de renovación.
+    const dispositivos = [];
+    for (let i = 0; i < 3; i++) {
+      const contexto = await browser.newContext({ baseURL: informacion.project.use.baseURL, locale: 'es-NI' });
+      const pagina = await contexto.newPage();
+      await iniciarSesion(pagina, cuenta);
+      await expect(pagina.getByRole('heading', { name: 'Panel del Productor' })).toBeVisible();
+      dispositivos.push({ contexto, pagina });
+    }
+    const [primero, ...demas] = dispositivos;
+
+    await primero.pagina.reload();
+    await expect(primero.pagina.getByRole('alert')).toHaveText('Su sesión se cerró porque la cuenta inició sesión en otro dispositivo.');
+    await expect(primero.pagina.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+    for (const { pagina } of demas) {
+      await pagina.reload();
+      await expect(pagina.getByRole('heading', { name: 'Panel del Productor' })).toBeVisible();
+    }
+    for (const { contexto } of dispositivos) await contexto.close();
   });
 });

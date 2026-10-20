@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { test as base, expect, type Page } from '@playwright/test';
 import { Client } from 'pg';
 
 // Datos del entorno de sistema: los mismos que recibe docker-compose.sistema.yml.
@@ -67,6 +67,33 @@ export async function iniciarSesion(pagina: Page, datos: { correo: string; contr
   await pagina.getByRole('button', { name: 'Iniciar sesión' }).click();
 }
 
+export async function cerrarSesion(pagina: Page) {
+  await pagina.getByRole('button', { name: 'Cerrar sesión' }).click();
+  await expect(pagina.getByRole('heading', { name: 'Iniciar sesión' })).toBeVisible();
+}
+
+// Decisión del Administrador desde su panel (SYS-FN-03).
+export async function decidir(pagina: Page, razonSocial: string, decision: 'Aprobar' | 'Rechazar', motivo?: string) {
+  await iniciarSesion(pagina, ADMINISTRADOR);
+  await expect(pagina.getByRole('heading', { name: 'Panel del Administrador de la plataforma' })).toBeVisible();
+  const solicitud = pagina.getByRole('listitem').filter({ has: pagina.getByRole('heading', { name: razonSocial }) });
+  await solicitud.getByRole('button', { name: decision }).click();
+  if (decision === 'Rechazar') {
+    await solicitud.getByLabel('Motivo del rechazo').fill(motivo ?? '');
+    await solicitud.getByRole('button', { name: 'Confirmar rechazo' }).click();
+  }
+  await expect(pagina.getByRole('status').filter({ hasText: `Cuenta ${decision === 'Aprobar' ? 'aprobada' : 'rechazada'}: ${razonSocial}.` })).toBeVisible();
+  await cerrarSesion(pagina);
+}
+
+// Cuenta comercial registrada y aprobada, lista para iniciar sesión.
+export async function cuentaActiva(pagina: Page, tipo: 'Comprador' | 'Proveedor' | 'Productor' = 'Comprador') {
+  const cuenta = cuentaNueva(tipo);
+  await registrar(pagina, cuenta);
+  await decidir(pagina, cuenta.razonSocial, 'Aprobar');
+  return cuenta;
+}
+
 export async function consultar<T extends Record<string, unknown>>(texto: string, valores: unknown[] = [], url = URL_BD): Promise<T[]> {
   const cliente = new Client({ connectionString: url });
   await cliente.connect();
@@ -76,5 +103,23 @@ export async function consultar<T extends Record<string, unknown>>(texto: string
     await cliente.end();
   }
 }
+
+
+// Cada escenario modela a un usuario distinto, pero toda la batería sale de una
+// sola IP y superaría las 120 peticiones por minuto de SYS-NFN-03. Para que los
+// escenarios sean independientes (ISO/IEC/IEEE 29119-3), el contador de ADR-08
+// se pone a cero antes de cada uno con el rol propietario. El límite no cambia:
+// el 429 lo verifica la prueba de integración de AS-03.
+export const test = base.extend<{ contadorPeticionesLimpio: void }>({
+  contadorPeticionesLimpio: [
+    // Playwright exige un patrón de objeto como primer argumento del fixture.
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use) => {
+      await consultar('DELETE FROM plataforma.contador_peticiones');
+      await use();
+    },
+    { auto: true },
+  ],
+});
 
 export { expect };

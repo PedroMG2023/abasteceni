@@ -1,4 +1,4 @@
-import type { CodigoAccesoDenegado, CodigoAutenticacion, CodigoConflicto, DetalleValidacion } from '../../dominio/puertos';
+import type { CodigoAccesoDenegado, CodigoAutenticacion, CodigoConflicto, CodigoVencido, DetalleValidacion } from '../../dominio/puertos';
 
 // Catálogo único de los mensajes que la API devuelve a la persona usuaria
 // (ISO 9241-110, tolerancia a errores: indicar qué corregir y cómo). Propuesto
@@ -81,6 +81,8 @@ export const MENSAJES_AUTENTICACION: Record<CodigoAutenticacion, string> = {
   CREDENCIALES_INVALIDAS: 'Correo o contraseña incorrectos.',
   RENOVACION_INVALIDA: 'Su sesión expiró. Inicie sesión de nuevo.',
   ACCESO_INVALIDO: 'Inicie sesión para continuar.',
+  // DIS-37, aprobado por el equipo (SYS-FN-08).
+  SESION_DESPLAZADA: 'Su sesión se cerró porque la cuenta inició sesión en otro dispositivo.',
 };
 
 // DIS-25 y DIS-34, aprobados por el equipo.
@@ -89,4 +91,11 @@ export const MENSAJES_ACCESO_DENEGADO: Record<CodigoAccesoDenegado, string> = {
   CUENTA_RECHAZADA: 'Su solicitud de cuenta fue rechazada.',
   // DIS-34, aprobado por el equipo.
   CUENTA_BLOQUEADA: 'Su cuenta está bloqueada temporalmente por intentos fallidos. Intente de nuevo en 15 minutos.',
+};
+
+// DIS-36, aprobado por el equipo (SYS-FN-05).
+export const MENSAJE_RECUPERACION_SOLICITADA = 'Si el correo está registrado, recibirá un enlace para restablecer su contraseña. Vence en 15 minutos.';
+export const MENSAJE_CONTRASENA_RESTABLECIDA = 'Su contraseña fue restablecida. Inicie sesión con la nueva contraseña.';
+export const MENSAJES_VENCIDO: Record<CodigoVencido, string> = {
+  ENLACE_VENCIDO: 'El enlace venció o ya fue usado. Solicite uno nuevo.',
 };

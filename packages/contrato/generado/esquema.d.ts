@@ -117,7 +117,9 @@ export interface paths {
          *     renovación en una cookie HttpOnly (ADR-04, DIS-06). Tras 5 intentos
          *     fallidos consecutivos la cuenta se bloquea 15 minutos y se avisa al
          *     correo registrado (SYS-FN-07, DIS-34): responde 403 con el código
-         *     CUENTA_BLOQUEADA.
+         *     CUENTA_BLOQUEADA. Una cuenta comercial mantiene como máximo dos
+         *     sesiones; al abrir la tercera se revoca la renovación de la de inicio
+         *     más antiguo (SYS-FN-08, DIS-37).
          */
         post: operations["iniciarSesion"];
         delete?: never;
@@ -139,9 +141,54 @@ export interface paths {
          * Renovar la credencial de acceso
          * @description Emite una credencial de acceso nueva a partir de la credencial de
          *     renovación y rota esta última (ADR-04, DIS-06). La anterior queda
-         *     revocada.
+         *     revocada. Si la sesión fue desplazada por un tercer dispositivo
+         *     responde 401 con el código SESION_DESPLAZADA (SYS-FN-08, DIS-37).
          */
         post: operations["renovarSesion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sesiones/recuperacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Solicitar un enlace de restablecimiento de contraseña
+         * @description Envía al correo registrado un enlace de un solo uso, válido 15 minutos
+         *     (SYS-FN-05, DIS-36). Responde 202 con el mismo aviso exista o no el
+         *     correo, para no revelar qué cuentas están registradas.
+         */
+        post: operations["solicitarRecuperacion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sesiones/recuperacion/restablecimiento": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restablecer la contraseña con el secreto del enlace
+         * @description Fija la contraseña nueva, revoca todas las sesiones de la cuenta y
+         *     levanta el bloqueo por intentos fallidos (SYS-FN-05, DIS-36). El
+         *     enlace queda usado. Si venció o ya se usó responde 410.
+         */
+        post: operations["restablecerContrasena"];
         delete?: never;
         options?: never;
         head?: never;
@@ -249,6 +296,19 @@ export interface components {
             expiraEnSegundos: number;
             rol: components["schemas"]["Rol"];
         };
+        SolicitudRecuperacion: {
+            correo: string;
+        };
+        SolicitudRestablecimiento: {
+            /** @description Secreto de un solo uso recibido en el enlace (SYS-FN-05). */
+            secreto: string;
+            /** @description Contraseña nueva, entre 12 y 128 caracteres (DIS-22). */
+            contrasena: string;
+        };
+        Aviso: {
+            /** @description Mensaje para la persona usuaria, en español. */
+            mensaje: string;
+        };
         Identidad: {
             rol: components["schemas"]["Rol"];
             /** Format: uuid */
@@ -324,6 +384,21 @@ export interface components {
                 [name: string]: unknown;
             };
             content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description El enlace de restablecimiento venció o ya fue usado (SYS-FN-05, DIS-36). */
+        EnlaceVencido: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "codigo": "ENLACE_VENCIDO",
+                 *       "mensaje": "El enlace venció o ya fue usado. Solicite uno nuevo."
+                 *     }
+                 */
                 "application/json": components["schemas"]["Error"];
             };
         };
@@ -556,6 +631,59 @@ export interface operations {
                 };
             };
             401: components["responses"]["NoAutenticado"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    solicitarRecuperacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitudRecuperacion"];
+            };
+        };
+        responses: {
+            /** @description Solicitud recibida. */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Aviso"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            429: components["responses"]["DemasiadasPeticiones"];
+        };
+    };
+    restablecerContrasena: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SolicitudRestablecimiento"];
+            };
+        };
+        responses: {
+            /** @description Contraseña restablecida. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Aviso"];
+                };
+            };
+            400: components["responses"]["SolicitudInvalida"];
+            410: components["responses"]["EnlaceVencido"];
             429: components["responses"]["DemasiadasPeticiones"];
         };
     };

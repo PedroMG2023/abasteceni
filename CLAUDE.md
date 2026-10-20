@@ -38,9 +38,9 @@ Orden de construcción dentro de IT-02, por prioridad MoSCoW (DM-07):
 
 El vehículo funcional de la rebanada de IT-01 se fija en la instrucción de esa iteración. No lo elijas por tu cuenta.
 
-### Fecha de corte: 17 de octubre de 2026
+### Fecha de corte: 20 de octubre de 2026
 
-El estado del proyecto que se presenta y que sustentan los informes de §13 es el que esté integrado en `main` a la fecha de corte. Con el tiempo disponible, el orden de prioridad es estricto: IT-00 completa, después IT-01 y después el tramo A de IT-02. Los tramos B y C quedan para después del corte si no caben. Nunca sacrifiques una condición de la Definición de Terminado para llegar antes (RM-01 de D4: se reduce alcance, no calidad). Lo que no llegue se declara como pendiente en `docs/evidencia/iteraciones.md`.
+La fecha de corte original era el 17 de octubre de 2026; se prorrogó al 20 de octubre al moverse la presentación a esa noche (decisión del equipo del 19 de octubre). El estado del proyecto que se presenta y que sustentan los informes de §13 es el que esté integrado en `main` a la fecha de corte. Con el tiempo disponible, el orden de prioridad es estricto: IT-00 completa, después IT-01 y después el tramo A de IT-02. Los tramos B y C quedan para después del corte si no caben. Nunca sacrifiques una condición de la Definición de Terminado para llegar antes (RM-01 de D4: se reduce alcance, no calidad). Lo que no llegue se declara como pendiente en `docs/evidencia/iteraciones.md`.
 
 ## 3. Arquitectura obligatoria
 

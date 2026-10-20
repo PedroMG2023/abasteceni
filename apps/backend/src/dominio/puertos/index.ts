@@ -16,11 +16,13 @@ export {
   ErrorNoEncontrado,
   ErrorTransicion,
   ErrorValidacion,
+  ErrorVencido,
   type CodigoAccesoDenegado,
   type CodigoAutenticacion,
   type CodigoConflicto,
   type CodigoNoEncontrado,
   type CodigoTransicion,
+  type CodigoVencido,
   type DetalleValidacion,
   type MotivoValidacion,
 } from './errores';

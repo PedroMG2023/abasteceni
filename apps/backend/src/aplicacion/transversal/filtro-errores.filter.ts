@@ -8,6 +8,7 @@ import {
   ErrorNoEncontrado,
   ErrorTransicion,
   ErrorValidacion,
+  ErrorVencido,
 } from '../../dominio/puertos';
 import { ErrorDemasiadasPeticiones, ErrorProhibido } from './errores-http';
 import {
@@ -22,6 +23,7 @@ import {
   MENSAJES_ACCESO_DENEGADO,
   MENSAJES_AUTENTICACION,
   MENSAJES_CONFLICTO,
+  MENSAJES_VENCIDO,
   mensajeCampo,
 } from './mensajes';
 
@@ -59,6 +61,7 @@ export class FiltroErrores implements ExceptionFilter {
       return [HttpStatus.FORBIDDEN, { codigo: error.codigo, mensaje: MENSAJES_ACCESO_DENEGADO[error.codigo] }];
     }
     if (error instanceof ErrorNoEncontrado) return [HttpStatus.NOT_FOUND, { codigo: error.codigo, mensaje: MENSAJE_CUENTA_NO_ENCONTRADA }];
+    if (error instanceof ErrorVencido) return [HttpStatus.GONE, { codigo: error.codigo, mensaje: MENSAJES_VENCIDO[error.codigo] }];
     if (error instanceof ErrorTransicion) return [HttpStatus.CONFLICT, { codigo: error.codigo, mensaje: MENSAJE_TRANSICION_NO_PERMITIDA }];
     if (error instanceof ErrorProhibido) return [HttpStatus.FORBIDDEN, { codigo: 'PROHIBIDO', mensaje: MENSAJE_PROHIBIDO }];
     if (error instanceof ErrorDemasiadasPeticiones) {

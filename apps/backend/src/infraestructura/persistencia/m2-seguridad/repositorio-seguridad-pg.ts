@@ -1,14 +1,15 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, asc, eq, gt, isNull, sql } from 'drizzle-orm';
 import type {
   Credencial,
   Habilitacion,
   PuertoRepositorioSeguridad,
   Rol,
   SesionRenovacion,
+  SolicitudRecuperacion,
 } from '../../../dominio/m2-seguridad';
 import { ErrorConflicto, type Transaccion } from '../../../dominio/puertos';
 import { conexion, errorPostgres, type BaseDatos } from '../base-datos';
-import { credenciales, sesiones } from './esquema';
+import { credenciales, recuperaciones, sesiones } from './esquema';
 
 type FilaCredencial = typeof credenciales.$inferSelect;
 
@@ -84,5 +85,59 @@ export class RepositorioSeguridadPg implements PuertoRepositorioSeguridad {
 
   async revocarSesion(id: string, revocadaEn: Date, tx?: Transaccion): Promise<void> {
     await conexion(this.db, tx).update(sesiones).set({ revocadaEn }).where(eq(sesiones.id, id));
+  }
+
+  async listarSesionesVigentes(credencialId: string, ahora: Date, tx: Transaccion): Promise<SesionRenovacion[]> {
+    const db = conexion(this.db, tx);
+    await db.select({ id: credenciales.id }).from(credenciales).where(eq(credenciales.id, credencialId)).for('update');
+    return db
+      .select()
+      .from(sesiones)
+      .where(and(eq(sesiones.credencialId, credencialId), isNull(sesiones.revocadaEn), gt(sesiones.expiraEn, ahora)))
+      .orderBy(asc(sesiones.iniciadaEn));
+  }
+
+  async desplazarSesion(id: string, revocadaEn: Date, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx).update(sesiones).set({ revocadaEn, desplazada: true }).where(eq(sesiones.id, id));
+  }
+
+  async revocarSesionesDe(credencialId: string, revocadaEn: Date, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx)
+      .update(sesiones)
+      .set({ revocadaEn })
+      .where(and(eq(sesiones.credencialId, credencialId), isNull(sesiones.revocadaEn)));
+  }
+
+  async anularRecuperaciones(credencialId: string, anuladaEn: Date, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx)
+      .update(recuperaciones)
+      .set({ anuladaEn })
+      .where(and(eq(recuperaciones.credencialId, credencialId), isNull(recuperaciones.usadaEn), isNull(recuperaciones.anuladaEn)));
+  }
+
+  async guardarRecuperacion(solicitud: SolicitudRecuperacion, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx).insert(recuperaciones).values(solicitud);
+  }
+
+  // Bloquea la fila: dos usos simultáneos del mismo enlace no pueden prosperar ambos.
+  async buscarRecuperacionPorHuella(huella: string, tx: Transaccion): Promise<SolicitudRecuperacion | null> {
+    const [fila] = await conexion(this.db, tx)
+      .select()
+      .from(recuperaciones)
+      .where(eq(recuperaciones.huella, huella))
+      .limit(1)
+      .for('update');
+    return fila ?? null;
+  }
+
+  async marcarRecuperacionUsada(id: string, usadaEn: Date, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx).update(recuperaciones).set({ usadaEn }).where(eq(recuperaciones.id, id));
+  }
+
+  async restablecerContrasena(credencialId: string, hashContrasena: string, tx: Transaccion): Promise<void> {
+    await conexion(this.db, tx)
+      .update(credenciales)
+      .set({ hashContrasena, intentosFallidos: 0, bloqueadaHasta: null })
+      .where(eq(credenciales.id, credencialId));
   }
 }

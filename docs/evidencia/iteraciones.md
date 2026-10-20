@@ -203,3 +203,57 @@ En el sistema completo (Playwright sobre Docker Compose), el evento de un regist
 **Decisiones.** El equipo aprobó DIS-26 (catálogo de mensajes), DIS-27 (subrecursos de `/sesiones`) y DIS-32 (`registroLegal` en MD-01, ya añadido a `docs/modelos/MD-01-clases.puml`). También aprobó DIS-35 (firma de `CuentaComercial.validar` en MD-01), ya reflejada en el modelo. Los dos cambios de MD-01 quedan pendientes de incorporarse a D5 v1.2.
 
 **Pendientes.** SYS-FN-05, SYS-FN-06 y SYS-FN-08; revisión cruzada registrada de las PR #1 a #6 (DM-05); D5 v1.2 con los cambios de MD-01; etiquetas `it-00`, `it-01` e `it-02` tras la revisión.
+
+
+## IT-02 — Tramo B completo y tramo C parcial (SYS-FN-05 y SYS-FN-08)
+
+**Alcance.** Con la fecha de corte prorrogada al 20 de octubre (CLAUDE.md §2), se completó el tramo B con SYS-FN-05 (recuperación de la cuenta por enlace temporal) y, del tramo C, se construyó SYS-FN-08 (máximo dos dispositivos por cuenta comercial). Las reglas faltantes constan en DIS-36 y DIS-37, y las etiquetas de las pantallas en DIS-39, todas aprobadas por el equipo el 19 de octubre. SYS-FN-06 no se construye: su disparador es una transacción comercial de M6, que no puede construirse antes que M3 y M4 (DM-07; DIS-38).
+
+**Criterio de aceptación CT-SEG-05.** «Solicitar recuperación, usar el enlace antes de 15 min y verificar cambio de contraseña. Reintentar tras 16 min y verificar expiración.» **Cumplido** en tres niveles:
+
+- `apps/backend/test/unitarias/dominio/servicio-seguridad.spec.ts`, `describe` «CT-SEG-05»: 7 casos, con reloj controlado a los 14 y a los 16 minutos, un solo uso, anulación por una solicitud nueva, revocación de sesiones y levantamiento del bloqueo de SYS-FN-07;
+- `apps/backend/test/integracion/recuperacion.spec.ts`: 202 neutral para un correo registrado y para uno inexistente, aviso entregado por el canal de correo con el texto aprobado, solo la huella en `m2_seguridad.recuperaciones`, cambio de contraseña a los 14 minutos, 410 al reutilizar el enlace y a los 16 minutos, y asiento `CONTRASENA_RESTABLECIDA` en la bitácora;
+- `e2e/pruebas/recuperacion.spec.ts`: el recorrido desde «¿Olvidó su contraseña?» hasta iniciar sesión con la contraseña nueva, y el enlace reutilizado con la oferta de pedir uno nuevo.
+
+**Criterio de aceptación CT-SEG-08.** «Iniciar sesión en tres dispositivos y verificar que la primera sesión queda invalidada.» **Cumplido** en tres niveles:
+
+- `servicio-seguridad.spec.ts`, `describe` «CT-SEG-08»: 5 casos, incluidos la conservación de la fecha de inicio al rotar la renovación, el lugar que libera un cierre de sesión, las sesiones vencidas y el Administrador fuera del límite;
+- `apps/backend/test/integracion/dispositivos.spec.ts`: 401 `SESION_DESPLAZADA` con el texto aprobado para la primera sesión, las otras dos renuevan, y cuatro inicios simultáneos dejan exactamente dos sesiones vigentes;
+- `e2e/pruebas/sesion.spec.ts`, `describe` «CT-SEG-08»: tres contextos de navegador como tres dispositivos; el primero, al recargar, muestra el aviso y vuelve al inicio de sesión.
+
+| Campo | Valor |
+|---|---|
+| Fecha | 2026-10-19 |
+| Rama | `it-02/recuperacion`, sacada de `it-02/cierre`; tras fusionarse la PR #7 (`963854d`) se integró `main` en la rama (`d878cdc`) |
+| Commits | `a6d87e5` corte y reglas · `14009fd` contrato · `78adb91` SYS-FN-05 en el backend · `8486fdb` web · `8b76087` sistema · `9b3ec5c` independencia de los escenarios · `dd13e02` SYS-FN-08 · cierre (este registro) |
+| MT-03 | **0** violaciones (190 módulos, 535 dependencias) |
+| Pruebas | Backend: 185. Base de datos: 29. Frontend: 54. Sistema: 25 (2 de CT-SEG-05 y 1 de CT-SEG-08 nuevos). Todas pasan, en local y en la CI |
+| Cobertura del backend, global | Sentencias 98,22 % · ramas 94,17 % · funciones 93,56 % · líneas 98,55 % (CI) |
+| Cobertura de `dominio/` | Sentencias 99,75 % (395/396) · ramas 99,29 % (140/141) · funciones 95,61 % (109/114) · líneas 100 % (334/334) |
+| Cobertura del frontend | Sentencias 98,42 % · ramas 93,17 % · funciones 96,80 % · líneas 99,09 % |
+| CI | [Ejecución 39339908565](https://github.com/PedroMG2023/abasteceni/actions/runs/39339908565) sobre `dd13e02`: **10 de 10 trabajos en verde**, incluido el trabajo 10 (sistema) |
+| Evidencia | `docs/evidencia/pruebas/it-02/tramo-bc/`: los reportes que publicó la ejecución 39339908565 (JUnit de backend, base de datos, frontend y sistema; resúmenes de cobertura; registro de la API y del trabajador, revisado sin secretos ni datos de V-03) |
+| Pila | Sin cambios de versión respecto del cierre de IT-02 |
+| Migraciones | `0008_recuperacion.sql` (tabla `m2_seguridad.recuperaciones`), `0009_privilegios-recuperacion.sql` (SELECT, INSERT y UPDATE para `abasteceni_app`; sin DELETE) y `0010_sesiones-dispositivos.sql` (`iniciada_en` y `desplazada` en `m2_seguridad.sesiones`, con las filas existentes rellenadas antes del NOT NULL) |
+
+**Decisiones técnicas.**
+
+- **El secreto del enlace viaja en la bandeja de salida.** Solo el trabajador arma el enlace con el origen de la interfaz, y la bandeja es la única vía entre la API y el trabajador (ADR-01). El secreto es de un solo uso, vence en 15 minutos y M2 guarda solo su huella SHA-256; la bandeja solo la leen `abasteceni_app` y el propietario.
+- **El secreto va en el fragmento de la dirección** (`#/restablecer/<secreto>`): el navegador no lo envía al servidor ni en la cabecera Referer.
+- **La contraseña se valida antes de consumir el enlace**, para que un error de escritura no lo gaste.
+- **Inicios de sesión simultáneos.** `listarSesionesVigentes` bloquea la fila de la credencial (`SELECT … FOR UPDATE`) para serializarlos; sin el bloqueo, dos inicios podían dejar tres sesiones vigentes.
+- **La rotación conserva el dispositivo.** La credencial de renovación rota en cada uso (ADR-04), y cada rotación crea una fila nueva; `iniciada_en` se copia de la fila anterior, de modo que «la más antigua» se decide por el inicio de sesión y no por la última renovación.
+
+**Incidencia.** Al añadir los escenarios de CT-SEG-05, la batería de sistema, que sale entera de una sola IP, superó las 120 peticiones por minuto y el límite de SYS-NFN-03 respondió 429 en tres escenarios posteriores, como está diseñado. Se corrigió en `9b3ec5c` con un fixture automático que pone a cero el contador de ADR-08 antes de cada escenario (independencia de los casos, ISO/IEC/IEEE 29119-3). El límite no cambió, y el 429 sigue verificado en la integración (AS-03).
+
+**Defecto detectado al preparar los informes.** El registro de servicios de la ejecución 39357713301 no mostraba ninguna respuesta 4xx: la traza de peticiones leía el estado antes de que el filtro de errores lo fijara. Se corrigió en `2d77994`, que ahora lee el estado al terminar la respuesta, con prueba unitaria; una ejecución local posterior registró, entre otros, 401, 403 y 410. Las peticiones rechazadas por los guards siguen sin llegar a la traza, y la propuesta de llevarla a un middleware queda abierta en DIS-40.
+
+**Pendientes.**
+
+- DIS-40 (traza de los rechazos de los guards), abierta para la revisión.
+- SYS-FN-06 (DIS-38), con M6.
+- Revisión cruzada registrada de las PR #1 a #8 (DM-05). La PR #7 se fusionó con un comentario de aprobación de la cuenta del autor; la revisión de la segunda persona del equipo sigue pendiente.
+- Fusión de la PR #8.
+- D5 v1.2 con los cambios de MD-01.
+- Etiquetas `it-00`, `it-01` e `it-02` tras la revisión.
+- Canal de correo real para SYS-FN-05 y SYS-FN-07: el entorno de sistema usa el proveedor simulado.
