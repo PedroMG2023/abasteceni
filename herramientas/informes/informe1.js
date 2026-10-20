@@ -1,5 +1,5 @@
 const path = require('path');
-const { p, h1, h2, h3, vinetas, tabla, figura, documento, escribir } = require('./comun');
+const { p, h1, h2, h3, vinetas, tabla, figuraPng, documento, escribir } = require('./comun');
 const E = require('./estado');
 
 const CI00 = 'CI 39020586251';
@@ -12,13 +12,15 @@ const contenido = [
   p('Este informe muestra cómo se aplican los cinco principios SOLID en el código construido de AbasteceNi y con qué evidencia verificable se sostiene cada aplicación. No enuncia los principios de forma genérica: recorre los veinte elementos de la matriz de aplicación (AS-01 a AS-20) que el equipo escribió **antes** del código, en `docs/evidencia/matriz-AS.md`, y para cada uno cita el archivo y las líneas, el commit, la prueba o regla que lo verifica y la ejecución de la integración continua (CI) que lo dejó en verde.'),
   p('La matriz tiene dos tablas. La de diseño fija qué debe existir y cómo se verifica, y no se modifica durante la construcción. La de evidencia la llena la construcción. Este informe es la lectura razonada de la segunda contra la primera.'),
   h2('1.2 Alcance y estado de integración'),
-  p('El alcance vigente es el de las iteraciones IT-00, IT-01 e IT-02 (tramo A) del documento 4 (D4 §2.13). Conforme a la Definición de Terminado (DM-04, condiciones 5 y 6), un elemento solo forma parte del incremento cuando la revisión cruzada consta como favorable y está integrado en la rama principal con la batería en verde. ' + E.resumen + ' Cada afirmación del Desarrollo indica a qué iteración pertenece:'),
+  p('El alcance vigente es el de las iteraciones IT-00, IT-01 e IT-02 del documento 4 (D4 §2.13): de IT-02, los tramos A y B completos y SYS-FN-08 del tramo C. Conforme a la Definición de Terminado (DM-04, condiciones 5 y 6), un elemento solo forma parte del incremento cuando la revisión cruzada consta como favorable y está integrado en la rama principal con la batería en verde. ' + E.resumen + ' Cada afirmación del Desarrollo indica a qué iteración pertenece:'),
   tabla(
     ['Iteración', 'Rama y solicitud de integración', 'CI de cierre', 'Estado'],
     [
       ['IT-00 Entorno', '`it-00/entorno` — PR #1', `${CI00}: 9/9 trabajos en verde`, E.it00.estado],
       ['IT-01 Línea base', '`it-01/linea-base` — PR #2', `${CI01}: 10/10 en verde`, E.it01.estado],
       ['IT-02 Afiliación, tramo A', '`it-02/afiliacion` — PR #3', `${CI02}: 10/10 en verde`, E.it02.estado],
+      ['IT-02, SYS-FN-07', '`it-02/bloqueo` — PR #6', 'CI 39042977012: 10/10 en verde', E.BLOQUEO_INTEGRADO ? 'Integrado en `main` (commit de fusión `2bd1b3e`)' : 'Pendiente de la revisión cruzada (PR #6)'],
+      ['IT-02, SYS-FN-05 y 08', '`it-02/recuperacion` — PR #8', 'CI 39339908565: 10/10 en verde', E.RECUPERACION_INTEGRADA ? E.recuperacion.replace(/^integrados/, 'Integrados') : 'Construidos y verificados; pendientes de la revisión cruzada (PR #8)'],
     ],
     [16, 26, 26, 32],
   ),
@@ -48,7 +50,7 @@ const contenido = [
 
   h2('2.2 La arquitectura que hace verificable a SOLID'),
   p('El backend se organiza en las cuatro capas de D3 V-01 y en los nueve módulos de V-02. La figura 1 es el grafo real de dependencias, generado por dependency-cruiser desde el código y agrupado por capa y por módulo de dominio. Se observa lo que exige PA-01: `dominio/` solo depende de sí mismo y del paquete `puertos`; `aplicacion/` e `infraestructura/` dependen del dominio y nunca entre sí; y solo `composicion/`, invocada por `main.api.ts` y `main.trabajador.ts`, ve las cuatro capas.'),
-  ...figura(path.join(process.env.FIGURAS ?? __dirname, 'grafo-dependencias.png'), 1665, 1708, 'Figura 1. Grafo de dependencias del backend en la rama it-02/afiliacion (dependency-cruiser + Graphviz). Los módulos M3 a M8 existen como fronteras vacías: se construyen a partir de IT-03.'),
+  ...figuraPng(path.join(process.env.FIGURAS ?? __dirname, 'grafo-dependencias.png'), 'Figura 1. Grafo de dependencias del backend en la rama it-02/recuperacion (dependency-cruiser + Graphviz). Los módulos M3 a M8 existen como fronteras vacías: se construyen a partir de IT-03.'),
   p('Cuatro reglas en `.dependency-cruiser.cjs` convierten esa forma en una restricción que la CI hace cumplir (trabajo 4, MT-03). Una prueba negativa (trabajo 5, `herramientas/dependencias/prueba-negativa.mjs`) exige que un fixture con un acceso prohibido por cada regla sea rechazado, y que un fixture con dependencias permitidas no lo sea. Si una regla deja de rechazar su fixture, la CI falla. Lo comprobó una prueba de mutación local: al neutralizar el origen de `pa-02-fronteras-modulo`, el trabajo 5 terminó con código 1.'),
   tabla(
     ['Regla', 'Qué prohíbe', 'Principio y origen', 'MT-03 en cada cierre'],
@@ -68,7 +70,7 @@ const contenido = [
   h3('AS-02 · Sondeo, despacho y entrega en tres piezas (trabajador) — IT-01'),
   p('El sondeo de la bandeja (`infraestructura/sondeo/sondeo-bandeja.ts:12-50`) solo toma eventos pendientes y los entrega por el puerto `PuertoDespachoEventos`; no conoce manejadores ni canales. El despachador (`aplicacion/despachador/despachador-eventos.ts:11-24`) solo resuelve manejadores por tipo. El adaptador (`infraestructura/notificacion/whatsapp.ts:24-38`) solo entrega por su canal. Cada pieza tiene pruebas unitarias con dobles de las otras dos. Commits `aff76c7` y `148f5ec`; ' + CI01 + '.'),
   h3('AS-03 · Preocupaciones transversales como envolturas de la capa 2 — IT-01'),
-  p('Límite de peticiones, autenticación, control de rol, manejo uniforme de errores y trazas son cinco clases distintas en `apps/backend/src/aplicacion/transversal/`: `limite-peticiones.guard.ts`, `autenticacion.guard.ts`, `roles.guard.ts`, `filtro-errores.filter.ts` y `registro-peticiones.interceptor.ts`. Se registran en un solo lugar y en orden (`composicion/api.module.ts:123-128`). Ningún controlador contiene lógica de autenticación, de límite ni de traducción de errores.'),
+  p('Límite de peticiones, autenticación, control de rol, manejo uniforme de errores y trazas son cinco clases distintas en `apps/backend/src/aplicacion/transversal/`: `limite-peticiones.guard.ts`, `autenticacion.guard.ts`, `roles.guard.ts`, `filtro-errores.filter.ts` y `registro-peticiones.interceptor.ts`. Se registran en un solo lugar y en orden (`composicion/api.module.ts:124-129`). Ningún controlador contiene lógica de autenticación, de límite ni de traducción de errores.'),
   p('**Verificación:** `test/integracion/api-cuentas-sesiones.spec.ts` obtiene 401 sin credencial o con credencial alterada, 403 con un rol no autorizado y 429 en la petición 121 de un minuto, con dos instancias que comparten el contador (ADR-08). ' + CI01 + '.'),
   h3('AS-04 · Componente, hook de caso de uso y cliente API separados (capa 1) — IT-02'),
   p('En el flujo de registro, `paginas/PaginaRegistro.tsx` solo renderiza; `hooks/useRegistroCuenta.ts` guarda el estado y el envío; `infraestructura/cliente-api-http.ts` es el transporte. El hook se prueba con el cliente de prueba (`test/hooks/useRegistroCuenta.test.tsx`) y la página con el hook simulado mediante `vi.mock` (`test/paginas/PaginaRegistro.test.tsx`). Commits `ca9d385` y `46dcacb`; ' + CI02 + '.'),
@@ -79,9 +81,9 @@ const contenido = [
   h3('AS-05 · Segundo adaptador de notificación sin tocar el dominio ni el despachador — IT-01'),
   p('El puerto `PuertoNotificacion` tenía un adaptador de WhatsApp (proveedor simulado). El adaptador de correo, canal de reserva de R-05, se incorporó en un commit propio, `794fe51`, que agrega `infraestructura/notificacion/correo.ts` y su elección por configuración. **Verificación:** `git show --name-only 794fe51` lista ocho archivos, y **ninguno** está bajo `dominio/` ni es el despachador. El nuevo adaptador pasa la misma suite de contrato que el primero. Modificabilidad. ' + CI01 + '.'),
   h3('AS-06 · Despachador abierto a nuevos eventos — IT-01 e IT-02'),
-  p('`DespachadorEventos.registrar(tipo, manejador)` (`despachador-eventos.ts:14`) asocia manejadores por tipo de evento, y la composición del trabajador los registra (`trabajador.module.ts:95-99`). La evidencia más fuerte la aportó la propia construcción: en IT-02 se añadieron los avisos de aprobación y de rechazo (`manejadores/notificar-decision-cuenta.ts`, DIS-30) y, con SYS-FN-07, el aviso de bloqueo por el canal de correo (`manejadores/notificar-cuenta-bloqueada.ts`, ' + E.bloqueo + '), registrándolos en la composición **sin modificar** `despachador-eventos.ts`. Además, `test/unitarias/aplicacion/despachador-eventos.spec.ts` registra un manejador para un evento nuevo y comprueba que el despachador lo entrega sin cambios.'),
+  p('`DespachadorEventos.registrar(tipo, manejador)` (`despachador-eventos.ts:14`) asocia manejadores por tipo de evento, y la composición del trabajador los registra (`trabajador.module.ts:97-101`). La evidencia más fuerte la aportó la propia construcción: en IT-02 se añadieron los avisos de aprobación y de rechazo (`manejadores/notificar-decision-cuenta.ts`, DIS-30); con SYS-FN-07, el aviso de bloqueo por el canal de correo (`manejadores/notificar-cuenta-bloqueada.ts`, ' + E.bloqueo + '); y con SYS-FN-05, el envío del enlace de recuperación (`manejadores/notificar-recuperacion.ts`, ' + E.pr8 + '). Los tres se registraron en la composición **sin modificar** `despachador-eventos.ts`. Además, `test/unitarias/aplicacion/despachador-eventos.spec.ts` registra un manejador para un evento nuevo y comprueba que el despachador lo entrega sin cambios.'),
   h3('AS-07 · Campo de formulario extensible por composición (capa 1) — IT-02'),
-  p('`componentes/CampoFormulario.tsx:1-62` recibe una definición con etiqueta, ayuda contextual (SYS-NFN-11) y opciones. Los validadores son funciones componibles (`componentes/validadores.ts`). El formulario de registro se arma componiendo nueve definiciones en `componentes/campos-registro.ts`, sin modificar el componente base. Lo verifica `test/componentes/CampoFormulario.test.tsx`.'),
+  p('`componentes/CampoFormulario.tsx:1-62` recibe una definición con etiqueta, ayuda contextual (SYS-NFN-11) y opciones. Los validadores son funciones componibles (`componentes/validadores.ts`). El formulario de registro se arma componiendo nueve definiciones en `componentes/campos-registro.ts`, sin modificar el componente base. Con SYS-FN-05, las pantallas de recuperación reutilizan las definiciones del correo y de la contraseña del registro, con sus validadores, y solo cambian la etiqueta o la ayuda (`componentes/campos-recuperacion.ts:6-14`, ' + E.pr8 + '). Lo verifican `test/componentes/CampoFormulario.test.tsx` y `test/paginas/PaginaRecuperacion.test.tsx`.'),
   h3('AS-20 · Política de rondas como parámetro (diseño) — IT-06'),
   p('Según MD-04, el límite de rondas de SYS-FN-20 y el rango del histograma son parámetros de una política, separados de la máquina de estados de la cotización. Es evidencia de diseño, pendiente de IT-06.'),
 
@@ -129,7 +131,7 @@ const contenido = [
   h3('AS-16 · Fronteras entre módulos — IT-00 (integrado en main)'),
   p('Un módulo solo importa el `index.ts` público de otro, también en las definiciones de esquema de la persistencia (`.dependency-cruiser.cjs:21-33`). La dependencia real M1 → M2 (crear la credencial al registrar) pasa por la interfaz `RegistroCredenciales` que exporta `dominio/m2-seguridad/index.ts`. **Criterio de salida de IT-00:** el fixture `pa-02-acceso-cruzado`, en el que m3 importa `m4-ofertas/inventario-interno.ts`, es rechazado en cada ejecución de la CI.'),
   h3('AS-17 · Raíz de composición única — IT-01'),
-  p('`composicion/api.module.ts:28-94` y `composicion/trabajador.module.ts` enlazan cada puerto con su adaptador por símbolo y construyen el dominio con fábricas (`useFactory`). Es el único lugar que ve las cuatro capas, como muestra la figura 1. **Verificación:** `test/integracion/linea-base.spec.ts:70` sustituye el notificador y el reloj desde la composición, y el criterio de salida de IT-01 se cumple con esos dobles.'),
+  p('`composicion/api.module.ts:28-95` y `composicion/trabajador.module.ts` enlazan cada puerto con su adaptador por símbolo y construyen el dominio con fábricas (`useFactory`). Es el único lugar que ve las cuatro capas, como muestra la figura 1. **Verificación:** `test/integracion/linea-base.spec.ts:70` sustituye el notificador y el reloj desde la composición, y el criterio de salida de IT-01 se cumple con esos dobles.'),
   h3('AS-18 · La capa 1 depende de la abstracción ClienteApi — IT-01'),
   p('Hooks y componentes reciben `ClienteApi` por contexto (`contexto/cliente-api.ts`); solo `contexto/ProveedorClienteApiHttp.tsx` construye el cliente concreto. Lo exigen dos reglas: `web-cliente-abstracto` en dependency-cruiser y `no-restricted-globals` de ESLint, que prohíbe `fetch` en páginas, componentes y hooks (`eslint.config.mjs:38`).'),
 
@@ -172,7 +174,7 @@ const contenido = [
   h1('3. Conclusiones'),
   p('La matriz AS cumplió su propósito: se escribió antes que el código y el código se construyó conforme a ella. Diecisiete de los veinte elementos tienen evidencia ejecutable; los dos de diseño pertenecen a M6, fuera del alcance vigente, y el elemento en discrepancia lo es solo por nombres y está registrado.'),
   p('La aplicación de SOLID es verificable, no declarativa. La inversión de dependencias y las fronteras entre módulos las hace cumplir la CI con reglas cuya eficacia demuestra una prueba negativa. La sustitución de Liskov se demuestra con suites de contrato que corren sin cambios contra memoria y contra PostgreSQL real. El principio abierto/cerrado se comprobó dos veces durante la propia construcción: el canal de correo y los avisos de decisión se añadieron sin tocar el dominio ni el despachador.'),
-  p('El efecto sobre la mantenibilidad de ISO/IEC 25010 se refleja en medidas concretas: cero accesos cruzados (MT-03), cobertura del núcleo de dominio del 99,67 % y extensiones que no modificaron código existente. La graduación de R-04 mantuvo baja la indirección en M1, M2 y M9 sin ceder en la dirección de las dependencias.'),
+  p('El efecto sobre la mantenibilidad de ISO/IEC 25010 se refleja en medidas concretas: cero accesos cruzados (MT-03), cobertura del núcleo de dominio del 99,75 % y extensiones que no modificaron código existente. La graduación de R-04 mantuvo baja la indirección en M1, M2 y M9 sin ceder en la dirección de las dependencias.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] IEEE Computer Society. _SWEBOK Guide Version 4.0a_. Knowledge Area 03, Software Design, §1.4 y §5.4. IEEE, 2025.'),
@@ -190,6 +192,8 @@ const contenido = [
       ['39020586251', '`it-00/entorno` · `7745854`', '9 (instalación, lint y tipos, pruebas, dependencias, prueba negativa, contrato, modelos, auditoría, CodeQL)', '9/9 en verde'],
       ['39023391840', '`it-01/linea-base` · `27d1d63`', '10 (los nueve anteriores y pruebas de sistema)', '10/10 en verde'],
       ['39033238576', '`it-02/afiliacion` · `aa72608`', '10', '10/10 en verde'],
+      ['39042977012', '`it-02/bloqueo` · `adf161c`', '10', '10/10 en verde'],
+      ['39339908565', '`it-02/recuperacion` · `dd13e02`', '10', '10/10 en verde'],
     ],
     [16, 28, 40, 16],
   ),

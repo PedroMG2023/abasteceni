@@ -79,6 +79,13 @@ function figura(ruta, anchoPx, altoPx, texto) {
   ];
 }
 
+// Figura con las dimensiones leídas de la cabecera IHDR del PNG, para las
+// imágenes que se regeneran (grafo, esquema físico, mosaicos de capturas).
+function figuraPng(ruta, texto) {
+  const datos = fs.readFileSync(ruta);
+  return figura(ruta, datos.readUInt32BE(16), datos.readUInt32BE(20), texto);
+}
+
 function portada({ titulo, subtitulo, numero, normas }) {
   const centro = (texto, opciones = {}) =>
     new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: opciones.despues ?? 80 }, children: [new TextRun({ text: texto, ...opciones.run })] });
@@ -163,4 +170,4 @@ function leerJUnit(ruta) {
 }
 
 module.exports = {
-  leerJUnit, p, h1, h2, h3, vinetas, numerada, tabla, figura, leyenda, salto, documento, escribir, GRIS };
+  leerJUnit, p, h1, h2, h3, vinetas, numerada, tabla, figura, figuraPng, leyenda, salto, documento, escribir, GRIS };

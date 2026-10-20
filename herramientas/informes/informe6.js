@@ -16,13 +16,15 @@ const n = (tipo) => String(porTipo[tipo] ?? 0);
 const conReferencias = asuntos.filter((a) => a.includes('[')).length;
 
 const REVISION_REGISTRADA = process.env.REVISION_REGISTRADA === '1';
+// Fecha y hora UTC de la fusión de la PR #8, si ya ocurrió (p. ej. «2026-10-20 18:00»).
+const FUSION_RECUPERACION = process.env.FUSION_RECUPERACION ?? '';
 
 const contenido = [
   h1('1. Introducción'),
   h2('1.1 Propósito del documento'),
   p('Este informe describe cómo se gestiona la configuración del software de AbasteceNi en su repositorio, conforme al proceso de gestión de la configuración de ISO/IEC/IEEE 12207:2017 (§6.3.5) y al paquete de despliegue de gestión de la configuración de ISO/IEC 29110 para entidades muy pequeñas. Recorre las actividades del proceso: identificación de los elementos de configuración, control de cambios, informe de estado, evaluación y gestión de entregas. Para cada una cita la estructura, las ramas, la integración continua, las convenciones de commits y el historial reales del repositorio `PedroMG2023/abasteceni`.'),
   h2('1.2 Alcance y estado'),
-  p('Abarca el repositorio desde su base documental hasta la fecha de corte: las iteraciones IT-00, IT-01 e IT-02 (tramo A) y la redacción de estos informes. ' + E.resumen),
+  p('Abarca el repositorio desde su base documental hasta la fecha de corte, prorrogada al 20 de octubre: las iteraciones IT-00, IT-01 e IT-02 (tramos A y B, y SYS-FN-08 del tramo C) y la redacción de estos informes. ' + E.resumen),
   h2('1.3 Insumos heredados de la serie'),
   tabla(
     ['Insumo', 'Origen', 'Consecuencia sobre el repositorio'],
@@ -89,18 +91,20 @@ const contenido = [
       ['`it-02/afiliacion`', 'PR #3 (la #4 se cerró como duplicada)', '`main`', E.IT02_INTEGRADA ? 'Fusionada (`6d0f2d3`)' : 'Abierta, actualizada con `main`, CI en verde', 'Menos de un día'],
       ['`it-02/informes`', 'PR #5', '`it-02/afiliacion`, reapuntada a `main` tras fusionarse #3', 'Fusionada (`72c7a93`)', 'Menos de un día'],
       ['`it-02/bloqueo`', 'PR #6', '`it-02/informes`, reapuntada a `main` tras fusionarse #5', E.BLOQUEO_INTEGRADO ? 'Fusionada (`2bd1b3e`)' : 'SYS-FN-07 y mejora del formulario; abierta', 'Menos de un día'],
-      ['`it-02/cierre`', 'PR #7', '`main`', 'Decisiones DIS-26, 27, 32 y 35, y esta versión de los informes', 'Menos de un día'],
+      ['`it-02/cierre`', 'PR #7', '`main`', 'Fusionada (`963854d`): decisiones DIS-26, 27, 32 y 35 e informes regenerados', '2 días y 9 horas'],
+      ['`it-02/recuperacion`', 'PR #8', '`it-02/cierre`; `main` integrada en la rama tras fusionarse #7 (`d878cdc`)', E.RECUPERACION_INTEGRADA ? `Fusionada (\`${process.env.COMMIT_RECUPERACION ?? ''}\`): SYS-FN-05 y 08` : 'Abierta: SYS-FN-05 y 08, CI en verde', E.RECUPERACION_INTEGRADA ? 'Menos de dos días' : 'Abierta desde el 19 de octubre'],
+      ['`it-02/informes-cierre`', 'PR #9', '`it-02/recuperacion`', 'Esta versión de los informes', '—'],
     ],
     [18, 20, 26, 22, 14],
   ),
-  p('Todas las ramas cumplen el plazo de D4 §2.16 (integración en dos días como máximo). Nunca se hizo push directo a `main`: la protección de la rama lo impide, también a los administradores (§2.5).'),
+  p('Todas las ramas cumplen el plazo de D4 §2.16 (integración en dos días como máximo), salvo `it-02/cierre`: lista con la CI en verde el 17 de octubre, esperó a la fusión hasta el 20 de octubre, en total 2 días y 9 horas. Es una desviación del plazo y se registra como tal; no afectó al contenido, que no cambió en la espera. Nunca se hizo push directo a `main`: la protección de la rama lo impide, también a los administradores (§2.5).'),
 
   h2('2.4 Convenciones de commits'),
   p('Los commits siguen el formato convencional en español, con el ámbito entre paréntesis y las referencias a la serie entre corchetes. Por ejemplo: `feat(dominio): puertos transversales y servicios de M1 y M2 [AS-13] [SYS-FN-01] [SYS-FN-04] [ADR-04]`. El cuerpo explica el porqué y cada commit lleva la línea de coautoría.'),
   tabla(
     ['Tipo', 'Commits desde IT-00', 'Uso'],
     [
-      ['`feat`', n('feat'), 'Funcionalidad: contrato, dominio, infraestructura, capa 2, composición, web, SYS-FN-07'],
+      ['`feat`', n('feat'), 'Funcionalidad: contrato, dominio, infraestructura, capa 2, composición, web, SYS-FN-07, 05 y 08'],
       ['`docs`', n('docs'), 'Evidencia de cierre de iteración, discrepancias, informes'],
       ['`test`', n('test'), 'Pruebas de base de datos, de sistema, de accesibilidad, de bloqueo'],
       ['`fix`', n('fix'), 'Correcciones detectadas por la CI y por las mediciones'],
@@ -117,10 +121,10 @@ const contenido = [
     '**Protección de main** (ISO/IEC 27002 8.4 y 8.32): solicitud de integración obligatoria, prohibición de push directo y forzado (también para administradores) y los diez trabajos de la CI como checks obligatorios en modo estricto, es decir, con la rama al día. La activó el titular del repositorio (DIS-11); el trabajo 10, añadido en IT-01, pasó a ser obligatorio el 17 de octubre, tras la integración de la PR #5.',
     '**Revisión cruzada (DM-05):** ' + (REVISION_REGISTRADA
       ? 'consta en las solicitudes de integración con resultado favorable.'
-      : 'las solicitudes #1, #2, #3, #5 y #6 se fusionaron sin una revisión humana registrada en GitHub; solo consta el análisis automático de CodeQL. La segunda persona del equipo todavía no es colaboradora del repositorio, por lo que no puede aprobar en la plataforma. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad del proceso de configuración a la fecha.'),
-    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 35 entradas (DIS-01 a DIS-35), todas resueltas con aprobación del equipo. Las de DIS-32 y DIS-35 modifican MD-01 y quedan pendientes de incorporarse a D5 v1.2. Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
+      : 'las solicitudes #1, #2, #3, #5, #6 y #7 se fusionaron sin una revisión de la segunda persona del equipo registrada en GitHub. Solo constan el análisis automático de CodeQL y, en la #7, un comentario de aprobación escrito desde la cuenta del propio autor, que no es una revisión cruzada. La segunda persona ya es colaboradora del repositorio, de modo que puede revisar la PR #8 y dejar constancia sobre las ya fusionadas. Para cumplir la condición 5 de la Definición de Terminado, la revisión debe quedar registrada en la solicitud o en `docs/evidencia/iteraciones.md`. Es la principal no conformidad con D4 a la fecha de corte.'),
+    '**Discrepancias y reglas faltantes:** `docs/evidencia/discrepancias.md` registra 39 entradas (DIS-01 a DIS-39), todas resueltas con aprobación del equipo; las cuatro últimas, del 19 de octubre, fijan las reglas de SYS-FN-05 y 08, el aplazamiento de SYS-FN-06 y las etiquetas de las pantallas de recuperación. Las de DIS-32 y DIS-35 modifican MD-01 y quedan pendientes de incorporarse a D5 v1.2. Ninguna regla de negocio se fijó sin aprobación del equipo (CLAUDE.md §1).',
     '**Decisiones (PR-11):** el registro contiene ADR-01 a ADR-09. Las elecciones técnicas de la construcción que no alteran la arquitectura (versiones, parámetros del interruptor) se registran en `iteraciones.md`, como prevé ADR-07.',
-    '**Gobierno del cambio de requisitos (DM-09):** no se admitieron cambios al catálogo. Las precisiones aprobadas (DIS-16 a DIS-23, DIS-28 a DIS-31) se acumulan para la próxima versión menor de D2 y D5, como prevé D4 §2.16.',
+    '**Gobierno del cambio de requisitos (DM-09):** no se admitieron cambios al catálogo. Las precisiones aprobadas (DIS-16 a DIS-23, DIS-28 a DIS-31, DIS-36, DIS-37 y DIS-39) se acumulan para la próxima versión menor de D2 y D5, como prevé D4 §2.16.',
   ]),
 
   h2('2.6 Integración continua'),
@@ -165,10 +169,10 @@ const contenido = [
     ['Artefacto', 'Estado a la fecha'],
     [
       ['Matriz AS (`docs/evidencia/matriz-AS.md`)', '17 elementos Evidenciados, 1 en Discrepancia (AS-13, por nombres) y 2 de Diseño (AS-19 y AS-20)'],
-      ['Iteraciones (`docs/evidencia/iteraciones.md`)', 'Entradas de cierre de IT-00, IT-01 e IT-02 con MT-03, cobertura, versiones, CI y pendientes'],
-      ['Discrepancias', '34 entradas: 31 resueltas y 3 abiertas'],
-      ['Reportes de pruebas', 'JUnit y cobertura por iteración; capturas y mediciones de experiencia de usuario de IT-02'],
-      ['Ejecuciones de CI de cierre', 'IT-00: 39020586251 (9/9). IT-01: 39023391840 (10/10). IT-02: 39033238576 (10/10). Informes: 39036501600 (10/10)'],
+      ['Iteraciones (`docs/evidencia/iteraciones.md`)', 'Entradas de cierre de IT-00, IT-01, IT-02 (tramo A), SYS-FN-07 y SYS-FN-05 y 08, con MT-03, cobertura, versiones, CI y pendientes'],
+      ['Discrepancias', '39 entradas, todas resueltas'],
+      ['Reportes de pruebas', 'JUnit y cobertura por iteración y por tramo (`it-02/tramo-b/`, `it-02/tramo-bc/`); capturas y mediciones de experiencia de usuario de IT-02'],
+      ['Ejecuciones de CI de cierre', 'IT-00: 39020586251 (9/9). IT-01: 39023391840 (10/10). IT-02: 39033238576 (10/10). Informes: 39036501600 (10/10). SYS-FN-07: 39042977012 (10/10). SYS-FN-05 y 08: 39339908565 (10/10)'],
     ],
     [36, 64],
   ),
@@ -176,7 +180,7 @@ const contenido = [
   h2('2.9 Seguridad del repositorio'),
   vinetas([
     'Escaneo de secretos con protección de push activado: impide subir credenciales reconocibles.',
-    'CodeQL en cada cambio. La única alerta (#1, alta) fue analizada y descartada con justificación (DIS-33, informe 3).',
+    'CodeQL en cada cambio. Sus dos alertas de gravedad alta se trataron: la #1 se analizó y se descartó con justificación (DIS-33) y la #2, del generador de informes, se corrigió (informe 3). El código de SYS-FN-05 y 08 no añadió alertas.',
     'Scripts de instalación de dependencias de terceros denegados en `package.json` (`allowScripts`): reduce el riesgo de la cadena de suministro.',
     'Secretos de prueba de un solo uso, generados en cada ejecución y enmascarados en los registros de la CI.',
   ]),
@@ -199,10 +203,11 @@ const contenido = [
     ['Elemento', 'Estado'],
     [
       ['Identificación de elementos, ramas de vida corta, commits trazables, CI de diez trabajos, protección de `main`', 'Cumplido'],
-      ['Revisión cruzada registrada (DM-05; DM-04, condición 5)', REVISION_REGISTRADA ? 'Cumplido' : 'Pendiente: no consta en las PR #1 a #6'],
-      ['Segunda persona del equipo como colaboradora en GitHub', 'Pendiente'],
-      ['Trabajo 10 como check obligatorio de `main`', 'Pendiente'],
-      ['Integración de IT-02 (PR #3) y de los informes', E.IT02_INTEGRADA ? 'IT-02 integrada; informes pendientes' : 'Pendiente de revisión'],
+      ['Revisión cruzada registrada (DM-05; DM-04, condición 5)', REVISION_REGISTRADA ? 'Cumplido' : 'Pendiente: no consta en las PR #1 a #8'],
+      ['Segunda persona del equipo como colaboradora en GitHub', 'Cumplido: aceptó la invitación'],
+      ['Los diez trabajos de la CI como checks obligatorios de `main`', 'Cumplido, en modo estricto y también para administradores'],
+      ['Plazo de dos días por rama (D4 §2.16)', 'Cumplido salvo `it-02/cierre` (PR #7): 2 días y 9 horas'],
+      ['Integración de SYS-FN-05 y 08 (PR #8) y de esta versión de los informes (PR #9)', E.RECUPERACION_INTEGRADA ? 'PR #8 integrada; PR #9 pendiente' : 'Pendientes de la revisión cruzada'],
       ['Etiquetas de iteración `it-00`, `it-01` e `it-02`', 'Pendiente: tras la revisión'],
     ],
     [56, 44],
@@ -210,7 +215,7 @@ const contenido = [
 
   h1('3. Conclusiones'),
   p('El repositorio cubre las actividades del proceso de gestión de la configuración de ISO/IEC/IEEE 12207. Sus elementos están identificados y separados de los productos derivados. Los cambios entran por ramas de vida corta y solicitudes de integración, sobre una rama principal protegida, y cada commit es trazable a la serie. El estado de la configuración se informa en artefactos vivos que la propia construcción mantiene.'),
-  p('La integración continua actuó como auditoría de la configuración: detectó un archivo de bloqueo sin confirmar y archivos de código ocultos por un patrón de `.gitignore`, defectos invisibles en la máquina de desarrollo. La no conformidad principal es de proceso y no de herramienta: la revisión cruzada de DM-05 no consta en las solicitudes ya fusionadas. Registrarla y crear las etiquetas de iteración cierra el ciclo de las líneas base.'),
+  p('La integración continua actuó como auditoría de la configuración: detectó un archivo de bloqueo sin confirmar y archivos de código ocultos por un patrón de `.gitignore`, defectos invisibles en la máquina de desarrollo. La no conformidad principal es de proceso y no de herramienta: la revisión cruzada de DM-05 no consta en las solicitudes ya fusionadas. La segunda, también de proceso, es que una rama superó el plazo de dos días mientras esperaba la fusión. Registrarla y crear las etiquetas de iteración cierra el ciclo de las líneas base.'),
 
   h1('4. Referencias normativas y bibliográficas'),
   p('[1] ISO/IEC/IEEE 12207:2017. _Systems and software engineering — Software life cycle processes_, §6.3.5 Configuration management process.'),
@@ -226,8 +231,12 @@ const contenido = [
     [
       ['#1', '`it-00/entorno`', '2026-10-17 09:21', '2026-10-17 09:28', 'Ninguna humana (comentario del bot de CodeQL)'],
       ['#2', '`it-01/linea-base`', '2026-10-17 10:06', '2026-10-17 13:23', 'Ninguna humana (revisión automática de CodeQL)'],
-      ['#3', '`it-02/afiliacion`', '2026-10-17 10:22', E.IT02_INTEGRADA ? 'Fusionada' : 'Abierta', 'Revisión automática de CodeQL'],
-      ['#4', '`it-02/afiliacion`', '2026-10-17 13:05', 'Cerrada sin fusionar (duplicada de #3)', '—'],
+      ['#3', '`it-02/afiliacion`', '2026-10-17 10:22', E.IT02_INTEGRADA ? '2026-10-17 14:48' : 'Abierta', 'Revisión automática de CodeQL'],
+      ['#4', '`it-02/afiliacion`', '2026-10-17 13:05', 'Cerrada sin fusionar (duplicada de #3)', 'Comentario del autor'],
+      ['#5', '`it-02/informes`', '2026-10-17 13:36', '2026-10-17 15:26', 'Revisión automática de CodeQL'],
+      ['#6', '`it-02/bloqueo`', '2026-10-17 14:58', '2026-10-17 16:58', 'Ninguna'],
+      ['#7', '`it-02/cierre`', '2026-10-17 17:01', '2026-10-20 01:57', 'Comentario de aprobación de la cuenta del autor; no es revisión cruzada'],
+      ['#8', '`it-02/recuperacion`', '2026-10-20 02:01', E.RECUPERACION_INTEGRADA ? FUSION_RECUPERACION || 'Fusionada' : 'Abierta', REVISION_REGISTRADA ? 'Revisión de la segunda persona del equipo' : 'Pendiente de la revisión cruzada'],
     ],
     [12, 20, 20, 22, 26],
   ),
