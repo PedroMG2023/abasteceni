@@ -1,5 +1,6 @@
+import { EventEmitter } from 'node:events';
 import type { CallHandler, ExecutionContext } from '@nestjs/common';
-import { lastValueFrom, of } from 'rxjs';
+import { lastValueFrom, of, throwError } from 'rxjs';
 import { mensajeCampo } from '../../../src/aplicacion/transversal/mensajes';
 import { RegistroPeticionesInterceptor } from '../../../src/aplicacion/transversal/registro-peticiones.interceptor';
 import { crearTuberiaValidacion } from '../../../src/aplicacion/transversal/validacion';
@@ -43,25 +44,46 @@ describe('Validación declarativa en la frontera (PA-05)', () => {
 });
 
 describe('Traza de peticiones sin datos personales (V-03)', () => {
-  it('registra método, ruta declarada, estado y duración, y no la URL concreta', async () => {
+  // Respuesta mínima: un emisor con el estado, que el servidor HTTP termina con «finish».
+  const escenario = () => {
     const interceptor = new RegistroPeticionesInterceptor();
     const registros: string[] = [];
     (interceptor as unknown as { registro: { log: (m: string) => void } }).registro = { log: (m) => registros.push(m) };
+    const respuesta = Object.assign(new EventEmitter(), { statusCode: 200 });
     const contexto = (ruta?: string) =>
       ({
         switchToHttp: () => ({
           getRequest: () => ({ method: 'GET', url: '/api/v1/cuentas?ruc=J0310000000001', route: ruta ? { path: ruta } : undefined }),
-          getResponse: () => ({ statusCode: 200 }),
+          getResponse: () => respuesta,
         }),
       }) as unknown as ExecutionContext;
+    return { interceptor, registros, respuesta, contexto };
+  };
+
+  it('registra método, ruta declarada, estado y duración, y no la URL concreta', async () => {
+    const { interceptor, registros, respuesta, contexto } = escenario();
     const siguiente: CallHandler = { handle: () => of('cuerpo') };
 
     await lastValueFrom(interceptor.intercept(contexto('/api/v1/cuentas'), siguiente));
+    respuesta.emit('finish');
     await lastValueFrom(interceptor.intercept(contexto(), siguiente));
+    respuesta.emit('finish');
 
     expect(registros[0]).toMatch(/^GET \/api\/v1\/cuentas 200 \d+ ms$/);
     expect(registros[1]).toMatch(/^GET desconocida 200/);
     expect(registros.join()).not.toContain('J0310000000001');
+  });
+
+  it('en una petición fallida registra el estado que fija el filtro de errores, no el previo', async () => {
+    const { interceptor, registros, respuesta, contexto } = escenario();
+    const siguiente: CallHandler = { handle: () => throwError(() => new Error('enlace vencido')) };
+
+    await expect(lastValueFrom(interceptor.intercept(contexto('/api/v1/sesiones/recuperacion/restablecimiento'), siguiente))).rejects.toThrow();
+    expect(registros).toEqual([]);
+    respuesta.statusCode = 410;
+    respuesta.emit('finish');
+
+    expect(registros).toEqual([expect.stringMatching(/^GET \/api\/v1\/sesiones\/recuperacion\/restablecimiento 410 \d+ ms$/)]);
   });
 });
 
